@@ -51,7 +51,7 @@ namespace LibraryManagement.Persistence.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
 
                     b.HasData(
                         new
@@ -482,7 +482,7 @@ namespace LibraryManagement.Persistence.Migrations
 
                     b.HasIndex("RequestorId");
 
-                    b.ToTable("BookBorrowingRequests");
+                    b.ToTable("BookBorrowingRequests", (string)null);
 
                     b.HasData(
                         new
@@ -668,7 +668,7 @@ namespace LibraryManagement.Persistence.Migrations
                     b.HasIndex("RequestId", "BookId")
                         .IsUnique();
 
-                    b.ToTable("BookBorrowingRequestDetails");
+                    b.ToTable("BookBorrowingRequestDetails", (string)null);
 
                     b.HasData(
                         new
@@ -1108,7 +1108,7 @@ namespace LibraryManagement.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
 
                     b.HasData(
                         new

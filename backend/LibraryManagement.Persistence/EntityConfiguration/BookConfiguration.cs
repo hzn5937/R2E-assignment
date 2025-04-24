@@ -30,7 +30,7 @@ namespace LibraryManagement.Persistence.EntityConfiguration
             entity.HasMany(b => b.BorrowingRequestDetails)
                   .WithOne(d => d.Book)
                   .HasForeignKey(d => d.BookId)
-                  .OnDelete(DeleteBehavior.);
+                  .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

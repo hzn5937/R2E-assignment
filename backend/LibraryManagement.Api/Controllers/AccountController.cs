@@ -1,4 +1,5 @@
-﻿using LibraryManagement.Domain.Entities;
+﻿using LibraryManagement.Application.DTOs.Account;
+using LibraryManagement.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,20 +18,44 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
         {
-            var user = new User
+            try
             {
-                UserName = request.Username,
-                Email = request.Email,
-                Role = request.Role
-            };
-            var result = await _userManager.CreateAsync(user, request.Password);
-            if (result.Succeeded)
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var user = new User
+                {
+                    UserName = registerRequestDto.Username,
+                    Email = registerRequestDto.Email,
+                };
+
+                var createdUser = await _userManager.CreateAsync(user, registerRequestDto.Password);
+
+                if (createdUser.Succeeded)
+                {
+                    var roleResult = await _userManager.AddToRoleAsync(user, "User");
+                    if (roleResult.Succeeded)
+                    {
+                        return Ok("User created");
+                    }
+                    else
+                    {
+                        return StatusCode(500, roleResult.Errors);
+                    }
+                }
+                else
+                {
+                    return StatusCode(500, createdUser.Errors);
+                }
+            } 
+            catch (Exception ex)
             {
-                return Ok(new { Message = "User registered successfully." });
+                return StatusCode(500, ex);
             }
-            return BadRequest(result.Errors);
         }
     }
 }

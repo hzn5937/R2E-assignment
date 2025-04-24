@@ -25,13 +25,21 @@ namespace LibraryManagement.Persistence.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            List<IdentityRole> roles = new List<IdentityRole>
+            {
+                new IdentityRole { Name = "Admin", NormalizedName = "ADMIN" },
+                new IdentityRole { Name = "User", NormalizedName = "USER" }
+            };
+
+            modelBuilder.Entity<IdentityRole>().HasData(roles);
+
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
             modelBuilder.ApplyConfiguration(new BookConfiguration());
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new BookBorrowingRequestConfiguration());
             modelBuilder.ApplyConfiguration(new BookBorrowingRequestDetailConfiguration());
 
-            ModelBuilderSeeder.Seed(modelBuilder);
+            //ModelBuilderSeeder.Seed(modelBuilder);
         }
     }
 }
