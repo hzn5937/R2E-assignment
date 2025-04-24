@@ -1,34 +1,28 @@
 import React from 'react';
 import { Menu } from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import {
+  UserOutlined,
+  VideoCameraOutlined,
+  UploadOutlined,
+} from '@ant-design/icons';
 
-const NavBar = () => {
-  const navigate = useNavigate();
+const SiderMenu = () => {
   const location = useLocation();
 
-    const menuItems = [
-        {
-            label: 'Home',
-            key: '/',
-        },
-        {
-            label: 'Post',
-            key: '/post',
-        },
-    ];
-
   return (
-        <div className='flex items-center px-4 py-2 shadow-md bg-white'>
-            <div className="text-xl font-bold mr-8 text-blue-600"> My App</div>
-
-            <Menu
-                mode="horizontal"
-                selectedKeys={[location.pathname]}
-                onClick={({ key }) => navigate(key)}
-                items={menuItems}
-            />
-        </div>
-    );
+    <>
+      <div className="h-8 m-4 bg-white/30 rounded" />
+      <Menu theme="dark" mode="inline" selectedKeys={[location.pathname]}>
+        <Menu.Item key="/" icon={<UserOutlined />}>
+          <Link to="/">Home</Link>
+        </Menu.Item>
+        <Menu.Item key="/borrowing" icon={<VideoCameraOutlined />}>
+          <Link to="/borrowing">My Borrowing</Link>
+        </Menu.Item>
+      </Menu>
+    </>
+  );
 };
 
-export default NavBar;
+export default SiderMenu;

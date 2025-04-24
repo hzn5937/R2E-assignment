@@ -6,7 +6,7 @@ import Post from './pages/post';
 const Routing = () => (
   <Routes>
     <Route path="/" element={<Home />} />
-    <Route path="/post" element={<Post />} />
+    <Route path="/borrowing" element={<Post />} />
   </Routes>
 );
 
