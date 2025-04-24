@@ -1,30 +1,87 @@
-import React from 'react';
-import { Button, Card } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Table, Alert, Checkbox, Button } from 'antd';
 
 const Home = () => {
-  const navigate = useNavigate();
-  const totalEmployees = 42;
+  const [books, setBooks] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [showLimitWarning, setShowLimitWarning] = useState(false);
+
+  useEffect(() => {
+    axios.get('http://localhost:3000/books')
+      .then(res => {console.log(res.data); setBooks(res.data)})
+      .catch(err => console.error('Failed to fetch books:', err));
+  }, []);
+
+  const handleCheckboxChange = (record, checked) => {
+    if (checked && selectedRowKeys.length >= 5) {
+      setShowLimitWarning(true);
+      return;
+    }
+
+    setShowLimitWarning(false);
+
+    const newKeys = checked
+      ? [...selectedRowKeys, record.id]
+      : selectedRowKeys.filter(key => key !== record.id);
+
+    setSelectedRowKeys(newKeys);
+  };
+
+  const columns = [
+    {
+      title: '',
+      dataIndex: 'checkbox',
+      key: 'checkbox',
+      render: (_, record) => (
+        <Checkbox
+          checked={selectedRowKeys.includes(record.id)}
+          onChange={(e) => handleCheckboxChange(record, e.target.checked)}
+          disabled={record.available === 0}
+        />
+      ),
+    },
+    { title: 'Title', dataIndex: 'title', key: 'title' },
+    { title: 'Author', dataIndex: 'author', key: 'author' },
+    { title: 'Category', dataIndex: 'category', key: 'category' },
+    {
+      title: 'Available',
+      dataIndex: 'available',
+      key: 'available',
+      render: available => available > 0 ? available : 'Not Available',
+    },
+  ];
 
   return (
-    <div className="flex flex-col items-center justify-center h-full mt-20 space-y-6">
-        <h1 className="text-4xl font-bold text-blue-700">🏢 Employee Management System</h1>
+    <div className="p-6">
+        <h1 className="text-2xl font-bold mb-4">📚 Book Inventory</h1>
 
-        <Card className="shadow-lg w-80 text-center">
-            <p className="text-xl font-medium text-gray-700">Total Employees</p>
-            <p className="text-3xl font-bold text-green-600 mt-2">{totalEmployees}</p>
-        </Card>
-        
-        <div className='mt-5'>
-            <Button
-                type="primary"
-                size="large"
-                onClick={() => navigate('/post')}
-            >
-                Manage Employees
-            </Button>
-        </div>
+        {showLimitWarning && (
+            <Alert
+            message="You can only select up to 5 books."
+            type="warning"
+            showIcon
+            className="mb-4"
+            />
+        )}
 
+
+        <Table
+            className="mb-4"
+            dataSource={books}
+            columns={columns}
+            rowKey="id"
+            pagination={false}
+            bordered
+        />
+
+        <Button
+            type="primary"
+            disabled={selectedRowKeys.length === 0}
+            onClick={() => console.log('Borrowing:', selectedRowKeys)}
+        >
+            Borrow selected books ({selectedRowKeys.length} / 5)
+        </Button>
     </div>
   );
 };
