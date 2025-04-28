@@ -1,144 +1,164 @@
 {
-    "books": [
-      {
-        "id": 1,
-        "title": "The Great Gatsby",
-        "author": "F. Scott Fitzgerald",
-        "category": "Classic",
-        "available": 3
-      },
-      {
-        "id": 2,
-        "title": "To Kill a Mockingbird",
-        "author": "Harper Lee",
-        "category": "Classic",
-        "available": 3
-      },
-      {
-        "id": 3,
-        "title": "1984",
-        "author": "George Orwell",
-        "category": "Dystopian",
-        "available": 0
-      },
-      {
-        "id": 4,
-        "title": "Pride and Prejudice",
-        "author": "Jane Austen",
-        "category": "Romance",
-        "available": 3
-      },
-      {
-        "id": 5,
-        "title": "The Catcher in the Rye",
-        "author": "J.D. Salinger",
-        "category": "Classic",
-        "available": 0
-      },
-      {
-        "id": 6,
-        "title": "The Hobbit",
-        "author": "J.R.R. Tolkien",
-        "category": "Fantasy",
-        "available": 3
-      },
-      {
-        "id": 7,
-        "title": "Fahrenheit 451",
-        "author": "Ray Bradbury",
-        "category": "Dystopian",
-        "available": 0
-      },
-      {
-        "id": 8,
-        "title": "Jane Eyre",
-        "author": "Charlotte Brontë",
-        "category": "Romance",
-        "available": 0
-      },
-      {
-        "id": 9,
-        "title": "Brave New World",
-        "author": "Aldous Huxley",
-        "category": "Dystopian",
-        "available": 3
-      },
-      {
-        "id": 10,
-        "title": "The Lord of the Rings",
-        "author": "J.R.R. Tolkien",
-        "category": "Fantasy",
-        "available": 0
-      },
-      {
-        "id": 11,
-        "title": "Animal Farm",
-        "author": "George Orwell",
-        "category": "Political Satire",
-        "available": 3
-      },
-      {
-        "id": 12,
-        "title": "Wuthering Heights",
-        "author": "Emily Brontë",
-        "category": "Romance",
-        "available": 0
-      },
-      {
-        "id": 13,
-        "title": "The Odyssey",
-        "author": "Homer",
-        "category": "Epic",
-        "available": 0
-      },
-      {
-        "id": 14,
-        "title": "Moby-Dick",
-        "author": "Herman Melville",
-        "category": "Adventure",
-        "available": 3
-      },
-      {
-        "id": 15,
-        "title": "War and Peace",
-        "author": "Leo Tolstoy",
-        "category": "Historical",
-        "available": 0
-      },
-      {
-        "id": 16,
-        "title": "Crime and Punishment",
-        "author": "Fyodor Dostoevsky",
-        "category": "Psychological",
-        "available": 3
-      },
-      {
-        "id": 17,
-        "title": "The Brothers Karamazov",
-        "author": "Fyodor Dostoevsky",
-        "category": "Philosophical",
-        "available": 0
-      },
-      {
-        "id": 18,
-        "title": "Great Expectations",
-        "author": "Charles Dickens",
-        "category": "Classic",
-        "available": 0
-      },
-      {
-        "id": 19,
-        "title": "Little Women",
-        "author": "Louisa May Alcott",
-        "category": "Classic",
-        "available": 3
-      },
-      {
-        "id": 20,
-        "title": "The Picture of Dorian Gray",
-        "author": "Oscar Wilde",
-        "category": "Philosophical",
-        "available": 0
-      }
-    ]
+  "books": [
+    {
+      "id": 1,
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "category": "Classic",
+      "available": 3
+    },
+    {
+      "id": 2,
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "category": "Classic",
+      "available": 3
+    },
+    {
+      "id": 3,
+      "title": "1984",
+      "author": "George Orwell",
+      "category": "Dystopian",
+      "available": 0
+    },
+    {
+      "id": 4,
+      "title": "Pride and Prejudice",
+      "author": "Jane Austen",
+      "category": "Romance",
+      "available": 3
+    },
+    {
+      "id": 5,
+      "title": "The Catcher in the Rye",
+      "author": "J.D. Salinger",
+      "category": "Classic",
+      "available": 0
+    },
+    {
+      "id": 6,
+      "title": "The Hobbit",
+      "author": "J.R.R. Tolkien",
+      "category": "Fantasy",
+      "available": 3
+    },
+    {
+      "id": 7,
+      "title": "Fahrenheit 451",
+      "author": "Ray Bradbury",
+      "category": "Dystopian",
+      "available": 0
+    },
+    {
+      "id": 8,
+      "title": "Jane Eyre",
+      "author": "Charlotte Brontë",
+      "category": "Romance",
+      "available": 0
+    },
+    {
+      "id": 9,
+      "title": "Brave New World",
+      "author": "Aldous Huxley",
+      "category": "Dystopian",
+      "available": 3
+    },
+    {
+      "id": 10,
+      "title": "The Lord of the Rings",
+      "author": "J.R.R. Tolkien",
+      "category": "Fantasy",
+      "available": 0
+    },
+    {
+      "id": 11,
+      "title": "Animal Farm",
+      "author": "George Orwell",
+      "category": "Political Satire",
+      "available": 3
+    },
+    {
+      "id": 12,
+      "title": "Wuthering Heights",
+      "author": "Emily Brontë",
+      "category": "Romance",
+      "available": 0
+    },
+    {
+      "id": 13,
+      "title": "The Odyssey",
+      "author": "Homer",
+      "category": "Epic",
+      "available": 0
+    },
+    {
+      "id": 14,
+      "title": "Moby-Dick",
+      "author": "Herman Melville",
+      "category": "Adventure",
+      "available": 3
+    },
+    {
+      "id": 15,
+      "title": "War and Peace",
+      "author": "Leo Tolstoy",
+      "category": "Historical",
+      "available": 0
+    },
+    {
+      "id": 16,
+      "title": "Crime and Punishment",
+      "author": "Fyodor Dostoevsky",
+      "category": "Psychological",
+      "available": 3
+    },
+    {
+      "id": 17,
+      "title": "The Brothers Karamazov",
+      "author": "Fyodor Dostoevsky",
+      "category": "Philosophical",
+      "available": 0
+    },
+    {
+      "id": 18,
+      "title": "Great Expectations",
+      "author": "Charles Dickens",
+      "category": "Classic",
+      "available": 0
+    },
+    {
+      "id": 19,
+      "title": "Little Women",
+      "author": "Louisa May Alcott",
+      "category": "Classic",
+      "available": 3
+    },
+    {
+      "id": 20,
+      "title": "The Picture of Dorian Gray",
+      "author": "Oscar Wilde",
+      "category": "Philosophical",
+      "available": 0
+    }
+  ],
+  "requests": [
+    {
+      "id": 1,
+      "date_requested": "2025-04-22",
+      "status": "pending",
+      "approver": null
+    },
+    {
+      "id": 2,
+      "date_requested": "2025-04-21",
+      "status": "approved",
+      "approver": "Alice Johnson"
+    },
+    {
+      "id": 3,
+      "date_requested": "2025-04-20",
+      "status": "rejected",
+      "approver": "Bob Smith"
+    }
+  ]
 }
