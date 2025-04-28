@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Table, Alert, Checkbox, Button } from 'antd';
+import { Table, Alert, Checkbox, Button, Tag } from 'antd';
 
 const Home = () => {
   const [books, setBooks] = useState([]);
@@ -43,18 +43,33 @@ const Home = () => {
     },
     { title: 'Title', dataIndex: 'title', key: 'title' },
     { title: 'Author', dataIndex: 'author', key: 'author' },
-    { title: 'Category', dataIndex: 'category', key: 'category' },
+    { 
+      title: 'Category', 
+      dataIndex: 'category', 
+      key: 'category',
+      render: category => <Tag color="blue">{category}</Tag>, 
+    },
     {
       title: 'Available',
       dataIndex: 'available',
       key: 'available',
-      render: available => available > 0 ? available : 'Not Available',
+      render: available => available > 0 ? <Tag color='green'>{available} remaining</Tag> : <Tag color='red'>Not Available</Tag>,
     },
   ];
 
   return (
     <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">📚 Book Inventory</h1>
+
+        
+        {!books.length > 0 && (
+          <Alert 
+            message="No books available."
+            type="info"
+            showIcon
+            className="mb-4"
+          />
+        )}
 
         {showLimitWarning && (
             <Alert
@@ -65,23 +80,22 @@ const Home = () => {
             />
         )}
 
-
-        <Table
+        {books.length > 0 && (<Table
             className="mb-4"
             dataSource={books}
             columns={columns}
             rowKey="id"
             pagination={false}
             bordered
-        />
+        />)}
 
-        <Button
+        {books.length > 0 && (<Button
             type="primary"
             disabled={selectedRowKeys.length === 0}
             onClick={() => console.log('Borrowing:', selectedRowKeys)}
         >
             Borrow selected books ({selectedRowKeys.length} / 5)
-        </Button>
+        </Button>)}
     </div>
   );
 };
