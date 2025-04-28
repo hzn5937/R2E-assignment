@@ -1,10 +1,7 @@
-﻿using LibraryManagement.Application;
-using LibraryManagement.Application.Interfaces;
+﻿using LibraryManagement.Application.Interfaces;
 using LibraryManagement.Application.Services;
 using LibraryManagement.Domain.Interfaces;
 using LibraryManagement.Persistence.Repositories;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagement.Api.Extensions
 {
@@ -19,6 +16,7 @@ namespace LibraryManagement.Api.Extensions
             services.AddScoped<IBookRepository, BookRepository>();
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ICategoryService, CategoryService>();
 
             return services;
         }

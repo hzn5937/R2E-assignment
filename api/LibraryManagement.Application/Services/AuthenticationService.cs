@@ -25,9 +25,9 @@ namespace LibraryManagement.Application.Services
             _userRepository = userRepository;
         }
 
-        public async Task<LoginOutputDto?> RegisterAsync(RegisterRequestDto registerRequest, CancellationToken ct = default)
+        public async Task<LoginOutputDto?> RegisterAsync(RegisterRequestDto registerRequestDto, CancellationToken ct = default)
         {
-            var existing = await _userRepository.GetByUsernameAsync(registerRequest.Username, ct);
+            var existing = await _userRepository.GetByUsernameAsync(registerRequestDto.Username, ct);
 
             if (existing is not null)
             {
@@ -36,12 +36,12 @@ namespace LibraryManagement.Application.Services
 
             var user = new User
             {
-                Username = registerRequest.Username,
-                Email = registerRequest.Email,
-                Role = registerRequest.Role
+                Username = registerRequestDto.Username,
+                Email = registerRequestDto.Email,
+                Role = registerRequestDto.Role
             };
 
-            user.PasswordHash = _hasher.HashPassword(user, registerRequest.Password);
+            user.PasswordHash = _hasher.HashPassword(user, registerRequestDto.Password);
 
             string refreshToken = GenerateRefreshToken();
             DateTime refreshTokenExpiry = DateTime.UtcNow.AddDays(1);
@@ -74,7 +74,7 @@ namespace LibraryManagement.Application.Services
 
             bool verified = _hasher.VerifyHashedPassword(user, user.PasswordHash, loginDto.Password) == PasswordVerificationResult.Success;
 
-            if (verified == false)
+            if (!verified)
             {
                 return null;
             }
@@ -101,9 +101,9 @@ namespace LibraryManagement.Application.Services
             return output;
         }
 
-        public async Task<LoginOutputDto?> RefreshAsync(RefreshRequestDto refreshRequest, CancellationToken ct = default)
+        public async Task<LoginOutputDto?> RefreshAsync(RefreshRequestDto refreshRequestDto, CancellationToken ct = default)
         {
-            var principal = GetTokenPrincipal(refreshRequest.AccessToken);
+            var principal = GetTokenPrincipal(refreshRequestDto.AccessToken);
 
             // The token is invalid or missing identity information
             if (principal?.Identity?.Name is null)
@@ -116,7 +116,7 @@ namespace LibraryManagement.Application.Services
             var user = await _userRepository.GetByUsernameAsync(principal.Identity.Name, ct);
 
             // if user still exist in the db, and refresh token validation
-            if (user == null || user.RefreshToken != refreshRequest.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            if (user == null || user.RefreshToken != refreshRequestDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
             {
                 return null;
             }
@@ -182,7 +182,7 @@ namespace LibraryManagement.Application.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string GenerateRefreshToken()
+        public static string GenerateRefreshToken()
         {
             var randomNumber = new byte[64];
 

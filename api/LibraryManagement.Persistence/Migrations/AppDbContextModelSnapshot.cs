@@ -537,6 +537,61 @@ namespace LibraryManagement.Persistence.Migrations
                     b.HasIndex("RequestorId");
 
                     b.ToTable("BookBorrowingRequests", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ApproverId = 1,
+                            DateRequested = new DateTime(2025, 4, 18, 17, 13, 56, 364, DateTimeKind.Utc).AddTicks(3762),
+                            RequestorId = 4,
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            DateRequested = new DateTime(2025, 4, 23, 17, 13, 56, 364, DateTimeKind.Utc).AddTicks(3779),
+                            RequestorId = 5,
+                            Status = 0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ApproverId = 2,
+                            DateRequested = new DateTime(2025, 4, 26, 17, 13, 56, 364, DateTimeKind.Utc).AddTicks(3781),
+                            RequestorId = 6,
+                            Status = 2
+                        },
+                        new
+                        {
+                            Id = 4,
+                            DateRequested = new DateTime(2025, 4, 27, 17, 13, 56, 364, DateTimeKind.Utc).AddTicks(3782),
+                            RequestorId = 4,
+                            Status = 0
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ApproverId = 1,
+                            DateRequested = new DateTime(2025, 4, 13, 17, 13, 56, 364, DateTimeKind.Utc).AddTicks(3783),
+                            RequestorId = 7,
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = 6,
+                            ApproverId = 3,
+                            DateRequested = new DateTime(2025, 4, 20, 17, 13, 56, 364, DateTimeKind.Utc).AddTicks(3785),
+                            RequestorId = 8,
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = 7,
+                            DateRequested = new DateTime(2025, 4, 25, 17, 13, 56, 364, DateTimeKind.Utc).AddTicks(3786),
+                            RequestorId = 9,
+                            Status = 0
+                        });
                 });
 
             modelBuilder.Entity("LibraryManagement.Domain.Entities.BookBorrowingRequestDetail", b =>
@@ -561,6 +616,128 @@ namespace LibraryManagement.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("BookBorrowingRequestDetails", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BookId = 1,
+                            RequestId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            BookId = 7,
+                            RequestId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            BookId = 12,
+                            RequestId = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            BookId = 2,
+                            RequestId = 2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            BookId = 13,
+                            RequestId = 2
+                        },
+                        new
+                        {
+                            Id = 6,
+                            BookId = 22,
+                            RequestId = 2
+                        },
+                        new
+                        {
+                            Id = 7,
+                            BookId = 33,
+                            RequestId = 2
+                        },
+                        new
+                        {
+                            Id = 8,
+                            BookId = 47,
+                            RequestId = 2
+                        },
+                        new
+                        {
+                            Id = 9,
+                            BookId = 6,
+                            RequestId = 3
+                        },
+                        new
+                        {
+                            Id = 10,
+                            BookId = 18,
+                            RequestId = 3
+                        },
+                        new
+                        {
+                            Id = 11,
+                            BookId = 4,
+                            RequestId = 4
+                        },
+                        new
+                        {
+                            Id = 12,
+                            BookId = 14,
+                            RequestId = 4
+                        },
+                        new
+                        {
+                            Id = 13,
+                            BookId = 26,
+                            RequestId = 4
+                        },
+                        new
+                        {
+                            Id = 14,
+                            BookId = 40,
+                            RequestId = 4
+                        },
+                        new
+                        {
+                            Id = 15,
+                            BookId = 50,
+                            RequestId = 5
+                        },
+                        new
+                        {
+                            Id = 16,
+                            BookId = 17,
+                            RequestId = 6
+                        },
+                        new
+                        {
+                            Id = 17,
+                            BookId = 23,
+                            RequestId = 6
+                        },
+                        new
+                        {
+                            Id = 18,
+                            BookId = 3,
+                            RequestId = 7
+                        },
+                        new
+                        {
+                            Id = 19,
+                            BookId = 10,
+                            RequestId = 7
+                        },
+                        new
+                        {
+                            Id = 20,
+                            BookId = 43,
+                            RequestId = 7
+                        });
                 });
 
             modelBuilder.Entity("LibraryManagement.Domain.Entities.Category", b =>
@@ -656,6 +833,88 @@ namespace LibraryManagement.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Users", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "admin1@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEN9pYo6vrGM8gDZaA+BK98PgJomHmmutwho951ecHDJ9f7JPVbxsdapaWizjNGYOQA==",
+                            Role = "Admin",
+                            Username = "admin1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "admin2@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDiiExYoRpUNrLQC9hfBXYf7GYaXXSiNw/zCjJKNW3t3QmkMJaWBrEl5UEqNLSUAcg==",
+                            Role = "Admin",
+                            Username = "admin2"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Email = "admin3@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEM2sQFvgNJwPurcN9rJAAIItcN8lJfgiJ1JEMJyxHXXKIM4KArJrmOY2vTLVX4wxMg==",
+                            Role = "Admin",
+                            Username = "admin3"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Email = "user1@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAELc15B8yNZziQtpb180m37aU46K9QshAIwk1XywUFBkjjiTvw/ECcSz1/NGbjzkHTw==",
+                            Role = "User",
+                            Username = "user2"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Email = "user2@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJoqgKPKmbewuvsAL3j9Yx3fVp2H5mdom7OWY7c/2wDx5pw+48TVoWWUIBr9FaLbzg==",
+                            Role = "User",
+                            Username = "user3"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Email = "user3@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHGmcg9qkALlm/0vEXXqdSkfcCSfbwRQyI1sEX2uk2ezK1+BIqAhKms9BwdAkJ+JrA==",
+                            Role = "User",
+                            Username = "user4"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Email = "user4@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEA5d1mOrnvALWYChdsDqnUN2rwrfFcUadIcXjhKbl/tuPmW+T4EUiGFztyfYmUsxow==",
+                            Role = "User",
+                            Username = "user5"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Email = "user5@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEO1NN9TXygVhAIa8lOOthBE1ukf/qKZ54gNMjNQ1q3ZxPKtMvsQgvAyvYj9HS8ZEcg==",
+                            Role = "User",
+                            Username = "user6"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Email = "user6@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEL+H8kJtVImUBvT22MleiKaGxK6SjqAF1L4zAu8hmHy0UyvwsZ487TJEPPLgKQsvEg==",
+                            Role = "User",
+                            Username = "user7"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Email = "user7@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEC1JfKEsR9bX3T5922Kqo7DAdHa4XvZKsrD5falnDkBDCMe0lJyKSXn2hCzTrUmeYA==",
+                            Role = "User",
+                            Username = "user8"
+                        });
                 });
 
             modelBuilder.Entity("LibraryManagement.Domain.Entities.Book", b =>

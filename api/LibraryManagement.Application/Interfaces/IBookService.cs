@@ -9,10 +9,10 @@ namespace LibraryManagement.Application.Interfaces
 {
     public interface IBookService
     {
-        Task<PaginatedBookOutputDto> GetAllAsync(int pageNum, int pageSize);
+        Task<PaginatedBookOutputDto> GetAllAsync(int pageNum=1, int pageSize=5);
         Task<BookDetailDto?> GetByIdAsync(int id);
-        Task<BookDetailDto> CreateAsync(CreateBookDto dto);
-        Task<BookDetailDto?> UpdateAsync(int id, UpdateBookDto dto);
+        Task<BookDetailDto> CreateAsync(CreateBookDto createBookDto);
+        Task<BookDetailDto?> UpdateAsync(int id, UpdateBookDto updateBookDto);
         Task<bool> DeleteAsync(int id);
     }
 }

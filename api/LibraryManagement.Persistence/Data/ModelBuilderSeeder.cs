@@ -1,4 +1,6 @@
 ﻿using LibraryManagement.Domain.Entities;
+using LibraryManagement.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -73,6 +75,82 @@ namespace LibraryManagement.Persistence.Data
                 new Book { Id = 49, Title = "The Innovators: How a Group of Hackers, Geniuses, and Geeks Created the Digital Revolution", Author = "Walter Isaacson", CategoryId = 6, TotalQuantity = 11, AvailableQuantity = 10 },
                 new Book { Id = 50, Title = "Cracking the Coding Interview", Author = "Gayle Laakmann McDowell", CategoryId = null, TotalQuantity = 20, AvailableQuantity = 15 }
             );
+
+            var hasher = new PasswordHasher<User>();
+            var users = new List<User>
+            {
+                // Admins (Id 1-3)
+                new User { Id = 1, Username = "admin1", Role = UserRole.Admin, Email = "admin1@example.com" },
+                new User { Id = 2, Username = "admin2", Role = UserRole.Admin, Email = "admin2@example.com" },
+                new User { Id = 3, Username = "admin3", Role = UserRole.Admin, Email = "admin3@example.com" },
+                // Users (Id 4-10)
+                new User { Id = 5, Username = "user2", Role = UserRole.User, Email = "user1@example.com" },
+                new User { Id = 6, Username = "user3", Role = UserRole.User, Email = "user2@example.com" },
+                new User { Id = 7, Username = "user4", Role = UserRole.User, Email = "user3@example.com" },
+                new User { Id = 8, Username = "user5", Role = UserRole.User, Email = "user4@example.com" },
+                new User { Id = 9, Username = "user6", Role = UserRole.User, Email = "user5@example.com" },
+                new User { Id = 10, Username = "user7", Role = UserRole.User, Email = "user6@example.com" },
+                new User { Id = 11, Username = "user8", Role = UserRole.User, Email = "user7@example.com" }
+            };
+
+            // Hash passwords (using a common password "password123" for seeding)
+            foreach (var user in users)
+            {
+                user.PasswordHash = hasher.HashPassword(user, "password123");
+            }
+
+            modelBuilder.Entity<User>().HasData(users);
+
+            var requests = new List<BookBorrowingRequest>
+            {
+                new BookBorrowingRequest { Id = 1, RequestorId = 4, ApproverId = 1, DateRequested = DateTime.UtcNow.AddDays(-10), Status = RequestStatus.Approved },
+                new BookBorrowingRequest { Id = 2, RequestorId = 5, ApproverId = null, DateRequested = DateTime.UtcNow.AddDays(-5), Status = RequestStatus.Waiting },
+                new BookBorrowingRequest { Id = 3, RequestorId = 6, ApproverId = 2, DateRequested = DateTime.UtcNow.AddDays(-2), Status = RequestStatus.Rejected },
+                new BookBorrowingRequest { Id = 4, RequestorId = 4, ApproverId = null, DateRequested = DateTime.UtcNow.AddDays(-1), Status = RequestStatus.Waiting },
+                new BookBorrowingRequest { Id = 5, RequestorId = 7, ApproverId = 1, DateRequested = DateTime.UtcNow.AddDays(-15), Status = RequestStatus.Approved },
+                new BookBorrowingRequest { Id = 6, RequestorId = 8, ApproverId = 3, DateRequested = DateTime.UtcNow.AddDays(-8), Status = RequestStatus.Approved },
+                new BookBorrowingRequest { Id = 7, RequestorId = 9, ApproverId = null, DateRequested = DateTime.UtcNow.AddDays(-3), Status = RequestStatus.Waiting },
+            };
+            modelBuilder.Entity<BookBorrowingRequest>().HasData(requests);
+
+            // --- Borrowing Request Detail Seed Data ---
+            var requestDetails = new List<BookBorrowingRequestDetail>
+            {
+                // Request 1 (Approved, User 4, Admin 1) - 3 books
+                new BookBorrowingRequestDetail { Id = 1, RequestId = 1, BookId = 1 }, // To Kill a Mockingbird
+                new BookBorrowingRequestDetail { Id = 2, RequestId = 1, BookId = 7 }, // A Brief History of Time
+                new BookBorrowingRequestDetail { Id = 3, RequestId = 1, BookId = 12 }, // The Hobbit
+
+                // Request 2 (Waiting, User 5) - 5 books
+                new BookBorrowingRequestDetail { Id = 4, RequestId = 2, BookId = 2 },  // 1984
+                new BookBorrowingRequestDetail { Id = 5, RequestId = 2, BookId = 13 }, // Harry Potter
+                new BookBorrowingRequestDetail { Id = 6, RequestId = 2, BookId = 22 }, // Clean Code
+                new BookBorrowingRequestDetail { Id = 7, RequestId = 2, BookId = 33 }, // Origin of Species
+                new BookBorrowingRequestDetail { Id = 8, RequestId = 2, BookId = 47 }, // Alexander Hamilton
+
+                // Request 3 (Rejected, User 6, Admin 2) - 2 books
+                new BookBorrowingRequestDetail { Id = 9, RequestId = 3, BookId = 6 }, // Sapiens
+                new BookBorrowingRequestDetail { Id = 10, RequestId = 3, BookId = 18 }, // Becoming
+
+                // Request 4 (Waiting, User 4) - 4 books
+                new BookBorrowingRequestDetail { Id = 11, RequestId = 4, BookId = 4 }, // Pride and Prejudice
+                new BookBorrowingRequestDetail { Id = 12, RequestId = 4, BookId = 14 }, // A Game of Thrones
+                new BookBorrowingRequestDetail { Id = 13, RequestId = 4, BookId = 26 }, // Introduction to Algorithms
+                new BookBorrowingRequestDetail { Id = 14, RequestId = 4, BookId = 40 }, // SPQR
+
+                // Request 5 (Approved, User 7, Admin 1) - 1 book
+                new BookBorrowingRequestDetail { Id = 15, RequestId = 5, BookId = 50 }, // Cracking the Coding Interview
+
+                // Request 6 (Approved, User 8, Admin 3) - 2 books
+                new BookBorrowingRequestDetail { Id = 16, RequestId = 6, BookId = 17 }, // Steve Jobs
+                new BookBorrowingRequestDetail { Id = 17, RequestId = 6, BookId = 23 }, // The Pragmatic Programmer
+
+                 // Request 7 (Waiting, User 9) - 3 books
+                new BookBorrowingRequestDetail { Id = 18, RequestId = 7, BookId = 3 }, // The Great Gatsby
+                new BookBorrowingRequestDetail { Id = 19, RequestId = 7, BookId = 10 }, // Guns, Germs, and Steel
+                new BookBorrowingRequestDetail { Id = 20, RequestId = 7, BookId = 43 } // The Fellowship of the Ring
+            };
+            modelBuilder.Entity<BookBorrowingRequestDetail>().HasData(requestDetails);
         }
     }
 }
