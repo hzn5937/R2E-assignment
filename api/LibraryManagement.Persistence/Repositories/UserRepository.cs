@@ -18,6 +18,17 @@ namespace LibraryManagement.Persistence.Repositories
             _context = context;
         }
 
+        public async Task<User?> GetUserByIdAsync(int id)
+        {
+            var query = from u in _context.Users
+                        where u.Id == id
+                        select u;
+
+            var result = await query.FirstOrDefaultAsync();
+
+            return result;
+        }
+
         public async Task<User?> GetByUsernameAsync(string username, CancellationToken ct = default)
         {
             var query = from u in _context.Users

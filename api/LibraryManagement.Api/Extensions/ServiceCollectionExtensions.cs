@@ -18,6 +18,9 @@ namespace LibraryManagement.Api.Extensions
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ICategoryService, CategoryService>();
 
+            services.AddScoped<IRequestService, RequestService>();
+            services.AddScoped<IRequestRepository, RequestRepository>();
+
             return services;
         }
     }

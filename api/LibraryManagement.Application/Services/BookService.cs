@@ -1,4 +1,5 @@
 ﻿using LibraryManagement.Application.DTOs.Book;
+using LibraryManagement.Application.DTOs.Common;
 using LibraryManagement.Application.Extensions;
 using LibraryManagement.Application.Interfaces;
 using LibraryManagement.Domain.Entities;
@@ -17,7 +18,51 @@ namespace LibraryManagement.Application.Services
             _categoryRepository = categoryRepository;
         }
 
-        public async Task<PaginatedBookOutputDto> GetAllAsync(int pageNum=1, int pageSize=5)
+        //public async Task<PaginatedBookOutputDto> GetAllAsync(int pageNum=1, int pageSize=5)
+        //{
+        //    var books = await _bookRepository.GetAllAsync();
+
+        //    var bookList = new List<UserBookDto>();
+
+        //    foreach (var book in books)
+        //    {
+        //        if (book.DeletedAt is not null)
+        //        {
+        //            continue;
+        //        }
+
+        //        var record = new UserBookDto
+        //        {
+        //            Id = book.Id,
+        //            Title = book.Title,
+        //            Author = book.Author,
+        //            CategoryName = (book.CategoryId is null) ? "Uncategorized" : book.Category.Name,
+        //            AvailableQuantity = book.AvailableQuantity,
+        //        };
+
+        //        bookList.Add(record);
+        //    }
+
+        //    int totalCount = bookList.Count;
+        //    int totalPage = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        //    var paginatedBooks = bookList.Skip((pageNum - 1) * pageSize).Take(pageSize).ToList();
+
+        //    var output = new PaginatedBookOutputDto()
+        //    {
+        //        Books = paginatedBooks,
+        //        PageSize = pageSize,
+        //        PageNumber = pageNum,
+        //        TotalPage = totalPage,
+        //        TotalCount = totalCount,
+        //        HasNext = pageNum < totalPage,
+        //        HasPrev = pageNum > 1,
+        //    };
+
+        //    return output;
+        //}
+
+        public async Task<PaginatedOutputDto<UserBookDto>> GetAllAsync(int pageNum = 1, int pageSize = 5)
         {
             var books = await _bookRepository.GetAllAsync();
 
@@ -29,7 +74,6 @@ namespace LibraryManagement.Application.Services
                 {
                     continue;
                 }
-
                 var record = new UserBookDto
                 {
                     Id = book.Id,
@@ -38,28 +82,14 @@ namespace LibraryManagement.Application.Services
                     CategoryName = (book.CategoryId is null) ? "Uncategorized" : book.Category.Name,
                     AvailableQuantity = book.AvailableQuantity,
                 };
-
                 bookList.Add(record);
             }
 
-            int totalCount = bookList.Count;
-            int totalPage = (int)Math.Ceiling(totalCount / (double)pageSize);
-            
-            var paginatedBooks = bookList.Skip((pageNum - 1) * pageSize).Take(pageSize).ToList();
+            var paginated = Pagination.Paginate<UserBookDto>(bookList, pageNum, pageSize);
 
-            var output = new PaginatedBookOutputDto()
-            {
-                Books = paginatedBooks,
-                PageSize = pageSize,
-                PageNumber = pageNum,
-                TotalPage = totalPage,
-                TotalCount = totalCount,
-                HasNext = pageNum < totalPage,
-                HasPrev = pageNum > 1,
-            };
-
-            return output;
+            return paginated;
         }
+
 
         public async Task<BookDetailDto?> GetByIdAsync(int id)
         {
