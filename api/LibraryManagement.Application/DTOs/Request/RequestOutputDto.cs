@@ -10,7 +10,7 @@ namespace LibraryManagement.Application.DTOs.Request
     {
         public int Id { get; set; }
         public string Requestor { get; set; }
-        public string? Aprrover { get; set; }
+        public string? Approver { get; set; }
         public DateTime RequestedDate { get; set; }
         public string Status { get; set; }
     }

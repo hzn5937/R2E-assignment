@@ -1,11 +1,14 @@
 ﻿using LibraryManagement.Application.DTOs.Request;
 using LibraryManagement.Application.Interfaces;
+using LibraryManagement.Domain.Common;
+using LibraryManagement.Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagement.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/requests")]
     [ApiController]
     public class RequestController : ControllerBase
     {
@@ -18,6 +21,7 @@ namespace LibraryManagement.Api.Controllers
 
         [HttpGet]
         [Route("available/{userId}")]
+        [Authorize]
         public async Task<IActionResult> GetAvailableRequests(int userId)
         {
             var availableRequest = await _requestService.GetAvailableRequestsAsync(userId);
@@ -26,6 +30,7 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpGet("{requestId}/details")]
+        [Authorize]
         public async Task<IActionResult> GetRequestDetailById(int requestId)
         {
             var requestDetail = await _requestService.GetRequestDetailByIdAsync(requestId);
@@ -39,26 +44,63 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllRequest([FromQuery] int userId ,[FromQuery] int pageNum = 1, [FromQuery] int pageSize = 5)
+        [Authorize]
+        public async Task<IActionResult> GetAllUserRequests([FromQuery] int userId ,[FromQuery] int pageNum=Constants.DefaultPageNum, [FromQuery] int pageSize=Constants.DefaultPageSize)
         {
-            var requests = await _requestService.GetAllRequestsAsync(userId, pageNum, pageSize);
+            var requests = await _requestService.GetAllUserRequestsAsync(userId, pageNum, pageSize);
 
             if (requests is null)
             {
                 return NotFound($"User with ID {userId} not found.");
             }
+            return Ok(requests);
+        }
+
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllRequests([FromQuery] int pageNum = Constants.DefaultPageNum, [FromQuery] int pageSize = Constants.DefaultPageSize)
+        {
+            var requests = await _requestService.GetAllRequestDetailsAsync(pageNum, pageSize);
+
+            if (requests is null)
+            {
+                return NotFound($"No requests found.");
+            }
 
             return Ok(requests);
         }
 
-        //[HttpPost("{userId}")]
-        //public async Task <IActionResult> CreateRequest(int userId, [FromBody] CreateRequestDto createRequestDto)
-        //{
-        //    var createdRequest = await _requestService.CreateRequestAsync(userId, createRequestDto);
-        //    return Ok(createdRequest);
-        //}
 
+        [HttpPost("create")]
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> CreateRequest(CreateRequestDto createRequestDto)
+        {
+            var createdRequest = await _requestService.CreateRequestAsync(createRequestDto);
 
+            if (createdRequest is null)
+            {
+                return StatusCode(429, $"User with ID {createRequestDto.UserId} has reached the maximum number of requests for this month!");
+            }
 
+            return Ok(createdRequest);
+        }
+
+        [HttpPatch("{requestId}")]
+        public async Task<IActionResult> UpdateRequest(int requestId, UpdateRequestDto updateRequestDto)
+        {
+            if (updateRequestDto.Status == RequestStatus.Waiting)
+            {
+                return StatusCode(400, $"You are not suppose to update any request to Waiting state.");
+            }
+
+            var updatedRequest = await _requestService.UpdateRequestAsync(requestId, updateRequestDto);
+
+            if (updatedRequest is null)
+            {
+                return StatusCode(401, $"{updateRequestDto.AdminId} doesn't have permission to update this request!");
+            }
+
+            return Ok(updatedRequest);
+        }
     }
 }

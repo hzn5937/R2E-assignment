@@ -1,4 +1,6 @@
-﻿using LibraryManagement.Application.DTOs.Request;
+﻿using LibraryManagement.Application.DTOs.Common;
+using LibraryManagement.Application.DTOs.Request;
+using LibraryManagement.Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +13,9 @@ namespace LibraryManagement.Application.Interfaces
     {
         Task<AvailableRequestOutputDto> GetAvailableRequestsAsync(int userId);
         Task<RequestDetailOutputDto?> GetRequestDetailByIdAsync(int requestId);
-        Task<RequestOutputDto> GetAllRequestsAsync(int userId, int pageNum = 1, int pageSize = 5);
+        Task<PaginatedOutputDto<RequestOutputDto>?> GetAllUserRequestsAsync(int userId, int pageNum = Constants.DefaultPageNum, int pageSize = Constants.DefaultPageSize);
+        Task<PaginatedOutputDto<RequestDetailOutputDto>?> GetAllRequestDetailsAsync(int pageNum = Constants.DefaultPageNum, int pageSize = Constants.DefaultPageSize);
+        Task<RequestDetailOutputDto?> CreateRequestAsync(CreateRequestDto createRequestDto);
+        Task<RequestDetailOutputDto?> UpdateRequestAsync(int id, UpdateRequestDto updateRequestDto);
     }
 }

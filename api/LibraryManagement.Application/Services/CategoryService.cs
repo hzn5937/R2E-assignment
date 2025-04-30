@@ -1,14 +1,12 @@
 ﻿using LibraryManagement.Application.DTOs.Book;
 using LibraryManagement.Application.DTOs.Category;
+using LibraryManagement.Application.DTOs.Common;
 using LibraryManagement.Application.Extensions;
+using LibraryManagement.Application.Extensions.Exceptions;
 using LibraryManagement.Application.Interfaces;
+using LibraryManagement.Domain.Common;
 using LibraryManagement.Domain.Entities;
 using LibraryManagement.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibraryManagement.Application.Services
 {
@@ -21,7 +19,7 @@ namespace LibraryManagement.Application.Services
             _categoryRepository = categoryRepository;
         }
 
-        public async Task<PaginatedCategoryOutputDto> GetAllAsync(int pageNum=1, int pageSize=5)
+        public async Task<PaginatedOutputDto<CategoryOutputDto>> GetAllAsync(int pageNum=Constants.DefaultPageNum, int pageSize=Constants.DefaultPageSize)
         {
             var categories = await _categoryRepository.GetAllAsync();
 
@@ -37,23 +35,9 @@ namespace LibraryManagement.Application.Services
                 categoryList.Add(record);
             }
 
-            int totalCount = categoryList.Count;
-            int totalPage = (int)Math.Ceiling(totalCount / (double)pageSize);
+            var paginated = Pagination.Paginate<CategoryOutputDto>(categoryList, pageNum, pageSize);
 
-            var paginatedCategories = categoryList.Skip((pageNum - 1) * pageSize).Take(pageSize).ToList();
-                
-            var output = new PaginatedCategoryOutputDto()
-            {
-                Categories = paginatedCategories,
-                PageSize = pageSize,
-                PageNumber = pageNum,
-                TotalPage = totalPage,
-                TotalCount = totalCount,
-                HasNext = pageNum < totalPage,
-                HasPrev = pageNum > 1,
-            };
-
-            return output;
+            return paginated;
         }
 
         public async Task<CategoryOutputDto?> GetByIdAsync(int id)

@@ -49,8 +49,29 @@
   },
   {
     "ContainingType": "LibraryManagement.Api.Controllers.BookController",
+    "Method": "GetBooks",
+    "RelativePath": "api/books",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "pageNum",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.BookController",
     "Method": "CreateBook",
-    "RelativePath": "api/Book",
+    "RelativePath": "api/books",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -66,7 +87,7 @@
   {
     "ContainingType": "LibraryManagement.Api.Controllers.BookController",
     "Method": "GetBookById",
-    "RelativePath": "api/Book/{id}",
+    "RelativePath": "api/books/{id}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -82,7 +103,7 @@
   {
     "ContainingType": "LibraryManagement.Api.Controllers.BookController",
     "Method": "UpdateBook",
-    "RelativePath": "api/Book/{id}",
+    "RelativePath": "api/books/{id}",
     "HttpMethod": "PATCH",
     "IsController": true,
     "Order": 0,
@@ -103,7 +124,7 @@
   {
     "ContainingType": "LibraryManagement.Api.Controllers.BookController",
     "Method": "DeleteBook",
-    "RelativePath": "api/Book/{id}",
+    "RelativePath": "api/books/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -112,27 +133,6 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "LibraryManagement.Api.Controllers.BookController",
-    "Method": "GetBooks",
-    "RelativePath": "api/books",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "pageNum",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "pageSize",
-        "Type": "System.Int32",
-        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -161,7 +161,7 @@
   {
     "ContainingType": "LibraryManagement.Api.Controllers.CategoryController",
     "Method": "CreateCategory",
-    "RelativePath": "api/Category",
+    "RelativePath": "api/categories",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -177,7 +177,7 @@
   {
     "ContainingType": "LibraryManagement.Api.Controllers.CategoryController",
     "Method": "GetCategoryById",
-    "RelativePath": "api/Category/{id}",
+    "RelativePath": "api/categories/{id}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -193,7 +193,7 @@
   {
     "ContainingType": "LibraryManagement.Api.Controllers.CategoryController",
     "Method": "UpdateCategory",
-    "RelativePath": "api/Category/{id}",
+    "RelativePath": "api/categories/{id}",
     "HttpMethod": "PATCH",
     "IsController": true,
     "Order": 0,
@@ -214,7 +214,7 @@
   {
     "ContainingType": "LibraryManagement.Api.Controllers.CategoryController",
     "Method": "DeleteCategory",
-    "RelativePath": "api/Category/{id}",
+    "RelativePath": "api/categories/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -229,8 +229,8 @@
   },
   {
     "ContainingType": "LibraryManagement.Api.Controllers.RequestController",
-    "Method": "GetAllRequest",
-    "RelativePath": "api/Request",
+    "Method": "GetAllUserRequests",
+    "RelativePath": "api/requests",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -255,8 +255,29 @@
   },
   {
     "ContainingType": "LibraryManagement.Api.Controllers.RequestController",
+    "Method": "UpdateRequest",
+    "RelativePath": "api/requests/{requestId}",
+    "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "requestId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "updateRequestDto",
+        "Type": "LibraryManagement.Application.DTOs.Request.UpdateRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.RequestController",
     "Method": "GetRequestDetailById",
-    "RelativePath": "api/Request/{requestId}/details",
+    "RelativePath": "api/requests/{requestId}/details",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -271,8 +292,29 @@
   },
   {
     "ContainingType": "LibraryManagement.Api.Controllers.RequestController",
+    "Method": "GetAllRequests",
+    "RelativePath": "api/requests/all",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "pageNum",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.RequestController",
     "Method": "GetAvailableRequests",
-    "RelativePath": "api/Request/available/{userId}",
+    "RelativePath": "api/requests/available/{userId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -280,6 +322,22 @@
       {
         "Name": "userId",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.RequestController",
+    "Method": "CreateRequest",
+    "RelativePath": "api/requests/create",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "createRequestDto",
+        "Type": "LibraryManagement.Application.DTOs.Request.CreateRequestDto",
         "IsRequired": true
       }
     ],

@@ -1,12 +1,13 @@
 ﻿using LibraryManagement.Application.DTOs.Category;
 using LibraryManagement.Application.Interfaces;
 using LibraryManagement.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagement.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/categories")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
@@ -18,7 +19,7 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpGet]
-        [Route("/api/categories")]
+        [Authorize]
         public async Task<IActionResult> GetCategories([FromQuery] int pageNum = 1, [FromQuery] int pageSize = 5)
         {
             var books = await _categoryService.GetAllAsync(pageNum, pageSize);
@@ -27,6 +28,7 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetCategoryById(int id)
         {
             var category = await _categoryService.GetByIdAsync(id);
@@ -40,6 +42,7 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto createCategoryDto)
         {
             var createdCategory = await _categoryService.CreateAsync(createCategoryDto);
@@ -47,6 +50,7 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpPatch("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDto updateCategoryDto)
         {
             var updatedCategory = await _categoryService.UpdateAsync(id, updateCategoryDto);
@@ -58,6 +62,7 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var deleted = await _categoryService.DeleteAsync(id);

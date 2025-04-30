@@ -1,6 +1,7 @@
 ﻿using LibraryManagement.Application.DTOs.Authentication;
-using LibraryManagement.Application.Extensions;
+using LibraryManagement.Application.Extensions.Exceptions;
 using LibraryManagement.Application.Interfaces;
+using LibraryManagement.Domain.Common;
 using LibraryManagement.Domain.Entities;
 using LibraryManagement.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -44,7 +45,7 @@ namespace LibraryManagement.Application.Services
             user.PasswordHash = _hasher.HashPassword(user, registerRequestDto.Password);
 
             string refreshToken = GenerateRefreshToken();
-            DateTime refreshTokenExpiry = DateTime.UtcNow.AddDays(1);
+            DateTime refreshTokenExpiry = DateTime.UtcNow.AddDays(Constants.RefreshTokenExpirationDays);
 
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = refreshTokenExpiry;
@@ -81,7 +82,7 @@ namespace LibraryManagement.Application.Services
 
             // mapping then update
             var refreshToken = GenerateRefreshToken();
-            var refreshTokenExpiry = DateTime.UtcNow.AddDays(1);
+            var refreshTokenExpiry = DateTime.UtcNow.AddDays(Constants.RefreshTokenExpirationDays);
 
             var output = new LoginOutputDto()
             {
@@ -123,7 +124,7 @@ namespace LibraryManagement.Application.Services
 
             // mapping then update
             var refreshToken = GenerateRefreshToken();
-            var refreshTokenExpiry = DateTime.UtcNow.AddDays(1);
+            var refreshTokenExpiry = DateTime.UtcNow.AddDays(Constants.RefreshTokenExpirationDays);
 
             output.Username = user.Username;
             output.Role = user.Role;

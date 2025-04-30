@@ -16,7 +16,8 @@ namespace LibraryManagement.Persistence.EntityConfiguration
                   .IsRequired()
                   .HasDefaultValueSql("GETUTCDATE()");
 
-            entity.Property(r => r.Status).IsRequired();
+            entity.Property(r => r.Status).IsRequired()
+                .HasConversion<string>();
 
             entity.HasOne(r => r.Requestor)
                   .WithMany(u => u.RequestsMade)

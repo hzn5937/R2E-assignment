@@ -1,4 +1,4 @@
-﻿using LibraryManagement.Application.Extensions;
+﻿using LibraryManagement.Application.Extensions.Exceptions;
 using System.Net;
 using System.Text.Json;
 

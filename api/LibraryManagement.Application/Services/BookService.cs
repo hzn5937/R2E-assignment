@@ -1,7 +1,9 @@
 ﻿using LibraryManagement.Application.DTOs.Book;
 using LibraryManagement.Application.DTOs.Common;
 using LibraryManagement.Application.Extensions;
+using LibraryManagement.Application.Extensions.Exceptions;
 using LibraryManagement.Application.Interfaces;
+using LibraryManagement.Domain.Common;
 using LibraryManagement.Domain.Entities;
 using LibraryManagement.Domain.Interfaces;
 
@@ -18,55 +20,11 @@ namespace LibraryManagement.Application.Services
             _categoryRepository = categoryRepository;
         }
 
-        //public async Task<PaginatedBookOutputDto> GetAllAsync(int pageNum=1, int pageSize=5)
-        //{
-        //    var books = await _bookRepository.GetAllAsync();
-
-        //    var bookList = new List<UserBookDto>();
-
-        //    foreach (var book in books)
-        //    {
-        //        if (book.DeletedAt is not null)
-        //        {
-        //            continue;
-        //        }
-
-        //        var record = new UserBookDto
-        //        {
-        //            Id = book.Id,
-        //            Title = book.Title,
-        //            Author = book.Author,
-        //            CategoryName = (book.CategoryId is null) ? "Uncategorized" : book.Category.Name,
-        //            AvailableQuantity = book.AvailableQuantity,
-        //        };
-
-        //        bookList.Add(record);
-        //    }
-
-        //    int totalCount = bookList.Count;
-        //    int totalPage = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-        //    var paginatedBooks = bookList.Skip((pageNum - 1) * pageSize).Take(pageSize).ToList();
-
-        //    var output = new PaginatedBookOutputDto()
-        //    {
-        //        Books = paginatedBooks,
-        //        PageSize = pageSize,
-        //        PageNumber = pageNum,
-        //        TotalPage = totalPage,
-        //        TotalCount = totalCount,
-        //        HasNext = pageNum < totalPage,
-        //        HasPrev = pageNum > 1,
-        //    };
-
-        //    return output;
-        //}
-
-        public async Task<PaginatedOutputDto<UserBookDto>> GetAllAsync(int pageNum = 1, int pageSize = 5)
+        public async Task<PaginatedOutputDto<UserBookOutputDto>> GetAllAsync(int pageNum=Constants.DefaultPageNum, int pageSize=Constants.DefaultPageSize)
         {
             var books = await _bookRepository.GetAllAsync();
 
-            var bookList = new List<UserBookDto>();
+            var bookList = new List<UserBookOutputDto>();
 
             foreach (var book in books)
             {
@@ -74,24 +32,24 @@ namespace LibraryManagement.Application.Services
                 {
                     continue;
                 }
-                var record = new UserBookDto
+                var record = new UserBookOutputDto
                 {
                     Id = book.Id,
                     Title = book.Title,
                     Author = book.Author,
-                    CategoryName = (book.CategoryId is null) ? "Uncategorized" : book.Category.Name,
+                    CategoryName = (book.CategoryId is null) ? Constants.NullCategoryName : book.Category.Name,
                     AvailableQuantity = book.AvailableQuantity,
                 };
                 bookList.Add(record);
             }
 
-            var paginated = Pagination.Paginate<UserBookDto>(bookList, pageNum, pageSize);
+            var paginated = Pagination.Paginate<UserBookOutputDto>(bookList, pageNum, pageSize);
 
             return paginated;
         }
 
 
-        public async Task<BookDetailDto?> GetByIdAsync(int id)
+        public async Task<BookDetailOutputDto?> GetByIdAsync(int id)
         {
             var book = await _bookRepository.GetByIdAsync(id);
 
@@ -100,7 +58,7 @@ namespace LibraryManagement.Application.Services
                 return null;
             }
 
-            var output = new BookDetailDto()
+            var output = new BookDetailOutputDto()
             {
                 Id = book.Id,
                 Title = book.Title,
@@ -114,7 +72,7 @@ namespace LibraryManagement.Application.Services
             return output;
         }
 
-        public async Task<BookDetailDto> CreateAsync(CreateBookDto createBookDto)
+        public async Task<BookDetailOutputDto> CreateAsync(CreateBookDto createBookDto)
         {
             Book? existing = await _bookRepository.GetByTitleAndAuthorAsync(createBookDto.Title, createBookDto.Author);
 
@@ -129,14 +87,14 @@ namespace LibraryManagement.Application.Services
 
                 var updated = await _bookRepository.UpdateAsync(existing);
 
-                var updatedOutput = new BookDetailDto()
+                var updatedOutput = new BookDetailOutputDto()
                 {
                     Id = updated.Id,
                     Title = updated.Title,
                     Author = updated.Author,
                     TotalQuantity = updated.TotalQuantity,
                     AvailableQuantity = updated.AvailableQuantity,
-                    CategoryName = (updated.CategoryId is null) ? "Uncategorized" : updated.Category.Name,
+                    CategoryName = (updated.CategoryId is null) ? Constants.NullCategoryName : updated.Category.Name,
                 };
 
                 return updatedOutput;
@@ -155,20 +113,20 @@ namespace LibraryManagement.Application.Services
 
             var created = await _bookRepository.CreateAsync(book);
 
-            var createdOutput = new BookDetailDto()
+            var createdOutput = new BookDetailOutputDto()
             {
                 Id = created.Id,
                 Title = created.Title,
                 Author = created.Author,
                 TotalQuantity = created.TotalQuantity,
                 AvailableQuantity = created.AvailableQuantity,
-                CategoryName = (created.CategoryId is null) ? "Uncategorized" : created.Category.Name
+                CategoryName = (created.CategoryId is null) ? Constants.NullCategoryName : created.Category.Name
             };
 
             return createdOutput;
         }
 
-        public async Task<BookDetailDto?> UpdateAsync(int id, UpdateBookDto updateBookDto)
+        public async Task<BookDetailOutputDto?> UpdateAsync(int id, UpdateBookDto updateBookDto)
         {
             var duplicate = await _bookRepository.GetByTitleAndAuthorAsync(updateBookDto.Title, updateBookDto.Author);
 
@@ -202,7 +160,7 @@ namespace LibraryManagement.Application.Services
 
             var updated = await _bookRepository.UpdateAsync(existing);
 
-            var output = new BookDetailDto()
+            var output = new BookDetailOutputDto()
             {
                 Id = updated.Id,
                 Title = updated.Title,
@@ -210,7 +168,7 @@ namespace LibraryManagement.Application.Services
                 TotalQuantity = updated.TotalQuantity,
                 AvailableQuantity = updated.AvailableQuantity,
                 DeletedAt = updated.DeletedAt,
-                CategoryName = (updated.CategoryId is null) ? "Uncategorized" : updated.Category.Name
+                CategoryName = (updated.CategoryId is null) ? Constants.NullCategoryName : updated.Category.Name
             };
 
             return output;

@@ -1,10 +1,12 @@
 ﻿using LibraryManagement.Application.DTOs.Book;
 using LibraryManagement.Application.Interfaces;
+using LibraryManagement.Domain.Common;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagement.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/books")]
     [ApiController]
     public class BookController : ControllerBase
     {
@@ -16,8 +18,8 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpGet]
-        [Route("/api/books")]
-        public async Task<IActionResult> GetBooks([FromQuery] int pageNum = 1, [FromQuery] int pageSize = 5)
+        [Authorize]
+        public async Task<IActionResult> GetBooks([FromQuery] int pageNum=Constants.DefaultPageNum, [FromQuery] int pageSize=Constants.DefaultPageSize)
         {
             var books = await _bookService.GetAllAsync(pageNum, pageSize);
 
@@ -25,6 +27,7 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetBookById(int id)
         {
             var book = await _bookService.GetByIdAsync(id);
@@ -38,6 +41,7 @@ namespace LibraryManagement.Api.Controllers
         }
             
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateBook(CreateBookDto createBookDto)
         {
             var createdBook = await _bookService.CreateAsync(createBookDto);
@@ -46,6 +50,7 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpPatch("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateBook(int id, UpdateBookDto updateBookDto)
         {
             var updatedBook = await _bookService.UpdateAsync(id, updateBookDto);
@@ -57,6 +62,7 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteBook(int id)
         {
             var deleted = await _bookService.DeleteAsync(id);
