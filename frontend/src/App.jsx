@@ -1,19 +1,32 @@
+// src/App.jsx
 import React from 'react';
-import NavBar from './components/navbar';
-import Routing from './routing';
-import { Routes, Route, Link, BrowserRouter } from 'react-router-dom';
-import { Button } from 'antd';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AppLayout from './layout/app_layout';
+import Home from './pages/user/Home';
+import Post from './pages/user/Post';
+import LoginPage from './pages/LoginPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
-const Home = () => <h2>Home Page</h2>;
-const About = () => <h2>About Page</h2>;
-
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
-      <AppLayout/>
+      <Routes>
+        {/* 1️⃣  Public */}
+        <Route path="/login" element={<LoginPage />} />
+
+        {/* 2️⃣  Protected – everything here renders inside AppLayout */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Home />} />           {/* “/”          */}
+          <Route path="borrowing" element={<Post />} />{/* “/borrowing” */}
+          {/* add more private pages here */}
+        </Route>
+      </Routes>
     </BrowserRouter>
   );
 }
-
-export default App;
