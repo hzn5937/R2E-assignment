@@ -1,15 +1,9 @@
-﻿using NUnit.Framework;
-using Moq;
+﻿using Moq;
 using LibraryManagement.Application.Services;
 using LibraryManagement.Domain.Interfaces;
 using LibraryManagement.Domain.Entities;
 using LibraryManagement.Application.DTOs.Category;
 using LibraryManagement.Application.Extensions.Exceptions;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using LibraryManagement.Domain.Common;
-using LibraryManagement.Application.DTOs.Common;
-using System.Linq;
 
 namespace LibraryManagement.Application.Test
 {
@@ -40,7 +34,7 @@ namespace LibraryManagement.Application.Test
             _mockCategoryRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(categories);
 
             // Act
-            var result = await _categoryService.GetAllAsync(1, 10); // pageNum 1, pageSize 10
+            var result = await _categoryService.GetAllAsync(1, 10);
 
             // Assert
             Assert.IsNotNull(result);
@@ -92,7 +86,7 @@ namespace LibraryManagement.Application.Test
             var createDto = new CreateCategoryDto { Name = "New Category" };
             var createdCategory = new Category { Id = 10, Name = createDto.Name };
 
-            _mockCategoryRepository.Setup(repo => repo.GetByNameAsync(createDto.Name)).ReturnsAsync((Category)null); // Name is unique
+            _mockCategoryRepository.Setup(repo => repo.GetByNameAsync(createDto.Name)).ReturnsAsync((Category)null);
             _mockCategoryRepository.Setup(repo => repo.CreateAsync(It.Is<Category>(c => c.Name == createDto.Name))).ReturnsAsync(createdCategory);
 
             // Act
@@ -112,7 +106,7 @@ namespace LibraryManagement.Application.Test
             var createDto = new CreateCategoryDto { Name = "Existing Category" };
             var existingCategory = new Category { Id = 1, Name = createDto.Name };
 
-            _mockCategoryRepository.Setup(repo => repo.GetByNameAsync(createDto.Name)).ReturnsAsync(existingCategory); // Name exists
+            _mockCategoryRepository.Setup(repo => repo.GetByNameAsync(createDto.Name)).ReturnsAsync(existingCategory);
 
             // Act & Assert
             var ex = Assert.ThrowsAsync<ConflictException>(() => _categoryService.CreateAsync(createDto));
@@ -127,10 +121,10 @@ namespace LibraryManagement.Application.Test
             int categoryId = 1;
             var updateDto = new UpdateCategoryDto { Name = "Updated Name" };
             var existingCategory = new Category { Id = categoryId, Name = "Old Name" };
-            var updatedCategory = new Category { Id = categoryId, Name = updateDto.Name }; // The state after update
+            var updatedCategory = new Category { Id = categoryId, Name = updateDto.Name }; 
 
             _mockCategoryRepository.Setup(repo => repo.GetByIdAsync(categoryId)).ReturnsAsync(existingCategory);
-            _mockCategoryRepository.Setup(repo => repo.GetByNameAsync(updateDto.Name)).ReturnsAsync((Category)null); // New name is unique
+            _mockCategoryRepository.Setup(repo => repo.GetByNameAsync(updateDto.Name)).ReturnsAsync((Category)null);
             _mockCategoryRepository.Setup(repo => repo.UpdateAsync(It.Is<Category>(c => c.Id == categoryId && c.Name == updateDto.Name))).ReturnsAsync(updatedCategory);
 
             // Act
@@ -150,7 +144,7 @@ namespace LibraryManagement.Application.Test
             int categoryId = 99;
             var updateDto = new UpdateCategoryDto { Name = "Any Name" };
 
-            _mockCategoryRepository.Setup(repo => repo.GetByIdAsync(categoryId)).ReturnsAsync((Category)null); // Category not found
+            _mockCategoryRepository.Setup(repo => repo.GetByIdAsync(categoryId)).ReturnsAsync((Category)null); 
 
             // Act & Assert
             var ex = Assert.ThrowsAsync<NotFoundException>(() => _categoryService.UpdateAsync(categoryId, updateDto));

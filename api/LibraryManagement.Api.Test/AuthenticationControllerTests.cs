@@ -1,14 +1,10 @@
-﻿using NUnit.Framework;
-using Moq;
+﻿using Moq;
 using LibraryManagement.Api.Controllers;
 using LibraryManagement.Application.Interfaces;
 using LibraryManagement.Application.DTOs.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System.Threading;
 using LibraryManagement.Domain.Enums;
 using LibraryManagement.Application.Extensions.Exceptions;
-using System;
 
 namespace LibraryManagement.Api.Test
 {
@@ -24,8 +20,6 @@ namespace LibraryManagement.Api.Test
             _mockAuthService = new Mock<IAuthenticationService>();
             _authController = new AuthenticationController(_mockAuthService.Object);
         }
-
-        // --- Register Tests ---
 
         [Test]
         public async Task Register_WithValidData_ReturnsOkResult()
@@ -61,7 +55,7 @@ namespace LibraryManagement.Api.Test
         }
 
         [Test]
-        public async Task Register_WhenServiceReturnsNull_ReturnsBadRequest() // Assuming null return indicates failure other than conflict
+        public async Task Register_WhenServiceReturnsNull_ReturnsBadRequest() 
         {
             // Arrange
             var registerDto = new RegisterRequestDto { Username = "faileduser", Password = "password", Role = UserRole.User };
@@ -89,8 +83,6 @@ namespace LibraryManagement.Api.Test
             _mockAuthService.Verify(s => s.RegisterAsync(registerDto, It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        // --- Login Tests ---
-
         [Test]
         public async Task Login_WithValidCredentials_ReturnsOkResultWithToken()
         {
@@ -105,13 +97,11 @@ namespace LibraryManagement.Api.Test
             // Assert
             Assert.IsInstanceOf<OkObjectResult>(result);
             var okResult = result as OkObjectResult;
-            // The controller wraps the token in an anonymous object: new { token = loginOutputDto }
             Assert.IsNotNull(okResult.Value);
             var resultValue = okResult.Value;
             var tokenProperty = resultValue.GetType().GetProperty("token");
             Assert.IsNotNull(tokenProperty);
             Assert.AreEqual(loginOutputDto, tokenProperty.GetValue(resultValue));
-
             _mockAuthService.Verify(s => s.VerifyUserAsync(loginDto, It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -120,7 +110,7 @@ namespace LibraryManagement.Api.Test
         {
             // Arrange
             var loginDto = new LoginDto { Username = "test", Password = "wrongpassword" };
-            _mockAuthService.Setup(s => s.VerifyUserAsync(loginDto, It.IsAny<CancellationToken>())).ReturnsAsync((LoginOutputDto)null); // Service returns null for invalid login
+            _mockAuthService.Setup(s => s.VerifyUserAsync(loginDto, It.IsAny<CancellationToken>())).ReturnsAsync((LoginOutputDto)null); 
 
             // Act
             var result = await _authController.Login(loginDto, CancellationToken.None);
@@ -143,8 +133,6 @@ namespace LibraryManagement.Api.Test
             _mockAuthService.Verify(s => s.VerifyUserAsync(loginDto, It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        // --- Refresh Tests ---
-
         [Test]
         public async Task Refresh_WithValidTokens_ReturnsOkResultWithNewToken()
         {
@@ -161,7 +149,7 @@ namespace LibraryManagement.Api.Test
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult.Value);
             var resultValue = okResult.Value;
-            var tokenProperty = resultValue.GetType().GetProperty("token"); // Controller wraps in new { token = ... }
+            var tokenProperty = resultValue.GetType().GetProperty("token");
             Assert.IsNotNull(tokenProperty);
             Assert.AreEqual(newLoginOutputDto, tokenProperty.GetValue(resultValue));
             _mockAuthService.Verify(s => s.RefreshAsync(refreshDto, It.IsAny<CancellationToken>()), Times.Once);
@@ -172,7 +160,7 @@ namespace LibraryManagement.Api.Test
         {
             // Arrange
             var refreshDto = new RefreshRequestDto { AccessToken = "expired", RefreshToken = "invalid_refresh" };
-            _mockAuthService.Setup(s => s.RefreshAsync(refreshDto, It.IsAny<CancellationToken>())).ReturnsAsync((LoginOutputDto)null); // Service returns null for invalid refresh
+            _mockAuthService.Setup(s => s.RefreshAsync(refreshDto, It.IsAny<CancellationToken>())).ReturnsAsync((LoginOutputDto)null);
 
             // Act
             var result = await _authController.Refresh(refreshDto, CancellationToken.None);

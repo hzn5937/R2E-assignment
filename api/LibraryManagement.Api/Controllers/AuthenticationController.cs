@@ -1,6 +1,5 @@
 ﻿using LibraryManagement.Application.DTOs.Authentication;
 using LibraryManagement.Application.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagement.Api.Controllers

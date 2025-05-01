@@ -1,5 +1,4 @@
-﻿using LibraryManagement.Application.DTOs.Book;
-using LibraryManagement.Application.DTOs.Category;
+﻿using LibraryManagement.Application.DTOs.Category;
 using LibraryManagement.Application.DTOs.Common;
 using LibraryManagement.Application.Extensions;
 using LibraryManagement.Application.Extensions.Exceptions;

@@ -1,16 +1,12 @@
-﻿using NUnit.Framework;
-using Moq;
+﻿using Moq;
 using LibraryManagement.Api.Controllers;
 using LibraryManagement.Application.Interfaces;
 using LibraryManagement.Application.DTOs.Request;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using LibraryManagement.Domain.Common;
 using LibraryManagement.Domain.Enums;
 using LibraryManagement.Application.DTOs.Common;
 using LibraryManagement.Application.Extensions.Exceptions;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Http; // Required for status codes
+using Microsoft.AspNetCore.Http; 
 
 namespace LibraryManagement.Api.Test
 {
@@ -54,7 +50,6 @@ namespace LibraryManagement.Api.Test
                               .ThrowsAsync(new NotFoundException($"User with ID {userId} not found."));
 
             // Act & Assert
-            // Exception middleware handles this, unit test expects propagation
             Assert.ThrowsAsync<NotFoundException>(async () => await _requestController.GetAvailableRequests(userId));
             _mockRequestService.Verify(s => s.GetAvailableRequestsAsync(userId), Times.Once);
         }
@@ -114,7 +109,7 @@ namespace LibraryManagement.Api.Test
         {
             // Arrange
             int userId = 99;
-            _mockRequestService.Setup(s => s.GetAllUserRequestsAsync(userId, 1, 5)).ReturnsAsync((PaginatedOutputDto<RequestOutputDto>)null); // Service returns null if user not found
+            _mockRequestService.Setup(s => s.GetAllUserRequestsAsync(userId, 1, 5)).ReturnsAsync((PaginatedOutputDto<RequestOutputDto>)null); 
 
             // Act
             var result = await _requestController.GetAllUserRequests(userId, 1, 5);
@@ -182,8 +177,7 @@ namespace LibraryManagement.Api.Test
         {
             // Arrange
             var createDto = new CreateRequestDto { UserId = 1, BookIds = new List<int> { 99 } };
-            _mockRequestService.Setup(s => s.CreateRequestAsync(createDto))
-                               .ThrowsAsync(new NotFoundException("Book not found."));
+            _mockRequestService.Setup(s => s.CreateRequestAsync(createDto)).ThrowsAsync(new NotFoundException("Book not found."));
 
             // Act & Assert
             Assert.ThrowsAsync<NotFoundException>(async () => await _requestController.CreateRequest(createDto));
@@ -195,8 +189,7 @@ namespace LibraryManagement.Api.Test
         {
             // Arrange
             var createDto = new CreateRequestDto { UserId = 1, BookIds = new List<int> { 1 } };
-            _mockRequestService.Setup(s => s.CreateRequestAsync(createDto))
-                               .ThrowsAsync(new ConflictException("Book out of stock."));
+            _mockRequestService.Setup(s => s.CreateRequestAsync(createDto)).ThrowsAsync(new ConflictException("Book out of stock."));
 
             // Act & Assert
             Assert.ThrowsAsync<ConflictException>(async () => await _requestController.CreateRequest(createDto));
@@ -226,7 +219,7 @@ namespace LibraryManagement.Api.Test
         {
             // Arrange
             int requestId = 1;
-            var updateDto = new UpdateRequestDto { AdminId = 2, Status = RequestStatus.Waiting }; // Cannot update to Waiting
+            var updateDto = new UpdateRequestDto { AdminId = 2, Status = RequestStatus.Waiting }; 
 
             // Act
             var result = await _requestController.UpdateRequest(requestId, updateDto);
@@ -236,16 +229,16 @@ namespace LibraryManagement.Api.Test
             var objectResult = result as ObjectResult;
             Assert.AreEqual(StatusCodes.Status400BadRequest, objectResult.StatusCode);
             Assert.AreEqual("You are not suppose to update any request to Waiting state.", objectResult.Value);
-            _mockRequestService.Verify(s => s.UpdateRequestAsync(It.IsAny<int>(), It.IsAny<UpdateRequestDto>()), Times.Never); // Service should not be called
+            _mockRequestService.Verify(s => s.UpdateRequestAsync(It.IsAny<int>(), It.IsAny<UpdateRequestDto>()), Times.Never); 
         }
 
         [Test]
-        public async Task UpdateRequest_UpdaterNotAdmin_ReturnsUnauthorizedStatus() // Controller returns 401
+        public async Task UpdateRequest_UpdaterNotAdmin_ReturnsUnauthorizedStatus() 
         {
             // Arrange
             int requestId = 1;
-            var updateDto = new UpdateRequestDto { AdminId = 5, Status = RequestStatus.Approved }; // User 5 is not admin
-            _mockRequestService.Setup(s => s.UpdateRequestAsync(requestId, updateDto)).ReturnsAsync((RequestDetailOutputDto)null); // Service returns null if updater not admin
+            var updateDto = new UpdateRequestDto { AdminId = 5, Status = RequestStatus.Approved }; 
+            _mockRequestService.Setup(s => s.UpdateRequestAsync(requestId, updateDto)).ReturnsAsync((RequestDetailOutputDto)null); 
 
             // Act
             var result = await _requestController.UpdateRequest(requestId, updateDto);
@@ -253,7 +246,7 @@ namespace LibraryManagement.Api.Test
             // Assert
             Assert.IsInstanceOf<ObjectResult>(result);
             var objectResult = result as ObjectResult;
-            Assert.AreEqual(StatusCodes.Status401Unauthorized, objectResult.StatusCode); // Check for 401
+            Assert.AreEqual(StatusCodes.Status401Unauthorized, objectResult.StatusCode); 
             Assert.AreEqual($"{updateDto.AdminId} doesn't have permission to update this request!", objectResult.Value);
             _mockRequestService.Verify(s => s.UpdateRequestAsync(requestId, updateDto), Times.Once);
         }

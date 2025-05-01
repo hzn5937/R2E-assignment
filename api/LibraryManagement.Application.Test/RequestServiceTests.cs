@@ -1,16 +1,11 @@
-﻿using NUnit.Framework;
-using Moq;
+﻿using Moq;
 using LibraryManagement.Application.Services;
 using LibraryManagement.Domain.Interfaces;
 using LibraryManagement.Domain.Entities;
 using LibraryManagement.Application.DTOs.Request;
 using LibraryManagement.Domain.Enums;
 using LibraryManagement.Application.Extensions.Exceptions;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using LibraryManagement.Domain.Common;
-using System;
-using System.Linq;
 
 namespace LibraryManagement.Application.Test
 {
@@ -31,10 +26,9 @@ namespace LibraryManagement.Application.Test
             _requestService = new RequestService(
                 _mockRequestRepository.Object,
                 _mockUserRepository.Object,
-                _mockBookRepository.Object);
+                _mockBookRepository.Object
+            );
         }
-
-        // --- GetAvailableRequestsAsync Tests ---
 
         [Test]
         public async Task GetAvailableRequestsAsync_UserExistsAndHasRequestsRemaining_ReturnsCorrectCount()
@@ -44,9 +38,9 @@ namespace LibraryManagement.Application.Test
             var user = new User { Id = userId, Username = "testuser" };
             var existingRequests = new List<BookBorrowingRequest>
             {
-                new BookBorrowingRequest { RequestorId = userId, Status = RequestStatus.Approved, DateRequested=DateTime.UtcNow } // One request this month
+                new BookBorrowingRequest { RequestorId = userId, Status = RequestStatus.Approved, DateRequested=DateTime.UtcNow } 
             };
-            int expectedAvailable = Constants.MonthlyMaximumRequest - existingRequests.Count; // Should be 2
+            int expectedAvailable = Constants.MonthlyMaximumRequest - existingRequests.Count;
 
             _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(userId)).ReturnsAsync(user);
             _mockRequestRepository.Setup(repo => repo.GetExistingRequestsOfTheMonth(userId, It.IsAny<DateTime>())).ReturnsAsync(existingRequests);
@@ -74,7 +68,6 @@ namespace LibraryManagement.Application.Test
             _mockRequestRepository.Verify(repo => repo.GetExistingRequestsOfTheMonth(It.IsAny<int>(), It.IsAny<DateTime>()), Times.Never);
         }
 
-        // --- GetRequestDetailByIdAsync Tests ---
         [Test]
         public async Task GetRequestDetailByIdAsync_RequestExists_ReturnsRequestDetail()
         {
@@ -125,8 +118,6 @@ namespace LibraryManagement.Application.Test
             Assert.IsNull(result);
             _mockRequestRepository.Verify(repo => repo.GetRequestByIdAsync(requestId), Times.Once);
         }
-
-        // --- CreateRequestAsync Tests ---
 
         [Test]
         public async Task CreateRequestAsync_Successful_ReturnsRequestDetailAndDecrementsBookQuantity()
@@ -183,29 +174,17 @@ namespace LibraryManagement.Application.Test
             Assert.AreEqual(createdRequestFromRepo.Id, result.Id);
             Assert.AreEqual(RequestStatus.Waiting.ToString(), result.Status);
             Assert.AreEqual(2, result.Books.Count);
-            // Note: The result DTO is mapped from createdRequestFromRepo,
-            // which might not reflect the final decremented quantity unless explicitly set up.
-            // The state change is better verified via the Callback in UpdateAsync or checking the original objects.
-
-            // Verify interactions
             _mockUserRepository.Verify(repo => repo.GetUserByIdAsync(userId), Times.Once);
             _mockRequestRepository.Verify(repo => repo.GetExistingRequestsOfTheMonth(userId, It.IsAny<DateTime>()), Times.Once);
             _mockBookRepository.Verify(repo => repo.GetByIdAsync(10), Times.Once);
             _mockBookRepository.Verify(repo => repo.GetByIdAsync(20), Times.Once);
             _mockBookRepository.Verify(repo => repo.UpdateAsync(It.Is<Book>(b => b.Id == 10)), Times.Once);
             _mockBookRepository.Verify(repo => repo.UpdateAsync(It.Is<Book>(b => b.Id == 20)), Times.Once);
-
-            // *** This Verify should now pass if the execution flow is correct ***
             _mockRequestRepository.Verify(repo => repo.CreateRequestAsync(It.IsNotNull<BookBorrowingRequest>()), Times.Once);
-
-            // Check the captured request object
             Assert.IsNotNull(requestPassedToCreate);
             Assert.AreEqual(2, requestPassedToCreate.Details.Count);
             Assert.IsTrue(requestPassedToCreate.Details.Any(d => d.BookId == 10));
             Assert.IsTrue(requestPassedToCreate.Details.Any(d => d.BookId == 20));
-
-            // Assert on the *original* objects state after the call
-            // Assert.AreEqual(4, initialBook1.AvailableQuantity); // This might be less reliable if the service modifies copies
         }
 
         [Test]
@@ -215,7 +194,10 @@ namespace LibraryManagement.Application.Test
             int userId = 1;
             var createDto = new CreateRequestDto { UserId = userId, BookIds = new List<int> { 10 } };
             var user = new User { Id = userId, Username = "testuser" };
-            var existingRequests = Enumerable.Repeat(new BookBorrowingRequest { RequestorId = userId, Status = RequestStatus.Waiting, DateRequested = DateTime.UtcNow }, Constants.MonthlyMaximumRequest).ToList(); // At limit
+            var existingRequests = Enumerable.Repeat(
+                new BookBorrowingRequest { RequestorId = userId, Status = RequestStatus.Waiting, DateRequested = DateTime.UtcNow }, 
+                Constants.MonthlyMaximumRequest)
+                .ToList(); // At limit
 
             _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(userId)).ReturnsAsync(user);
             _mockRequestRepository.Setup(repo => repo.GetExistingRequestsOfTheMonth(userId, It.IsAny<DateTime>())).ReturnsAsync(existingRequests);
@@ -234,19 +216,18 @@ namespace LibraryManagement.Application.Test
         {
             // Arrange
             int userId = 1;
-            var createDto = new CreateRequestDto { UserId = userId, BookIds = new List<int> { 99 } }; // Book 99 doesn't exist
+            var createDto = new CreateRequestDto { UserId = userId, BookIds = new List<int> { 99 } };
             var user = new User { Id = userId, Username = "testuser" };
 
             _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(userId)).ReturnsAsync(user);
             _mockRequestRepository.Setup(repo => repo.GetExistingRequestsOfTheMonth(userId, It.IsAny<DateTime>())).ReturnsAsync(new List<BookBorrowingRequest>());
-            _mockBookRepository.Setup(repo => repo.GetByIdAsync(99)).ReturnsAsync((Book)null); // Book not found
+            _mockBookRepository.Setup(repo => repo.GetByIdAsync(99)).ReturnsAsync((Book)null); 
 
             // Act & Assert
             var ex = Assert.ThrowsAsync<NotFoundException>(() => _requestService.CreateRequestAsync(createDto));
             Assert.AreEqual("Book with ID 99 not found.", ex.Message);
             _mockRequestRepository.Verify(repo => repo.CreateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Never);
-            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Book>()), Times.Never); // Ensure no book quantity was updated
-        }
+            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Book>()), Times.Never); 
 
         [Test]
         public void CreateRequestAsync_BookOutOfStock_ThrowsConflictException()
@@ -265,7 +246,7 @@ namespace LibraryManagement.Application.Test
             var ex = Assert.ThrowsAsync<ConflictException>(() => _requestService.CreateRequestAsync(createDto));
             Assert.AreEqual($"Book {bookOutOfStock.Title} is out of stock.", ex.Message);
             _mockRequestRepository.Verify(repo => repo.CreateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Never);
-            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Book>()), Times.Never); // Ensure no book quantity was updated
+            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Book>()), Times.Never); 
         }
 
 
@@ -289,7 +270,7 @@ namespace LibraryManagement.Application.Test
                 Requestor = requestorUser,
                 Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { BookId = book.Id, Book = book, RequestId = requestId } }
             };
-            var updatedRequestFromRepo = new BookBorrowingRequest // Simulate repo return after update
+            var updatedRequestFromRepo = new BookBorrowingRequest
             {
                 Id = requestId,
                 Status = RequestStatus.Approved,
@@ -304,7 +285,12 @@ namespace LibraryManagement.Application.Test
 
             _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(requestId)).ReturnsAsync(existingRequest);
             _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(adminId)).ReturnsAsync(adminUser);
-            _mockRequestRepository.Setup(repo => repo.UpdateRequestAsync(It.Is<BookBorrowingRequest>(r => r.Id == requestId && r.Status == updateDto.Status && r.ApproverId == adminId))).ReturnsAsync(updatedRequestFromRepo);
+            _mockRequestRepository.Setup(repo => 
+                repo.UpdateRequestAsync(It.Is<BookBorrowingRequest>(r => 
+                    r.Id == requestId && r.Status == updateDto.Status 
+                    && r.ApproverId == adminId)
+                )
+            ).ReturnsAsync(updatedRequestFromRepo);
 
             // Act
             var result = await _requestService.UpdateRequestAsync(requestId, updateDto);
@@ -314,9 +300,9 @@ namespace LibraryManagement.Application.Test
             Assert.AreEqual(requestId, result.Id);
             Assert.AreEqual(RequestStatus.Approved.ToString(), result.Status);
             Assert.AreEqual(adminUser.Username, result.Approver);
-            Assert.AreEqual(4, book.AvailableQuantity); // Quantity should NOT change on approval
+            Assert.AreEqual(4, book.AvailableQuantity); 
 
-            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Book>()), Times.Never); // Ensure book repo update was NOT called
+            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Book>()), Times.Never); 
             _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Once);
         }
 
@@ -329,7 +315,7 @@ namespace LibraryManagement.Application.Test
             var updateDto = new UpdateRequestDto { AdminId = adminId, Status = RequestStatus.Rejected };
             var adminUser = new User { Id = adminId, Username = "admin", Role = UserRole.Admin };
             var requestorUser = new User { Id = 5, Username = "requestor" };
-            var book = new Book { Id = 10, Title = "Book", Author = "Author", AvailableQuantity = 4, TotalQuantity = 5, Category = new Category { Id = 1, Name = "Cat" } }; // Quantity was decremented on creation
+            var book = new Book { Id = 10, Title = "Book", Author = "Author", AvailableQuantity = 4, TotalQuantity = 5, Category = new Category { Id = 1, Name = "Cat" } }; 
             var existingRequest = new BookBorrowingRequest
             {
                 Id = requestId,
@@ -338,7 +324,7 @@ namespace LibraryManagement.Application.Test
                 Requestor = requestorUser,
                 Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { BookId = book.Id, Book = book, RequestId = requestId } }
             };
-            var updatedRequestFromRepo = new BookBorrowingRequest // Simulate repo return after update
+            var updatedRequestFromRepo = new BookBorrowingRequest 
             {
                 Id = requestId,
                 Status = RequestStatus.Rejected,
@@ -353,7 +339,7 @@ namespace LibraryManagement.Application.Test
             _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(requestId)).ReturnsAsync(existingRequest);
             _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(adminId)).ReturnsAsync(adminUser);
             _mockRequestRepository.Setup(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>())).ReturnsAsync(updatedRequestFromRepo);
-            _mockBookRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Book>())).Returns<Book>(b => Task.FromResult(b)); // Simulate update success
+            _mockBookRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Book>())).Returns<Book>(b => Task.FromResult(b)); 
 
             // Act
             var result = await _requestService.UpdateRequestAsync(requestId, updateDto);
@@ -361,9 +347,9 @@ namespace LibraryManagement.Application.Test
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(RequestStatus.Rejected.ToString(), result.Status);
-            Assert.AreEqual(5, book.AvailableQuantity); // Quantity should be incremented back
+            Assert.AreEqual(5, book.AvailableQuantity); 
 
-            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.Is<Book>(b => b.Id == book.Id && b.AvailableQuantity == 5)), Times.Once); // Verify quantity incremented
+            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.Is<Book>(b => b.Id == book.Id && b.AvailableQuantity == 5)), Times.Once); 
             _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Once);
         }
 
@@ -385,7 +371,7 @@ namespace LibraryManagement.Application.Test
             // Arrange
             int requestId = 1;
             var updateDto = new UpdateRequestDto { AdminId = 1, Status = RequestStatus.Approved };
-            var existingRequest = new BookBorrowingRequest { Id = requestId, Status = RequestStatus.Approved }; // Already approved
+            var existingRequest = new BookBorrowingRequest { Id = requestId, Status = RequestStatus.Approved };
             _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(requestId)).ReturnsAsync(existingRequest);
 
             // Act & Assert
@@ -398,12 +384,12 @@ namespace LibraryManagement.Application.Test
         {
             // Arrange
             int requestId = 1;
-            int adminId = 99; // Non-existent admin
+            int adminId = 99; 
             var updateDto = new UpdateRequestDto { AdminId = adminId, Status = RequestStatus.Approved };
             var existingRequest = new BookBorrowingRequest { Id = requestId, Status = RequestStatus.Waiting };
 
             _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(requestId)).ReturnsAsync(existingRequest);
-            _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(adminId)).ReturnsAsync((User)null); // Admin not found
+            _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(adminId)).ReturnsAsync((User)null); 
 
             // Act & Assert
             var ex = Assert.ThrowsAsync<NotFoundException>(() => _requestService.UpdateRequestAsync(requestId, updateDto));
@@ -415,20 +401,20 @@ namespace LibraryManagement.Application.Test
         {
             // Arrange
             int requestId = 1;
-            int nonAdminUserId = 5; // This user exists but is not an admin
+            int nonAdminUserId = 5; 
             var updateDto = new UpdateRequestDto { AdminId = nonAdminUserId, Status = RequestStatus.Approved };
             var nonAdminUser = new User { Id = nonAdminUserId, Username = "notadmin", Role = UserRole.User };
             var existingRequest = new BookBorrowingRequest { Id = requestId, Status = RequestStatus.Waiting };
 
             _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(requestId)).ReturnsAsync(existingRequest);
-            _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(nonAdminUserId)).ReturnsAsync(nonAdminUser); // User found, but not admin
+            _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(nonAdminUserId)).ReturnsAsync(nonAdminUser); 
 
             // Act
             var result = await _requestService.UpdateRequestAsync(requestId, updateDto);
 
             // Assert
-            Assert.IsNull(result); // Service returns null if updater is not admin
-            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Never); // Update should not happen
+            Assert.IsNull(result); 
+            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Never); 
         }
     }
 }

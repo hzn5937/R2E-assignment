@@ -1,12 +1,8 @@
-﻿using LibraryManagement.Domain.Entities;
+﻿using LibraryManagement.Application.Extensions.Exceptions;
+using LibraryManagement.Domain.Entities;
 using LibraryManagement.Domain.Interfaces;
 using LibraryManagement.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibraryManagement.Persistence.Repositories
 {
@@ -65,34 +61,64 @@ namespace LibraryManagement.Persistence.Repositories
 
         public async Task<Book> CreateAsync(Book book)
         {
-            await _context.Books.AddAsync(book);
-            await _context.SaveChangesAsync();
-
-            return book;
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                await _context.Books.AddAsync(book);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return book;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw new TransactionFailedException();
+            }
         }
 
         public async Task<Book> UpdateAsync(Book book)
         {
-            var existing = await _context.Books.FindAsync(book.Id);
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            existing.Title = book.Title;
-            existing.Author = book.Author;
-            existing.TotalQuantity = book.TotalQuantity;
-            existing.AvailableQuantity = book.AvailableQuantity;
-            existing.DeletedAt = book.DeletedAt;
-            existing.CategoryId = book.CategoryId;
+            try
+            {
+                var existing = await _context.Books.FindAsync(book.Id);
 
-            await _context.SaveChangesAsync();
+                existing.Title = book.Title;
+                existing.Author = book.Author;
+                existing.TotalQuantity = book.TotalQuantity;
+                existing.AvailableQuantity = book.AvailableQuantity;
+                existing.DeletedAt = book.DeletedAt;
+                existing.CategoryId = book.CategoryId;
 
-            await _context.Entry(existing).Reference(b => b.Category).LoadAsync();
+                await _context.SaveChangesAsync();
 
-            return existing;
+                await _context.Entry(existing).Reference(b => b.Category).LoadAsync();
+                await transaction.CommitAsync();
+                return existing;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw new TransactionFailedException();
+            }
         }
 
         public async Task DeleteAsync(Book book)
         {
-            _context.Books.Update(book);
-            await _context.SaveChangesAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                _context.Books.Update(book);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw new TransactionFailedException();
+            }
         }
 
         public async Task<Book?> GetByTitleAndAuthorAsync(string title, string author)

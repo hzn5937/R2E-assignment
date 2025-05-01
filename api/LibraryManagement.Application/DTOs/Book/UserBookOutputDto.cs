@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LibraryManagement.Application.DTOs.Book
+﻿namespace LibraryManagement.Application.DTOs.Book
 {
     public class UserBookOutputDto
     {

@@ -3,7 +3,6 @@ using LibraryManagement.Application.Interfaces;
 using LibraryManagement.Domain.Common;
 using LibraryManagement.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagement.Api.Controllers

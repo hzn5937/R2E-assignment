@@ -1,8 +1,6 @@
 ﻿using LibraryManagement.Application.DTOs.Category;
 using LibraryManagement.Application.Interfaces;
-using LibraryManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagement.Api.Controllers

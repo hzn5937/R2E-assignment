@@ -578,42 +578,6 @@
           }
         }
       }
-    },
-    "/api/Values/admin": {
-      "get": {
-        "tags": [
-          "Values"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Values/user": {
-      "get": {
-        "tags": [
-          "Values"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Values/general": {
-      "get": {
-        "tags": [
-          "Values"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
     }
   },
   "components": {

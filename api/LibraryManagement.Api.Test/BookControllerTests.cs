@@ -1,13 +1,10 @@
-using NUnit.Framework;
 using Moq;
 using LibraryManagement.Api.Controllers;
 using LibraryManagement.Application.Interfaces;
 using LibraryManagement.Application.DTOs.Book;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 using LibraryManagement.Application.Extensions.Exceptions;
-using System.Collections.Generic;
-using LibraryManagement.Application.DTOs.Common; // Needed for PaginatedOutputDto
+using LibraryManagement.Application.DTOs.Common; 
 
 namespace LibraryManagement.Api.Test
 {
@@ -102,7 +99,7 @@ namespace LibraryManagement.Api.Test
         }
 
         [Test]
-        public void CreateBook_WhenConflictOccurs_ThrowsConflictException() // Return type is void for Assert.ThrowsAsync
+        public void CreateBook_WhenConflictOccurs_ThrowsConflictException() 
         {
             // Arrange
             var createDto = new CreateBookDto { Title = "Existing Book", Author = "Existing Author", CategoryId = 1 };
@@ -112,7 +109,6 @@ namespace LibraryManagement.Api.Test
 
             // Act & Assert
             Assert.ThrowsAsync<ConflictException>(async () => await _bookController.CreateBook(createDto));
-
             _mockBookService.Verify(s => s.CreateAsync(createDto), Times.Once);
         }
 
@@ -136,14 +132,13 @@ namespace LibraryManagement.Api.Test
         }
 
         [Test]
-        public void UpdateBook_WhenBookNotFound_ThrowsNotFoundExceptionWithMessage() // Changed return type to void
+        public void UpdateBook_WhenBookNotFound_ThrowsNotFoundExceptionWithMessage() 
         {
             // Arrange
             int bookId = 99;
             var updateDto = new UpdateBookDto { Title = "Update", Author = "Update", CategoryId = 1, TotalQuantity = 5 };
-            var expectedMessage = $"Book with ID {bookId} not found."; // Store the expected message
-            _mockBookService.Setup(service => service.UpdateAsync(bookId, updateDto))
-                           .ThrowsAsync(new NotFoundException(expectedMessage)); // Setup mock to throw
+            var expectedMessage = $"Book with ID {bookId} not found."; 
+            _mockBookService.Setup(service => service.UpdateAsync(bookId, updateDto)).ThrowsAsync(new NotFoundException(expectedMessage));
 
             // Act
             var ex = Assert.ThrowsAsync<NotFoundException>(async () => await _bookController.UpdateBook(bookId, updateDto));
@@ -151,7 +146,6 @@ namespace LibraryManagement.Api.Test
             // Assert
             Assert.IsNotNull(ex);
             Assert.AreEqual(expectedMessage, ex.Message);
-
             _mockBookService.Verify(s => s.UpdateAsync(bookId, updateDto), Times.Once);
         }
 

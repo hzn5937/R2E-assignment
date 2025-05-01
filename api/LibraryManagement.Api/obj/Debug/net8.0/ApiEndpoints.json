@@ -342,35 +342,5 @@
       }
     ],
     "ReturnTypes": []
-  },
-  {
-    "ContainingType": "LibraryManagement.Api.Controllers.ValuesController",
-    "Method": "GetAdmin",
-    "RelativePath": "api/Values/admin",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "LibraryManagement.Api.Controllers.ValuesController",
-    "Method": "Get",
-    "RelativePath": "api/Values/general",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "LibraryManagement.Api.Controllers.ValuesController",
-    "Method": "GetUser",
-    "RelativePath": "api/Values/user",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
   }
 ]

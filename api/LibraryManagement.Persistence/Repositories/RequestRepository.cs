@@ -1,13 +1,9 @@
-﻿using LibraryManagement.Domain.Entities;
+﻿using LibraryManagement.Application.Extensions.Exceptions;
+using LibraryManagement.Domain.Entities;
 using LibraryManagement.Domain.Enums;
 using LibraryManagement.Domain.Interfaces;
 using LibraryManagement.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibraryManagement.Persistence.Repositories
 {
@@ -74,37 +70,59 @@ namespace LibraryManagement.Persistence.Repositories
 
         public async Task<BookBorrowingRequest> CreateRequestAsync(BookBorrowingRequest request)
         {
-            _context.BookBorrowingRequests.Add(request);
-            await _context.SaveChangesAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            var created = await _context.BookBorrowingRequests
-                .Include(r => r.Requestor)
-                .Include(r => r.Approver)
-                .Include(r => r.Details)
-                    .ThenInclude(d => d.Book)
-                    .ThenInclude(b => b.Category)
-                .FirstAsync(r => r.Id == request.Id);
+            try
+            {
+                _context.BookBorrowingRequests.Add(request);
+                await _context.SaveChangesAsync();
 
-            return created;
+                var created = await _context.BookBorrowingRequests
+                    .Include(r => r.Requestor)
+                    .Include(r => r.Approver)
+                    .Include(r => r.Details)
+                        .ThenInclude(d => d.Book)
+                        .ThenInclude(b => b.Category)
+                    .FirstAsync(r => r.Id == request.Id);
+
+                await transaction.CommitAsync();
+                return created;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw new TransactionFailedException();
+            }
         }
 
         public async Task<BookBorrowingRequest?> UpdateRequestAsync(BookBorrowingRequest request)
         {
-            var existingRequest = await _context.BookBorrowingRequests
-                .Include(r => r.Requestor)
-                .Include(r => r.Approver)
-                .Include(r => r.Details)
-                    .ThenInclude(d => d.Book)
-                    .ThenInclude(b => b.Category)
-                .FirstOrDefaultAsync(r => r.Id == request.Id);
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            if (existingRequest != null)
+            try
             {
-                _context.Entry(existingRequest).CurrentValues.SetValues(request);
-                await _context.SaveChangesAsync();
-            }
+                var existingRequest = await _context.BookBorrowingRequests
+                    .Include(r => r.Requestor)
+                    .Include(r => r.Approver)
+                    .Include(r => r.Details)
+                        .ThenInclude(d => d.Book)
+                        .ThenInclude(b => b.Category)
+                    .FirstOrDefaultAsync(r => r.Id == request.Id);
 
-            return existingRequest;
+                if (existingRequest != null)
+                {
+                    _context.Entry(existingRequest).CurrentValues.SetValues(request);
+                    await _context.SaveChangesAsync();
+                }
+
+                await transaction.CommitAsync();
+                return existingRequest;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw new TransactionFailedException();
+            }
         }
     }
 }

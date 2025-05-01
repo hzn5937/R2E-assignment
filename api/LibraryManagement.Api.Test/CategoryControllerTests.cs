@@ -1,12 +1,9 @@
-﻿using NUnit.Framework;
-using Moq;
+﻿using Moq;
 using LibraryManagement.Api.Controllers;
 using LibraryManagement.Application.Interfaces;
 using LibraryManagement.Application.DTOs.Category;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using LibraryManagement.Application.DTOs.Common; // For PaginatedOutputDto
+using LibraryManagement.Application.DTOs.Common; 
 using LibraryManagement.Application.Extensions.Exceptions;
 
 namespace LibraryManagement.Api.Test
@@ -106,14 +103,12 @@ namespace LibraryManagement.Api.Test
         {
             // Arrange
             var createDto = new CreateCategoryDto { Name = "Existing" };
-            _mockCategoryService.Setup(service => service.CreateAsync(createDto))
-                                .ThrowsAsync(new ConflictException("Category already exists"));
+            _mockCategoryService.Setup(service => service.CreateAsync(createDto)).ThrowsAsync(new ConflictException("Category already exists"));
 
             // Act & Assert
             Assert.ThrowsAsync<ConflictException>(async () => await _categoryController.CreateCategory(createDto));
             _mockCategoryService.Verify(s => s.CreateAsync(createDto), Times.Once);
         }
-
 
         [Test]
         public async Task UpdateCategory_WhenSuccessful_ReturnsOkResult()
@@ -140,14 +135,12 @@ namespace LibraryManagement.Api.Test
             // Arrange
             int categoryId = 99;
             var updateDto = new UpdateCategoryDto { Name = "Update Name" };
-            var expectedMessage = $"Category with ID {categoryId} not found."; // Message from controller if service returns null
-                                                                               // Or, if service throws NotFoundException:
-            _mockCategoryService.Setup(service => service.UpdateAsync(categoryId, updateDto))
-                               .ThrowsAsync(new NotFoundException(expectedMessage)); // Use NotFoundException
+            var expectedMessage = $"Category with ID {categoryId} not found.";
+            _mockCategoryService.Setup(service => service.UpdateAsync(categoryId, updateDto)).ThrowsAsync(new NotFoundException(expectedMessage));
 
             // Act & Assert
             var ex = Assert.ThrowsAsync<NotFoundException>(async () => await _categoryController.UpdateCategory(categoryId, updateDto));
-            Assert.AreEqual(expectedMessage, ex.Message); // Check the exception message
+            Assert.AreEqual(expectedMessage, ex.Message);
             _mockCategoryService.Verify(s => s.UpdateAsync(categoryId, updateDto), Times.Once);
         }
 
@@ -164,7 +157,6 @@ namespace LibraryManagement.Api.Test
             Assert.ThrowsAsync<ConflictException>(async () => await _categoryController.UpdateCategory(categoryId, updateDto));
             _mockCategoryService.Verify(s => s.UpdateAsync(categoryId, updateDto), Times.Once);
         }
-
 
         [Test]
         public async Task DeleteCategory_WhenSuccessful_ReturnsNoContentResult()

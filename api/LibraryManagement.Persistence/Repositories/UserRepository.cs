@@ -1,12 +1,8 @@
-﻿using LibraryManagement.Domain.Entities;
+﻿using LibraryManagement.Application.Extensions.Exceptions;
+using LibraryManagement.Domain.Entities;
 using LibraryManagement.Domain.Interfaces;
 using LibraryManagement.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibraryManagement.Persistence.Repositories
 {
@@ -42,30 +38,52 @@ namespace LibraryManagement.Persistence.Repositories
 
         public async Task UpdateAsync(User user, CancellationToken ct = default)
         {
-            var existingUser = await _context.Users.FindAsync(new object[] { user.Id }, ct);
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            if (existingUser == null)
+            try
             {
-                throw new InvalidOperationException($"User with ID {user.Id} not found.");
+                var existingUser = await _context.Users.FindAsync(new object[] { user.Id }, ct);
+
+                if (existingUser == null)
+                {
+                    throw new InvalidOperationException($"User with ID {user.Id} not found.");
+                }
+
+                existingUser.Username = user.Username;
+                existingUser.PasswordHash = user.PasswordHash;
+                existingUser.Email = user.Email;
+                existingUser.Role = user.Role;
+                existingUser.RefreshToken = user.RefreshToken;
+                existingUser.RefreshTokenExpiryTime = user.RefreshTokenExpiryTime;
+
+                _context.Entry(existingUser).State = EntityState.Modified;
+
+                await _context.SaveChangesAsync(ct);
+                await transaction.CommitAsync(ct);
             }
-
-            existingUser.Username = user.Username;
-            existingUser.PasswordHash = user.PasswordHash;
-            existingUser.Email = user.Email;
-            existingUser.Role = user.Role;
-            existingUser.RefreshToken = user.RefreshToken;
-            existingUser.RefreshTokenExpiryTime = user.RefreshTokenExpiryTime;
-
-            _context.Entry(existingUser).State = EntityState.Modified;
-
-            await _context.SaveChangesAsync(ct);
+            catch
+            {
+                await transaction.RollbackAsync(ct);
+                throw new TransactionFailedException();
+            }
         }
 
         public async Task AddAsync(User user, CancellationToken ct = default)
         {
-            await _context.Users.AddAsync(user, ct);
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            await _context.SaveChangesAsync(ct);
+            try
+            {
+                await _context.Users.AddAsync(user, ct);
+
+                await _context.SaveChangesAsync(ct);
+                await transaction.CommitAsync(ct);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(ct);
+                throw new TransactionFailedException();
+            }
         }
     }
 }

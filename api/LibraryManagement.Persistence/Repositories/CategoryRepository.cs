@@ -1,12 +1,8 @@
-﻿using LibraryManagement.Domain.Entities;
+﻿using LibraryManagement.Application.Extensions.Exceptions;
+using LibraryManagement.Domain.Entities;
 using LibraryManagement.Domain.Interfaces;
 using LibraryManagement.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibraryManagement.Persistence.Repositories
 {
@@ -50,33 +46,64 @@ namespace LibraryManagement.Persistence.Repositories
 
         public async Task<Category> CreateAsync(Category category)
         {
-            var result = await _context.Categories.AddAsync(category);
-            await _context.SaveChangesAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            return result.Entity;
+            try
+            {
+                var result = await _context.Categories.AddAsync(category);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return result.Entity;
+            }
+            catch 
+            {
+                await transaction.RollbackAsync();
+                throw new TransactionFailedException();
+            }
         }
 
         public async Task<Category> UpdateAsync(Category category)
         {
-            var existing = await _context.Categories.FindAsync(category.Id);
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            existing.Name = category.Name;
+            try
+            {
+                var existing = await _context.Categories.FindAsync(category.Id);
 
-            await _context.SaveChangesAsync();
+                existing.Name = category.Name;
 
-            return existing;
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return existing;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw new TransactionFailedException();
+            }
         }
 
         public async Task DeleteAsync(int id)
         {
-            var query = from c in _context.Categories
-                        where c.Id == id
-                        select c;
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            var category = await query.FirstAsync();
+            try
+            {
+                var query = from c in _context.Categories
+                            where c.Id == id
+                            select c;
 
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
+                var category = await query.FirstAsync();
+
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw new TransactionFailedException();
+            }
         }
 
         public async Task<Category?> GetByNameAsync(string name)
