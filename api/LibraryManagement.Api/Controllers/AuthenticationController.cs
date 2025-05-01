@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagement.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/authentication")]
     [ApiController]
     public class AuthenticationController : ControllerBase
     {
@@ -44,7 +44,7 @@ namespace LibraryManagement.Api.Controllers
                 return Unauthorized("");
             }
 
-            return Ok(new { token });
+            return Ok(token);
         }
 
         [HttpPost("refresh")]
@@ -57,7 +57,7 @@ namespace LibraryManagement.Api.Controllers
                 return Unauthorized("Invalid or expired refresh token");
             }
 
-            return Ok(new { token = refreshedToken });
+            return Ok(refreshedToken);
         }
 
     }

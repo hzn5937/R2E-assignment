@@ -13,7 +13,17 @@ namespace LibraryManagement.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("SpaDevPolicy", policy =>
+                {
+                    policy.WithOrigins(
+                              "http://localhost:5173")   // Vite default
+                          .AllowAnyHeader()              // or .WithHeaders("Content-Type", "Authorization", …)
+                          .AllowAnyMethod()              // GET, POST, PUT, DELETE …
+                          .AllowCredentials();           // only if you really need cookies / auth
+                });
+            });
 
             builder.Services.AddControllers();
 
@@ -66,6 +76,8 @@ namespace LibraryManagement.Api
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("SpaDevPolicy");
 
             app.UseAuthentication();
             app.UseAuthorization();

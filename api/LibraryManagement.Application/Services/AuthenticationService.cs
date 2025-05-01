@@ -54,6 +54,7 @@ namespace LibraryManagement.Application.Services
 
             var output = new LoginOutputDto()
             {
+                Id = user.Id,
                 Username = user.Username,
                 Role = user.Role,
                 AccessToken = GenerateAccessToken(user),
@@ -86,6 +87,7 @@ namespace LibraryManagement.Application.Services
 
             var output = new LoginOutputDto()
             {
+                Id = user.Id,
                 Username = user.Username,
                 Role = user.Role,
                 AccessToken = GenerateAccessToken(user),
@@ -126,6 +128,7 @@ namespace LibraryManagement.Application.Services
             var refreshToken = GenerateRefreshToken();
             var refreshTokenExpiry = DateTime.UtcNow.AddDays(Constants.RefreshTokenExpirationDays);
 
+            output.Id = user.Id;
             output.Username = user.Username;
             output.Role = user.Role;
             output.AccessToken = GenerateAccessToken(user);

@@ -2,7 +2,7 @@
   {
     "ContainingType": "LibraryManagement.Api.Controllers.AuthenticationController",
     "Method": "Login",
-    "RelativePath": "api/Authentication/login",
+    "RelativePath": "api/authentication/login",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -18,7 +18,7 @@
   {
     "ContainingType": "LibraryManagement.Api.Controllers.AuthenticationController",
     "Method": "Refresh",
-    "RelativePath": "api/Authentication/refresh",
+    "RelativePath": "api/authentication/refresh",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -34,7 +34,7 @@
   {
     "ContainingType": "LibraryManagement.Api.Controllers.AuthenticationController",
     "Method": "Register",
-    "RelativePath": "api/Authentication/register",
+    "RelativePath": "api/authentication/register",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
