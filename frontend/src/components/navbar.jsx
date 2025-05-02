@@ -17,8 +17,8 @@ const SiderMenu = () => {
         <Menu.Item key="/" icon={<UserOutlined />}>
           <Link to="/">Home</Link>
         </Menu.Item>
-        <Menu.Item key="/borrowing" icon={<VideoCameraOutlined />}>
-          <Link to="/borrowing">My Borrowing</Link>
+        <Menu.Item key="/requests" icon={<VideoCameraOutlined />}>
+          <Link to="/requests">My Borrowing</Link>
         </Menu.Item>
       </Menu>
     </>

@@ -3,7 +3,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AppLayout from './layout/app_layout';
 import Home from './pages/user/Home';
-import Post from './pages/user/Post';
+import MyBorrowing from './pages/user/MyBorrowing';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -23,7 +23,7 @@ export default function App() {
           }
         >
           <Route index element={<Home />} />           {/* “/”          */}
-          <Route path="borrowing" element={<Post />} />{/* “/borrowing” */}
+          <Route path="requests" element={<MyBorrowing />} />{/* “/requests” */}
           {/* add more private pages here */}
         </Route>
       </Routes>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Home from './pages/user/Home';
-import Post from './pages/user/Post';
+import MyBorrowing from './pages/user/MyBorrowing';
 import LoginPage from './pages/user/LoginPage'; // Import Login Page
 import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 import AppLayout from './layout/app_layout'; // Assuming AppLayout contains Navbar/Header
@@ -24,7 +24,7 @@ const Routing = () => (
             path="/borrowing"
             element={
                 <ProtectedRoute>
-                    <Post />
+                    <MyBorrowing />
                 </ProtectedRoute>
             }
         />

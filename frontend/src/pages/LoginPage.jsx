@@ -17,24 +17,40 @@ const LoginPage = () => {
   const onFinish = async (values) => {
     setLoading(true);
     setError('');
-    const success = await login(values.username, values.password);
-    setLoading(false);
-    if (success) {
-      navigate(from, { replace: true });
-    } else {
-      setError('Login failed. Please check your credentials.');
+    try {
+      const success = await login(values.username, values.password);
+      if (success) {
+        navigate(from, { replace: true });
+      } else {
+        console.log('Login failed, setting error message');
+        setError('Login failed. Please check your credentials.');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('An error occurred during login. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="flex justify-center items-center h-full bg-gray-100">
       <Card title="Login" className="w-full max-w-sm">
+        {error && (
+          <Alert 
+            message={error} 
+            type="error" 
+            showIcon 
+            className="mb-4" 
+            style={{ marginBottom: '16px' }}
+          />
+        )}
         <Form
           name="login_form"
           initialValues={{ remember: true }}
           onFinish={onFinish}
         >
-          {error && <Alert message={error} type="error" showIcon closable className="mb-4" />}
+          {/* No error display here - moved outside form */}
           <Form.Item
             name="username"
             rules={[{ required: true, message: 'Please input your Username!' }]}

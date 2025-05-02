@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Tag, Button, Pagination } from 'antd';
+import { Table, Tag, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../utils/axiosConfig';
 import { useAuth } from '../../context/AuthContext';
+import PaginationControls from '../../components/pagination';
 
-export default function Post() {
+export default function MyBorrowing() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
@@ -64,6 +65,10 @@ export default function Post() {
   const handlePageChange = (page, pageSize) => {
     fetchRequests(page, pageSize);
   };
+  
+  const handlePageSizeChange = (newPageSize) => {
+    fetchRequests(1, newPageSize);
+  };
 
   const columns = [
     { title: 'ID', dataIndex: 'id', key: 'id' },
@@ -108,19 +113,14 @@ export default function Post() {
         loading={loading}
       />
       
-      {pagination.total > pagination.pageSize && (
-        <div className="mt-4 flex justify-end">
-          <Pagination
-            current={pagination.current}
-            pageSize={pagination.pageSize}
-            total={pagination.total}
-            onChange={handlePageChange}
-            showSizeChanger={false}
-            showQuickJumper
-            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} requests`}
-          />
-        </div>
-      )}
+      <div className="mt-4">
+        <PaginationControls 
+          pagination={pagination}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          itemName="requests"
+        />
+      </div>
     </div>
   );
 }
