@@ -98,10 +98,9 @@ namespace LibraryManagement.Api.Test
             Assert.IsInstanceOf<OkObjectResult>(result);
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult.Value);
-            var resultValue = okResult.Value;
-            var tokenProperty = resultValue.GetType().GetProperty("token");
-            Assert.IsNotNull(tokenProperty);
-            Assert.AreEqual(loginOutputDto, tokenProperty.GetValue(resultValue));
+            Assert.IsInstanceOf<LoginOutputDto>(okResult.Value); 
+            var resultValue = okResult.Value as LoginOutputDto; 
+            Assert.AreEqual(loginOutputDto, resultValue);
             _mockAuthService.Verify(s => s.VerifyUserAsync(loginDto, It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -148,10 +147,9 @@ namespace LibraryManagement.Api.Test
             Assert.IsInstanceOf<OkObjectResult>(result);
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult.Value);
-            var resultValue = okResult.Value;
-            var tokenProperty = resultValue.GetType().GetProperty("token");
-            Assert.IsNotNull(tokenProperty);
-            Assert.AreEqual(newLoginOutputDto, tokenProperty.GetValue(resultValue));
+            Assert.IsInstanceOf<LoginOutputDto>(okResult.Value);
+            var resultValue = okResult.Value as LoginOutputDto; 
+            Assert.AreEqual(newLoginOutputDto, resultValue);
             _mockAuthService.Verify(s => s.RefreshAsync(refreshDto, It.IsAny<CancellationToken>()), Times.Once);
         }
 

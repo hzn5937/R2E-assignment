@@ -17,12 +17,19 @@ namespace LibraryManagement.Api.Controllers
             _bookService = bookService;
         }
 
+        [HttpGet("overview")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetBookOverview()
+        {
+            var bookCount = await _bookService.GetBookCountAsync();
+            return Ok(bookCount);
+        }
+
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetBooks([FromQuery] int pageNum=Constants.DefaultPageNum, [FromQuery] int pageSize=Constants.DefaultPageSize)
         {
             var books = await _bookService.GetAllAsync(pageNum, pageSize);
-
             return Ok(books);
         }
 

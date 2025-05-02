@@ -98,6 +98,18 @@
         }
       }
     },
+    "/api/books/overview": {
+      "get": {
+        "tags": [
+          "Book"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/books": {
       "get": {
         "tags": [
@@ -388,6 +400,18 @@
         }
       }
     },
+    "/api/requests/overview": {
+      "get": {
+        "tags": [
+          "Request"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/requests/available/{userId}": {
       "get": {
         "tags": [
@@ -572,6 +596,18 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/users/count": {
+      "get": {
+        "tags": [
+          "User"
+        ],
         "responses": {
           "200": {
             "description": "OK"

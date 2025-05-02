@@ -18,6 +18,18 @@ namespace LibraryManagement.Api.Controllers
             _requestService = requestService;
         }
 
+        [HttpGet("overview")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetRequestOverview()
+        {
+            var requestOverview = await _requestService.GetRequestOverviewAsync();
+            if (requestOverview is null)
+            {
+                return NotFound("No requests found.");
+            }
+            return Ok(requestOverview);
+        }
+
         [HttpGet]
         [Route("available/{userId}")]
         [Authorize]

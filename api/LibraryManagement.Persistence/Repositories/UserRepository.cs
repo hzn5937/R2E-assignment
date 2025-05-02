@@ -14,6 +14,15 @@ namespace LibraryManagement.Persistence.Repositories
             _context = context;
         }
 
+        public async Task<IEnumerable<User>> GetAllAsync()
+        {
+            var query = from u in _context.Users
+                        select u;
+
+            var result = await query.ToListAsync();
+
+            return result;
+        }
         public async Task<User?> GetUserByIdAsync(int id)
         {
             var query = from u in _context.Users

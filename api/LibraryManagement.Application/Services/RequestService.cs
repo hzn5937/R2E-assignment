@@ -23,6 +23,33 @@ namespace LibraryManagement.Application.Services
             _bookRepository = bookRepository;
         }
 
+        public async Task<RequestOverviewOutputDto?> GetRequestOverviewAsync()
+        {
+            var existingRequest = await _requestRepository.GetAllRequestsAsync();
+
+            if (existingRequest is null || !existingRequest.Any())
+            {
+                return null;
+            }
+
+            var totalRequest = existingRequest.Count();
+
+            var totalWaiting = existingRequest.Count(x => x.Status == RequestStatus.Waiting);
+            var totalApproved = existingRequest.Count(x => x.Status == RequestStatus.Approved);
+            var totalRejected = existingRequest.Count(x => x.Status == RequestStatus.Rejected);
+
+            var output = new RequestOverviewOutputDto
+            {
+                TotalRequestCount = totalRequest,
+                PendingRequestCount = totalWaiting,
+                ApprovedRequestCount = totalApproved,
+                RejectedRequestCount = totalRejected
+            };
+
+            return output;
+        }
+
+
         public async Task<AvailableRequestOutputDto> GetAvailableRequestsAsync(int userId)
         {
             var existingUser = await _userRepository.GetUserByIdAsync(userId);
@@ -268,7 +295,6 @@ namespace LibraryManagement.Application.Services
 
             return output;
         }
-
 
         // Helper function
         public async Task<int> GetRemainingMonthlyRequestsAsync(int userId)

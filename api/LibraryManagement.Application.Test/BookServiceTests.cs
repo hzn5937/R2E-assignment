@@ -288,6 +288,32 @@ namespace LibraryManagement.Application.Test
             Assert.IsFalse(result);
             _mockBookRepository.Verify(repo => repo.DeleteAsync(It.IsAny<Book>()), Times.Never);
         }
+
+        [Test]
+        public async Task GetBookCountAsync_ShouldReturnCorrectCounts()
+        {
+            // Arrange
+            var books = new List<Book>
+            {
+                new Book { Id = 1, Title = "Available Book 1", Author = "Author A", AvailableQuantity = 2, DeletedAt = null },
+                new Book { Id = 2, Title = "Available Book 2", Author = "Author B", AvailableQuantity = 1, DeletedAt = null }, 
+                new Book { Id = 3, Title = "Unavailable Book 1", Author = "Author C", AvailableQuantity = 0, DeletedAt = null }, 
+                new Book { Id = 4, Title = "Unavailable Book 2", Author = "Author D", AvailableQuantity = 0, DeletedAt = null }, 
+                new Book { Id = 5, Title = "Deleted Book", Author = "Author E", AvailableQuantity = 1, DeletedAt = DateTime.UtcNow }
+            };
+            _mockBookRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(books);
+
+            // Act
+            var result = await _bookService.GetBookCountAsync();
+
+            // Assert
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.InstanceOf<BookCountOutputDto>()); 
+            Assert.That(result.TotalBooks, Is.EqualTo(4)); 
+            Assert.That(result.TotalAvailable, Is.EqualTo(2)); 
+            Assert.That(result.TotalNotAvailable, Is.EqualTo(2)); 
+            _mockBookRepository.Verify(r => r.GetAllAsync(), Times.Once); 
+        }
     }
 }
 

@@ -189,5 +189,26 @@ namespace LibraryManagement.Api.Test
             Assert.AreEqual($"Category with ID {categoryId} not found.", notFoundResult.Value);
             _mockCategoryService.Verify(s => s.DeleteAsync(categoryId), Times.Once);
         }
+
+        [Test]
+        public async Task UpdateCategory_ServiceReturnsNull_ReturnsNotFoundResult()
+        {
+            // Arrange
+            var categoryId = 99; 
+            var updateDto = new UpdateCategoryDto { Name = "NonExistent Category Update" };
+
+            _mockCategoryService.Setup(s => s.UpdateAsync(categoryId, It.IsAny<UpdateCategoryDto>()))
+                .ReturnsAsync((CategoryOutputDto)null); 
+
+            // Act
+            var result = await _categoryController.UpdateCategory(categoryId, updateDto);
+
+            // Assert
+            Assert.IsInstanceOf<NotFoundObjectResult>(result);
+            var notFoundResult = result as NotFoundObjectResult;
+            Assert.IsNotNull(notFoundResult);
+            Assert.AreEqual($"Category with ID {categoryId} not found.", notFoundResult.Value);
+            _mockCategoryService.Verify(s => s.UpdateAsync(categoryId, updateDto), Times.Once);
+        }
     }
 }
