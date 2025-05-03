@@ -15,7 +15,7 @@ const PaginationControls = ({
   return (
     <>
       {/* Row 1: Item count display and page size selection */}
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mb-2 flex-wrap">
         <div>
           {/* Calculate the range manually */}
           {`${(current - 1) * pageSize + 1}-${Math.min(current * pageSize, total)} of ${total} ${itemName}`}

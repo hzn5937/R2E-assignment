@@ -3,8 +3,7 @@ import { Menu } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
 import {
   UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
+  DatabaseTwoTone,
 } from '@ant-design/icons';
 
 const SiderMenu = () => {
@@ -17,7 +16,7 @@ const SiderMenu = () => {
         <Menu.Item key="/" icon={<UserOutlined />}>
           <Link to="/">Home</Link>
         </Menu.Item>
-        <Menu.Item key="/requests" icon={<VideoCameraOutlined />}>
+        <Menu.Item key="/requests" icon={<DatabaseTwoTone />}>
           <Link to="/requests">My Borrowing</Link>
         </Menu.Item>
       </Menu>

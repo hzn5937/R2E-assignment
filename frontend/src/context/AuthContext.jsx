@@ -151,7 +151,10 @@ export const AuthProvider = ({ children }) => {
         refreshTokenExpires,
       } = res.data;
 
-      setUser({ id, username: serverUsername, role });
+      const userData = { id, username: serverUsername, role };
+      
+      // Update state
+      setUser(userData);
       setTokens({
         accessToken,
         accessTokenExpires,
@@ -159,11 +162,18 @@ export const AuthProvider = ({ children }) => {
         refreshTokenExpires,
       });
 
-      return true;
+      // Return success with user data
+      return { 
+        success: true, 
+        user: userData 
+      };
     } catch (err) {
       console.error('Login failed:', err);
       logout();
-      return false;
+      return { 
+        success: false, 
+        error: err.response?.data?.message || 'Authentication failed' 
+      };
     }
   };
 

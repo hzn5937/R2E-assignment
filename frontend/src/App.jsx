@@ -1,32 +1,55 @@
-// src/App.jsx
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import AppLayout from './layout/app_layout';
-import Home from './pages/user/Home';
-import MyBorrowing from './pages/user/MyBorrowing';
-import LoginPage from './pages/LoginPage';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
-export default function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* 1️⃣  Public */}
-        <Route path="/login" element={<LoginPage />} />
+// Single shared layout
+import AppLayout from './layout/app_layout';
 
-        {/* 2️⃣  Protected – everything here renders inside AppLayout */}
-        <Route
-          element={
-            <ProtectedRoute>
-              <AppLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Home />} />           {/* “/”          */}
-          <Route path="requests" element={<MyBorrowing />} />{/* “/requests” */}
-          {/* add more private pages here */}
-        </Route>
-      </Routes>
-    </BrowserRouter>
+// Public Pages
+import LoginPage from './pages/LoginPage';
+
+// User Pages
+import UserHome from './pages/user/UserHome';
+import MyBorrowing from './pages/user/Request/MyBorrowing';
+import RequestDetailPage from './pages/user/Request/RequestDetailPage';
+
+// Admin Pages
+import AdminHome from './pages/admin/AdminHome';
+
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<LoginPage />} />
+          
+          {/* Admin Routes - using shared layout */}
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route element={<AppLayout />}>
+              <Route path="/admin" element={<AdminHome />} />
+              {/* Add more admin routes as they become available */}
+            </Route>
+          </Route>
+          
+          {/* User Routes - using same shared layout */}
+          <Route element={<ProtectedRoute allowedRoles={['user']} />}>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<UserHome />} />
+              <Route path="/requests" element={<MyBorrowing />} />
+              <Route path="/requests/:id" element={<RequestDetailPage />} />
+              <Route path="/request/:id" element={<RequestDetailPage />} /> {/* Added this as a fallback for existing links */}
+              {/* Add more user routes as they become available */}
+            </Route>
+          </Route>
+          
+          {/* Default redirect */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }
+
+export default App;

@@ -18,12 +18,18 @@ const LoginPage = () => {
     setLoading(true);
     setError('');
     try {
-      const success = await login(values.username, values.password);
-      if (success) {
-        navigate(from, { replace: true });
+      const result = await login(values.username, values.password);
+      
+      if (result.success) {
+        // Use the user data returned directly from the login function
+        const role = result.user?.role || '';
+        const redirectPath = role.toLowerCase() === 'admin' ? '/admin' : '/';
+        
+        console.log('Login successful, redirecting to:', redirectPath);
+        navigate(redirectPath, { replace: true });
       } else {
-        console.log('Login failed, setting error message');
-        setError('Login failed. Please check your credentials.');
+        console.log('Login failed:', result.error);
+        setError(result.error || 'Login failed. Please check your credentials.');
       }
     } catch (err) {
       console.error('Login error:', err);

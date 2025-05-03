@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Tag, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../../utils/axiosConfig';
-import { useAuth } from '../../context/AuthContext';
-import PaginationControls from '../../components/pagination';
+import axiosInstance from '../../../utils/axiosConfig';
+import { useAuth } from '../../../context/AuthContext';
+import PaginationControls from '../../../components/pagination';
 
 export default function MyBorrowing() {
   const [requests, setRequests] = useState([]);
@@ -72,7 +72,12 @@ export default function MyBorrowing() {
 
   const columns = [
     { title: 'ID', dataIndex: 'id', key: 'id' },
-    { title: 'Date Requested', dataIndex: 'requestedDate', key: 'requestedDate' },
+    { 
+      title: 'Date Requested', 
+      dataIndex: 'requestedDate', 
+      key: 'requestedDate',
+      render: text => new Date(text).toLocaleString()
+    },
     {
       title: 'Status',
       dataIndex: 'status',
@@ -86,14 +91,16 @@ export default function MyBorrowing() {
         return <Tag color={color}>{status.toUpperCase()}</Tag>;
       }
     },
-    { title: 'Approver', dataIndex: 'approver', key: 'approver', render: text => text || '—' },
+    { title: 'Approver', dataIndex: 'approver', key: 'approver', render: text => text || 'N/A' },
     {
       title: 'Action',
       key: 'action',
       render: (_, record) => (
         <Button
           type="primary"
-          onClick={() => navigate(`/request/${record.id}`)}
+          onClick={() => {
+            navigate(`/requests/${record.id}`);
+          }}
         >
           View Details
         </Button>
