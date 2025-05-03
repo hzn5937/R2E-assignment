@@ -152,7 +152,6 @@ C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\r
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\LibraryManagement.Api.pdb
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\LibraryManagement.Api.genruntimeconfig.cache
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\ref\LibraryManagement.Api.dll
-C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\bin\Debug\net8.0\appsettings.json
 C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\bin\Debug\net8.0\LibraryManagement.Api.staticwebassets.endpoints.json
@@ -307,3 +306,4 @@ C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0
 C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\LibraryManagement.Api.pdb
 C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\LibraryManagement.Api.genruntimeconfig.cache
 C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\ref\LibraryManagement.Api.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

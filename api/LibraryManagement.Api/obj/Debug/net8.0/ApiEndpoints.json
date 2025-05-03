@@ -369,6 +369,36 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "LibraryManagement.Api.Controllers.StatisticController",
+    "Method": "GetBookQuantities",
+    "RelativePath": "api/statistics/book-quantities",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.StatisticController",
+    "Method": "GetBooksPerCategory",
+    "RelativePath": "api/statistics/books-per-category",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.StatisticController",
+    "Method": "GetMostPopular",
+    "RelativePath": "api/statistics/most-popular",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "LibraryManagement.Api.Controllers.UserController",
     "Method": "GetUserCount",
     "RelativePath": "api/users/count",

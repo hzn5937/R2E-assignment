@@ -19,7 +19,7 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpGet("overview")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetRequestOverview()
         {
             var requestOverview = await _requestService.GetRequestOverviewAsync();

@@ -13,6 +13,8 @@ namespace LibraryManagement.Api.Extensions
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
 
+            services.AddScoped<IStatisticService, StatisticService>();
+
             services.AddScoped<IBookService, BookService>();
             services.AddScoped<IBookRepository, BookRepository>();
 

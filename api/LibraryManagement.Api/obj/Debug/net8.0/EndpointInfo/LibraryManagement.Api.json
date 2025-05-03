@@ -610,6 +610,42 @@
         }
       }
     },
+    "/api/statistics/book-quantities": {
+      "get": {
+        "tags": [
+          "Statistic"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/statistics/books-per-category": {
+      "get": {
+        "tags": [
+          "Statistic"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/statistics/most-popular": {
+      "get": {
+        "tags": [
+          "Statistic"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/users/count": {
       "get": {
         "tags": [
