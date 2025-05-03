@@ -79,13 +79,14 @@ namespace LibraryManagement.Persistence.Data
                 new User { Id = 2, Username = "admin2", Role = UserRole.Admin, Email = "admin2@example.com" },
                 new User { Id = 3, Username = "admin3", Role = UserRole.Admin, Email = "admin3@example.com" },
                 // Users (Id 4-10)
-                new User { Id = 5, Username = "user2", Role = UserRole.User, Email = "user1@example.com" },
-                new User { Id = 6, Username = "user3", Role = UserRole.User, Email = "user2@example.com" },
-                new User { Id = 7, Username = "user4", Role = UserRole.User, Email = "user3@example.com" },
-                new User { Id = 8, Username = "user5", Role = UserRole.User, Email = "user4@example.com" },
-                new User { Id = 9, Username = "user6", Role = UserRole.User, Email = "user5@example.com" },
-                new User { Id = 10, Username = "user7", Role = UserRole.User, Email = "user6@example.com" },
-                new User { Id = 11, Username = "user8", Role = UserRole.User, Email = "user7@example.com" }
+                new User { Id = 4, Username = "user1", Role = UserRole.User, Email = "user1@example.com" },
+                new User { Id = 5, Username = "user2", Role = UserRole.User, Email = "user2@example.com" },
+                new User { Id = 6, Username = "user3", Role = UserRole.User, Email = "user3@example.com" },
+                new User { Id = 7, Username = "user4", Role = UserRole.User, Email = "user4@example.com" },
+                new User { Id = 8, Username = "user5", Role = UserRole.User, Email = "user5@example.com" },
+                new User { Id = 9, Username = "user6", Role = UserRole.User, Email = "user6@example.com" },
+                new User { Id = 10, Username = "user7", Role = UserRole.User, Email = "user7@example.com" },
+                new User { Id = 11, Username = "user8", Role = UserRole.User, Email = "user8@example.com" }
             };
 
             // Hash passwords (using a common password "password123" for seeding)

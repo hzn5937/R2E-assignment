@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryManagement.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250429184944_ChangeStatusEnumToString")]
-    partial class ChangeStatusEnumToString
+    [Migration("20250503123345_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -530,8 +530,9 @@ namespace LibraryManagement.Persistence.Migrations
                     b.Property<int>("RequestorId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -546,54 +547,54 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 1,
                             ApproverId = 1,
-                            DateRequested = new DateTime(2025, 4, 19, 18, 49, 43, 839, DateTimeKind.Utc).AddTicks(4542),
+                            DateRequested = new DateTime(2025, 4, 23, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8940),
                             RequestorId = 4,
-                            Status = 1
+                            Status = "Approved"
                         },
                         new
                         {
                             Id = 2,
-                            DateRequested = new DateTime(2025, 4, 24, 18, 49, 43, 839, DateTimeKind.Utc).AddTicks(4558),
+                            DateRequested = new DateTime(2025, 4, 28, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8955),
                             RequestorId = 5,
-                            Status = 0
+                            Status = "Waiting"
                         },
                         new
                         {
                             Id = 3,
                             ApproverId = 2,
-                            DateRequested = new DateTime(2025, 4, 27, 18, 49, 43, 839, DateTimeKind.Utc).AddTicks(4560),
+                            DateRequested = new DateTime(2025, 5, 1, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8957),
                             RequestorId = 6,
-                            Status = 2
+                            Status = "Rejected"
                         },
                         new
                         {
                             Id = 4,
-                            DateRequested = new DateTime(2025, 4, 28, 18, 49, 43, 839, DateTimeKind.Utc).AddTicks(4561),
+                            DateRequested = new DateTime(2025, 5, 2, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8958),
                             RequestorId = 4,
-                            Status = 0
+                            Status = "Waiting"
                         },
                         new
                         {
                             Id = 5,
                             ApproverId = 1,
-                            DateRequested = new DateTime(2025, 4, 14, 18, 49, 43, 839, DateTimeKind.Utc).AddTicks(4563),
+                            DateRequested = new DateTime(2025, 4, 18, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8959),
                             RequestorId = 7,
-                            Status = 1
+                            Status = "Approved"
                         },
                         new
                         {
                             Id = 6,
                             ApproverId = 3,
-                            DateRequested = new DateTime(2025, 4, 21, 18, 49, 43, 839, DateTimeKind.Utc).AddTicks(4565),
+                            DateRequested = new DateTime(2025, 4, 25, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8961),
                             RequestorId = 8,
-                            Status = 1
+                            Status = "Approved"
                         },
                         new
                         {
                             Id = 7,
-                            DateRequested = new DateTime(2025, 4, 26, 18, 49, 43, 839, DateTimeKind.Utc).AddTicks(4567),
+                            DateRequested = new DateTime(2025, 4, 30, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8963),
                             RequestorId = 9,
-                            Status = 0
+                            Status = "Waiting"
                         });
                 });
 
@@ -842,7 +843,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 1,
                             Email = "admin1@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEIwJtH0QifljT970jZlbydpuDtnKFWdNmoPxO0j5WwEUF8NhdYrhaLaHb4yDvASo8Q==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEAfr/wVhqerOmxIm75wWwoGI3LIdpcFSX2dq2GwcvbyXzNPIio5DqZ88jNAIkh0dgg==",
                             Role = "Admin",
                             Username = "admin1"
                         },
@@ -850,7 +851,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 2,
                             Email = "admin2@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBVlkpbhR7sj41HDRNxE7p63uo55IoI6+3wtxWi3rOLdU0aDefrEaJJ5mfF6KGO0JQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIJpbIzLnSkCAVkWyLrxW7KuHzakQRonqkw8oaIsdl2L853MHxr7srjZkrIIDUstPA==",
                             Role = "Admin",
                             Username = "admin2"
                         },
@@ -858,63 +859,71 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 3,
                             Email = "admin3@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAENaN2eBNPgpzvUwLXPBkN69jtv+B6g6+UcQzWSuVPbRiqccfUeFfsHSk79QDrWLsXQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEI9WVLLOQ2WeMlC7DcT7k6osUL1PmRYdRjpzhopZuL6y5hM4z4KTOABRLCaXxcuGlQ==",
                             Role = "Admin",
                             Username = "admin3"
                         },
                         new
                         {
-                            Id = 5,
+                            Id = 4,
                             Email = "user1@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEA1gluBs8BHAxi8HuNb9dcConNYC50s+QWxaGjrXp+aTmCqbXirnqBY/xSRpFSDNCw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKYolcdfBcqwerX3X9n3rxiQexcJ/xd/523iGdGLpYXMVPkPorKGpWQHz4nkxAQJIg==",
+                            Role = "User",
+                            Username = "user1"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Email = "user2@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDjKUUr0SeuPn4pCd8zKA3GyMgWZvcYF/t/o/vliLGuGzlwZzw2RRe7w5jabK7aWJA==",
                             Role = "User",
                             Username = "user2"
                         },
                         new
                         {
                             Id = 6,
-                            Email = "user2@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDz6XeULvGFKXyJKVYKaL82J1VVoiwFi7pZoTSIFrVC0JAYu6woRrQRv4w/gM3ZL4w==",
+                            Email = "user3@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEBbLeimphTTvJeFYfpbCQHlxRy+oLTdSgG/VFRIXYnWcyhUIOBZoWGtNXmVGmTqIrQ==",
                             Role = "User",
                             Username = "user3"
                         },
                         new
                         {
                             Id = 7,
-                            Email = "user3@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAENq6Njs93IEpTd/o9qTl3D+M8lS2he+SHZzVjjBw7aR0moiarnEbMjIVfNYsz38pUQ==",
+                            Email = "user4@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPsqIcvWuGWud3PqOmIJnzqf4nrR95oCL54Y7D0BKLIpjSxyQIy5ObkMnhGom4RGCA==",
                             Role = "User",
                             Username = "user4"
                         },
                         new
                         {
                             Id = 8,
-                            Email = "user4@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJVtkGSbASRx0F5gEkUrJAuYExMawJ0v28eVQLz0KRYjeGuTPLh6gkjFueBhbvN2sA==",
+                            Email = "user5@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJibK2kTVUO1XZFRY8dqOwO3Do9XvolVEZAiTc5+lUG0IABvBjSSKMMZsWGZplSqJA==",
                             Role = "User",
                             Username = "user5"
                         },
                         new
                         {
                             Id = 9,
-                            Email = "user5@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHO+z9Wwpi61Egh32FR1rxMGn4LThwbFLtw+y/Rz0gwo5m0oMaCj4I/rfcvEGYG7Bw==",
+                            Email = "user6@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAECHqzaaGtx6EH4rVijJF8zrWdgolmS4KZozcT2hj8YdGIpDTz7Z2AKy0YoaR9/JwkA==",
                             Role = "User",
                             Username = "user6"
                         },
                         new
                         {
                             Id = 10,
-                            Email = "user6@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEFx7mxOrmN39W70aDkmSRGwrLOIxiUs1q52Oc6NEgb/wK5cT9WnnYSp68p5oDn25tA==",
+                            Email = "user7@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAELsC7J7o5hpHPxHTfAb2UEVnjMx9gP4dQ1rh0Etq4o1JVnGlcc7XPWEVwwTzAqOZdg==",
                             Role = "User",
                             Username = "user7"
                         },
                         new
                         {
                             Id = 11,
-                            Email = "user7@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAECBSvASBhFOpgifL4voLw3PkkENf3vq/wbKmY9Mk5Ih/FAOgXVaBNdEJPGQYxoJ2Ew==",
+                            Email = "user8@example.com",
+                            PasswordHash = "AQAAAAIAAYagAAAAEK7RUsiSqWJ6LA8XjAJy+ls46ZoqSMN30MLjcJ7meIcUkuq3fpCT6oXmPhekqexYaA==",
                             Role = "User",
                             Username = "user8"
                         });
