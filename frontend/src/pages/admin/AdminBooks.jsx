@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Space, Tag, Modal, Form, Input, Select, InputNumber, message, Spin, Alert } from 'antd';
+import { Table, Button, Space, Tag, Modal, Form, Input, Select, InputNumber, message, Spin, Alert, Divider } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import axiosInstance from '../../utils/axiosConfig';
 import PaginationControls from '../../components/pagination';
 import SearchBar from '../../components/SearchBar';
+import FilterBar from '../../components/FilterBar';
 
 const AdminBooks = () => {
   const [books, setBooks] = useState([]);
@@ -26,6 +27,12 @@ const AdminBooks = () => {
   const [form] = Form.useForm();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
+  
+  // Filter-related states
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [availabilityFilter, setAvailabilityFilter] = useState(null);
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
+  const [filterLoading, setFilterLoading] = useState(false);
 
   // Fetch books with pagination
   const fetchBooks = (pageNum = 1, pageSize = 5) => {
@@ -83,6 +90,45 @@ const AdminBooks = () => {
         setSearchLoading(false);
       });
   };
+  
+  // New function to handle filtering books by category and availability
+  const filterBooks = (pageNum = 1, pageSize = 5) => {
+    setFilterLoading(true);
+    setLoading(true);
+    
+    let url = `/api/books/filter?pageNum=${pageNum}&pageSize=${pageSize}`;
+    
+    if (selectedCategory !== null) {
+      url += `&categoryId=${selectedCategory}`;
+    }
+    
+    if (availabilityFilter !== null) {
+      url += `&isAvailable=${availabilityFilter}`;
+    }
+    
+    axiosInstance.get(url)
+      .then(res => {
+        console.log('Filter results:', res.data);
+        setBooks(res.data.items);
+        setPagination({
+          current: res.data.pageNum,
+          pageSize: res.data.pageSize,
+          total: res.data.totalCount,
+          totalPages: res.data.totalPage,
+          hasNext: res.data.hasNext,
+          hasPrev: res.data.hasPrev,
+        });
+        setIsFilterApplied(true);
+      })
+      .catch(err => {
+        console.error('Failed to filter books:', err);
+        message.error('Filter failed. Please try again.');
+      })
+      .finally(() => {
+        setLoading(false);
+        setFilterLoading(false);
+      });
+  };
 
   // Handle search input change
   const handleSearchChange = (e) => {
@@ -91,19 +137,31 @@ const AdminBooks = () => {
 
   // Handle search submission
   const handleSearch = () => {
+    // Clear any filters when performing a search
+    setSelectedCategory(null);
+    setAvailabilityFilter(null);
+    setIsFilterApplied(false);
     searchBooks(1, pagination.pageSize);
-  };
-
-  // Handle enter key press in search input
-  const handleSearchKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
   };
 
   // Clear search and reset to all books
   const handleClearSearch = () => {
     setSearchTerm('');
+    fetchBooks(1, pagination.pageSize);
+  };
+  
+  // Handle applying filters
+  const handleApplyFilters = () => {
+    // Clear search term when filtering
+    setSearchTerm('');
+    filterBooks(1, pagination.pageSize);
+  };
+
+  // Handle clearing filters
+  const handleClearFilters = () => {
+    setSelectedCategory(null);
+    setAvailabilityFilter(null);
+    setIsFilterApplied(false);
     fetchBooks(1, pagination.pageSize);
   };
 
@@ -134,6 +192,8 @@ const AdminBooks = () => {
   const handlePageChange = (page, pageSize) => {
     if (searchTerm.trim()) {
       searchBooks(page, pageSize);
+    } else if (isFilterApplied) {
+      filterBooks(page, pageSize);
     } else {
       fetchBooks(page, pageSize);
     }
@@ -142,6 +202,8 @@ const AdminBooks = () => {
   const handlePageSizeChange = (newPageSize) => {
     if (searchTerm.trim()) {
       searchBooks(1, newPageSize);
+    } else if (isFilterApplied) {
+      filterBooks(1, newPageSize);
     } else {
       fetchBooks(1, newPageSize);
     }
@@ -331,6 +393,21 @@ const AdminBooks = () => {
         handleSearch={handleSearch}
         handleClearSearch={handleClearSearch}
         searchLoading={searchLoading}
+      />
+
+      <Divider />
+
+      {/* Filter bar component */}
+      <FilterBar
+        categories={categories}
+        selectedCategory={selectedCategory}
+        availabilityFilter={availabilityFilter}
+        onCategoryChange={setSelectedCategory}
+        onAvailabilityChange={setAvailabilityFilter}
+        onApplyFilters={handleApplyFilters}
+        onClearFilters={handleClearFilters}
+        isFilterApplied={isFilterApplied}
+        filterLoading={filterLoading}
       />
 
       {loading && !books.length ? (

@@ -52,6 +52,7 @@ namespace LibraryManagement.Application.Services
                     Title = book.Title,
                     Author = book.Author,
                     CategoryName = (book.CategoryId is null) ? Constants.NullCategoryName : book.Category.Name,
+                    CategoryId = book.CategoryId,
                     TotalQuantity = book.TotalQuantity,
                     AvailableQuantity = book.AvailableQuantity,
                 };
@@ -237,6 +238,7 @@ namespace LibraryManagement.Application.Services
                         Title = book.Title,
                         Author = book.Author,
                         CategoryName = categoryName,
+                        CategoryId = book.CategoryId,
                         TotalQuantity = book.TotalQuantity,
                         AvailableQuantity = book.AvailableQuantity,
                     };
@@ -246,6 +248,54 @@ namespace LibraryManagement.Application.Services
 
             var paginated = Pagination.Paginate<UserBookOutputDto>(bookList, pageNum, pageSize);
 
+            return paginated;
+        }
+
+        public async Task<PaginatedOutputDto<UserBookOutputDto>> FilterBooksAsync(int? categoryId = null, bool? isAvailable = null, int pageNum = Constants.DefaultPageNum, int pageSize = Constants.DefaultPageSize)
+        {
+            var books = await _bookRepository.GetAllAsync();
+            var bookList = new List<UserBookOutputDto>();
+
+            foreach (var book in books)
+            {
+                // Skip deleted books
+                if (book.DeletedAt is not null)
+                {
+                    continue;
+                }
+
+                // Filter by category if specified
+                if (categoryId.HasValue && book.CategoryId != categoryId.Value)
+                {
+                    continue;
+                }
+
+                // Filter by availability if specified
+                if (isAvailable.HasValue)
+                {
+                    bool bookIsAvailable = book.AvailableQuantity > 0;
+                    if (bookIsAvailable != isAvailable.Value)
+                    {
+                        continue;
+                    }
+                }
+
+                var categoryName = (book.CategoryId is null) ? Constants.NullCategoryName : book.Category.Name;
+                
+                var record = new UserBookOutputDto
+                {
+                    Id = book.Id,
+                    Title = book.Title,
+                    Author = book.Author,
+                    CategoryName = categoryName,
+                    TotalQuantity = book.TotalQuantity,
+                    AvailableQuantity = book.AvailableQuantity,
+                    CategoryId = book.CategoryId
+                };
+                bookList.Add(record);
+            }
+
+            var paginated = Pagination.Paginate<UserBookOutputDto>(bookList, pageNum, pageSize);
             return paginated;
         }
     }

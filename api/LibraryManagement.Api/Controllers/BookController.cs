@@ -33,6 +33,18 @@ namespace LibraryManagement.Api.Controllers
             return Ok(books);
         }
 
+        [HttpGet("filter")]
+        [Authorize]
+        public async Task<IActionResult> FilterBooks(
+            [FromQuery] int? categoryId = null, 
+            [FromQuery] bool? isAvailable = null, 
+            [FromQuery] int pageNum = Constants.DefaultPageNum, 
+            [FromQuery] int pageSize = Constants.DefaultPageSize)
+        {
+            var books = await _bookService.FilterBooksAsync(categoryId, isAvailable, pageNum, pageSize);
+            return Ok(books);
+        }
+
         [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> GetBookById(int id)

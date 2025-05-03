@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../utils/axiosConfig';
-import { Table, Alert, Checkbox, Button, Tag, message, Spin } from 'antd';
+import { Table, Alert, Checkbox, Button, Tag, message, Spin, Divider } from 'antd';
 import { useAuth } from '../../context/AuthContext';
 import PaginationControls from '../../components/pagination';
 import SearchBar from '../../components/SearchBar';
+import FilterBar from '../../components/FilterBar';
 
 const Home = () => {
   const [books, setBooks] = useState([]);
@@ -25,6 +26,13 @@ const Home = () => {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
+  
+  // Filter-related states
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [availabilityFilter, setAvailabilityFilter] = useState(null);
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
+  const [filterLoading, setFilterLoading] = useState(false);
 
   const fetchBooks = (pageNum = 1, pageSize = 5) => {
     setLoading(true);
@@ -82,8 +90,51 @@ const Home = () => {
       });
   };
 
+  // New function to handle filtering books by category and availability
+  const filterBooks = (pageNum = 1, pageSize = 5) => {
+    setFilterLoading(true);
+    setLoading(true);
+    
+    let url = `/api/books/filter?pageNum=${pageNum}&pageSize=${pageSize}`;
+    
+    if (selectedCategory !== null) {
+      url += `&categoryId=${selectedCategory}`;
+    }
+    
+    if (availabilityFilter !== null) {
+      url += `&isAvailable=${availabilityFilter}`;
+    }
+    
+    axiosInstance.get(url)
+      .then(res => {
+        console.log('Filter results:', res.data);
+        setBooks(res.data.items);
+        setPagination({
+          current: res.data.pageNum,
+          pageSize: res.data.pageSize,
+          total: res.data.totalCount,
+          totalPages: res.data.totalPage,
+          hasNext: res.data.hasNext,
+          hasPrev: res.data.hasPrev,
+        });
+        setIsFilterApplied(true);
+      })
+      .catch(err => {
+        console.error('Failed to filter books:', err);
+        message.error('Filter failed. Please try again.');
+      })
+      .finally(() => {
+        setLoading(false);
+        setFilterLoading(false);
+      });
+  };
+
   // Handle search submission
   const handleSearch = () => {
+    // Clear any filters when performing a search
+    setSelectedCategory(null);
+    setAvailabilityFilter(null);
+    setIsFilterApplied(false);
     searchBooks(1, pagination.pageSize);
   };
 
@@ -91,6 +142,39 @@ const Home = () => {
   const handleClearSearch = () => {
     setSearchTerm('');
     fetchBooks(1, pagination.pageSize);
+  };
+
+  // Handle applying filters
+  const handleApplyFilters = () => {
+    // Clear search term when filtering
+    setSearchTerm('');
+    filterBooks(1, pagination.pageSize);
+  };
+
+  // Handle clearing filters
+  const handleClearFilters = () => {
+    setSelectedCategory(null);
+    setAvailabilityFilter(null);
+    setIsFilterApplied(false);
+    fetchBooks(1, pagination.pageSize);
+  };
+
+  // Fetch categories for filters
+  const fetchCategories = () => {
+    axiosInstance.get('/api/categories?pageSize=1000')
+      .then(res => {
+        console.log('Categories response:', res.data);
+        // Make sure categories is always an array
+        const categoriesData = Array.isArray(res.data) ? res.data : 
+                              res.data.items ? res.data.items : [];
+        setCategories(categoriesData);
+      })
+      .catch(err => {
+        console.error('Failed to fetch categories:', err);
+        message.error('Could not load categories.');
+        // Ensure categories is reset to an empty array on error
+        setCategories([]);
+      });
   };
 
   const fetchAvailableRequests = () => {
@@ -115,12 +199,15 @@ const Home = () => {
     if (user?.id) {
       fetchBooks();
       fetchAvailableRequests();
+      fetchCategories(); // Fetch categories when component mounts
     }
   }, [user?.id]); // Re-fetch when user ID changes
 
   const handlePageChange = (page, pageSize) => {
     if (searchTerm.trim()) {
       searchBooks(page, pageSize);
+    } else if (isFilterApplied) {
+      filterBooks(page, pageSize);
     } else {
       fetchBooks(page, pageSize);
     }
@@ -129,6 +216,8 @@ const Home = () => {
   const handlePageSizeChange = (newPageSize) => {
     if (searchTerm.trim()) {
       searchBooks(1, newPageSize);
+    } else if (isFilterApplied) {
+      filterBooks(1, newPageSize);
     } else {
       fetchBooks(1, newPageSize);
     }
@@ -265,6 +354,22 @@ const Home = () => {
         handleSearch={handleSearch}
         handleClearSearch={handleClearSearch}
         searchLoading={searchLoading}
+      />
+
+      {/* Divider between search and filter bars */}
+      <Divider />
+
+      {/* Filter bar component */}
+      <FilterBar
+        categories={categories}
+        selectedCategory={selectedCategory}
+        availabilityFilter={availabilityFilter}
+        onCategoryChange={setSelectedCategory}
+        onAvailabilityChange={setAvailabilityFilter}
+        onApplyFilters={handleApplyFilters}
+        onClearFilters={handleClearFilters}
+        isFilterApplied={isFilterApplied}
+        filterLoading={filterLoading}
       />
 
       {loading && !books.length ? (
