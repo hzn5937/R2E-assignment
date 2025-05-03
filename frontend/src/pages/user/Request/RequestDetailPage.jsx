@@ -143,13 +143,21 @@ const RequestDetailPage = () => {
           </Card>
 
           <Card title="Books in this Request">
-            <Table 
-              dataSource={requestDetails.books} 
-              columns={columns} 
-              rowKey="title"
-              pagination={false}
-              bordered
-            />
+            {!requestDetails?.books?.length ? (
+              <Alert 
+                message="No books in this request."
+                type="info"
+                showIcon
+              />
+            ) : (
+              <Table 
+                dataSource={requestDetails.books} 
+                columns={columns} 
+                rowKey="title"
+                pagination={false}
+                bordered
+              />
+            )}
           </Card>
         </>
       )}

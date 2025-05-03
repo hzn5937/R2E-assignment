@@ -3,6 +3,7 @@ import axiosInstance from '../../utils/axiosConfig';
 import { Table, Alert, Checkbox, Button, Tag, message, Spin } from 'antd';
 import { useAuth } from '../../context/AuthContext';
 import PaginationControls from '../../components/pagination';
+import SearchBar from '../../components/SearchBar';
 
 const Home = () => {
   const [books, setBooks] = useState([]);
@@ -22,6 +23,8 @@ const Home = () => {
   const [requestsLoading, setRequestsLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
   const { user } = useAuth();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const fetchBooks = (pageNum = 1, pageSize = 5) => {
     setLoading(true);
@@ -45,6 +48,49 @@ const Home = () => {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  // New function to handle book search
+  const searchBooks = (pageNum = 1, pageSize = 5) => {
+    if (!searchTerm.trim()) {
+      fetchBooks(pageNum, pageSize);
+      return;
+    }
+    
+    setSearchLoading(true);
+    setLoading(true);
+    axiosInstance.get(`/api/books/search?searchTerm=${encodeURIComponent(searchTerm)}&pageNum=${pageNum}&pageSize=${pageSize}`)
+      .then(res => {
+        console.log('Search results:', res.data);
+        setBooks(res.data.items);
+        setPagination({
+          current: res.data.pageNum,
+          pageSize: res.data.pageSize,
+          total: res.data.totalCount,
+          totalPages: res.data.totalPage,
+          hasNext: res.data.hasNext,
+          hasPrev: res.data.hasPrev,
+        });
+      })
+      .catch(err => {
+        console.error('Failed to search books:', err);
+        message.error('Search failed. Please try again.');
+      })
+      .finally(() => {
+        setLoading(false);
+        setSearchLoading(false);
+      });
+  };
+
+  // Handle search submission
+  const handleSearch = () => {
+    searchBooks(1, pagination.pageSize);
+  };
+
+  // Clear search and reset to all books
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    fetchBooks(1, pagination.pageSize);
   };
 
   const fetchAvailableRequests = () => {
@@ -73,12 +119,19 @@ const Home = () => {
   }, [user?.id]); // Re-fetch when user ID changes
 
   const handlePageChange = (page, pageSize) => {
-    fetchBooks(page, pageSize);
+    if (searchTerm.trim()) {
+      searchBooks(page, pageSize);
+    } else {
+      fetchBooks(page, pageSize);
+    }
   };
 
   const handlePageSizeChange = (newPageSize) => {
-    // Reset to first page when changing page size
-    fetchBooks(1, newPageSize);
+    if (searchTerm.trim()) {
+      searchBooks(1, newPageSize);
+    } else {
+      fetchBooks(1, newPageSize);
+    }
   };
 
   const handleCheckboxChange = (record, checked) => {
@@ -205,82 +258,97 @@ const Home = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">📚 Book Inventory</h1>
 
-      {!books.length > 0 && !loading && (
-        <Alert 
-          message="No books available."
-          type="info"
-          showIcon
-          className="mb-4"
-        />
-      )}
+      {/* Search bar component */}
+      <SearchBar 
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        handleSearch={handleSearch}
+        handleClearSearch={handleClearSearch}
+        searchLoading={searchLoading}
+      />
 
-      {showLimitWarning && (
-        <Alert
-          message="You can only select up to 5 books."
-          type="warning"
-          showIcon
-          className="mb-4"
-        />
-      )}
-
-      {apiError && (
-        <Alert
-          message={apiError.message}
-          description={apiError.description}
-          type={apiError.type}
-          showIcon
-          closable
-          onClose={() => setApiError(null)}
-          className="mb-4"
-        />
-      )}
-
-      {books.length > 0 && (
+      {loading && !books.length ? (
+        <div className="flex justify-center items-center h-64">
+          <Spin size="large" />
+        </div>
+      ) : (
         <>
-          <Table
-            className="mb-4"
-            dataSource={books}
-            columns={columns}
-            rowKey="id"
-            pagination={false}
-            bordered
-            loading={loading}
-          />
-          
-          {/* Borrow button row with available requests tag */}
-          <div className="mt-4 mb-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <Button
-                type="primary"
-                disabled={selectedRowKeys.length === 0 || availableRequests === 0}
-                onClick={handleBorrow}
-                loading={borrowing}
-              >
-                Borrow selected books ({selectedRowKeys.length} / 5)
-              </Button>
-            </div>
-            <div className="flex items-center">
-              {requestsLoading ? (
-                <Spin size="small" className="mr-2" />
-              ) : (
-                availableRequests !== null && (
-                  <Tag 
-                    color={availableRequests > 2 ? "green" : availableRequests > 0 ? "gold" : "red"} 
-                    className="text-base"
-                  >
-                    {availableRequests} monthly requests available
-                  </Tag>
-                )
+          {!books.length > 0 ? (
+            <Alert 
+              message="No books available."
+              type="info"
+              showIcon
+              className="mb-4"
+            />
+          ) : (
+            <>
+              {showLimitWarning && (
+                <Alert
+                  message="You can only select up to 5 books."
+                  type="warning"
+                  showIcon
+                  className="mb-4"
+                />
               )}
-            </div>
-          </div>
 
-          <PaginationControls 
-            pagination={pagination}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-            itemName="books"
-          />
+              {apiError && (
+                <Alert
+                  message={apiError.message}
+                  description={apiError.description}
+                  type={apiError.type}
+                  showIcon
+                  closable
+                  onClose={() => setApiError(null)}
+                  className="mb-4"
+                />
+              )}
+
+              <Table
+                className="mb-4"
+                dataSource={books}
+                columns={columns}
+                rowKey="id"
+                pagination={false}
+                bordered
+                loading={loading}
+              />
+              
+              {/* Borrow button row with available requests tag */}
+              <div className="mt-4 mb-4 flex justify-between items-center">
+                <div className="flex items-center">
+                  <Button
+                    type="primary"
+                    disabled={selectedRowKeys.length === 0 || availableRequests === 0}
+                    onClick={handleBorrow}
+                    loading={borrowing}
+                  >
+                    Borrow selected books ({selectedRowKeys.length} / 5)
+                  </Button>
+                </div>
+                <div className="flex items-center">
+                  {requestsLoading ? (
+                    <Spin size="small" className="mr-2" />
+                  ) : (
+                    availableRequests !== null && (
+                      <Tag 
+                        color={availableRequests > 2 ? "green" : availableRequests > 0 ? "gold" : "red"} 
+                        className="text-base"
+                      >
+                        {availableRequests} monthly requests available
+                      </Tag>
+                    )
+                  )}
+                </div>
+              </div>
+
+              <PaginationControls 
+                pagination={pagination}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
+                itemName="books"
+              />
+            </>
+          )}
         </>
       )}
     </div>

@@ -204,5 +204,49 @@ namespace LibraryManagement.Application.Services
 
             return true;
         }
+
+        public async Task<PaginatedOutputDto<UserBookOutputDto>> SearchBooksAsync(string searchTerm, int pageNum = Constants.DefaultPageNum, int pageSize = Constants.DefaultPageSize)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return await GetAllAsync(pageNum, pageSize);
+            }
+
+            var books = await _bookRepository.GetAllAsync();
+            var searchTermLower = searchTerm.ToLower();
+
+            var bookList = new List<UserBookOutputDto>();
+
+            foreach (var book in books)
+            {
+                if (book.DeletedAt is not null)
+                {
+                    continue;
+                }
+
+                var categoryName = (book.CategoryId is null) ? Constants.NullCategoryName : book.Category.Name;
+
+                // Search by title, author, or category
+                if (book.Title.ToLower().Contains(searchTermLower) || 
+                    book.Author.ToLower().Contains(searchTermLower) || 
+                    categoryName.ToLower().Contains(searchTermLower))
+                {
+                    var record = new UserBookOutputDto
+                    {
+                        Id = book.Id,
+                        Title = book.Title,
+                        Author = book.Author,
+                        CategoryName = categoryName,
+                        TotalQuantity = book.TotalQuantity,
+                        AvailableQuantity = book.AvailableQuantity,
+                    };
+                    bookList.Add(record);
+                }
+            }
+
+            var paginated = Pagination.Paginate<UserBookOutputDto>(bookList, pageNum, pageSize);
+
+            return paginated;
+        }
     }
 }

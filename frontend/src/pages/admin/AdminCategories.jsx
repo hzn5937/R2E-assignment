@@ -215,23 +215,34 @@ const AdminCategories = () => {
         </div>
       ) : (
         <>
-          <Table
-            dataSource={categories}
-            columns={columns}
-            rowKey="id"
-            pagination={false}
-            bordered
-            loading={loading}
-          />
-          
-          <div className="mt-4">
-            <PaginationControls 
-              pagination={pagination}
-              onPageChange={handlePageChange}
-              onPageSizeChange={handlePageSizeChange}
-              itemName="categories"
+          {!categories.length > 0 ? (
+            <Alert 
+              message="No categories available."
+              type="info"
+              showIcon
+              className="mb-4"
             />
-          </div>
+          ) : (
+            <>
+              <Table
+                dataSource={categories}
+                columns={columns}
+                rowKey="id"
+                pagination={false}
+                bordered
+                loading={loading}
+              />
+              
+              <div className="mt-4">
+                <PaginationControls 
+                  pagination={pagination}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  itemName="categories"
+                />
+              </div>
+            </>
+          )}
         </>
       )}
 

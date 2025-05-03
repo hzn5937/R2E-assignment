@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Tag, Button } from 'antd';
+import { Table, Tag, Button, Spin, Alert } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../../utils/axiosConfig';
 import { useAuth } from '../../../context/AuthContext';
@@ -111,23 +111,43 @@ export default function MyBorrowing() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">📚 My Borrowing</h1>
-      <Table
-        dataSource={requests}
-        columns={columns}
-        rowKey="id"
-        pagination={false}
-        bordered
-        loading={loading}
-      />
       
-      <div className="mt-4">
-        <PaginationControls 
-          pagination={pagination}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          itemName="requests"
-        />
-      </div>
+      {loading && !requests.length ? (
+        <div className="flex justify-center items-center h-64">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <>
+          {!requests.length > 0 ? (
+            <Alert 
+              message="No borrowing requests found."
+              type="info"
+              showIcon
+              className="mb-4"
+            />
+          ) : (
+            <>
+              <Table
+                dataSource={requests}
+                columns={columns}
+                rowKey="id"
+                pagination={false}
+                bordered
+                loading={loading}
+              />
+              
+              <div className="mt-4">
+                <PaginationControls 
+                  pagination={pagination}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  itemName="requests"
+                />
+              </div>
+            </>
+          )}
+        </>
+      )}
     </div>
   );
 }

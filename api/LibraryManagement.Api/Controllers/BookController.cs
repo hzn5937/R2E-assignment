@@ -46,7 +46,15 @@ namespace LibraryManagement.Api.Controllers
 
             return Ok(book);
         }
-            
+
+        [HttpGet("search")]
+        [Authorize]
+        public async Task<IActionResult> SearchBooks([FromQuery] string searchTerm, [FromQuery] int pageNum = Constants.DefaultPageNum, [FromQuery] int pageSize = Constants.DefaultPageSize)
+        {
+            var books = await _bookService.SearchBooksAsync(searchTerm, pageNum, pageSize);
+            return Ok(books);
+        }
+
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateBook(CreateBookDto createBookDto)

@@ -3,6 +3,7 @@ import { Table, Button, Space, Tag, Modal, Form, Input, Select, InputNumber, mes
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import axiosInstance from '../../utils/axiosConfig';
 import PaginationControls from '../../components/pagination';
+import SearchBar from '../../components/SearchBar';
 
 const AdminBooks = () => {
   const [books, setBooks] = useState([]);
@@ -23,6 +24,8 @@ const AdminBooks = () => {
   const [currentBook, setCurrentBook] = useState(null);
   const [apiError, setApiError] = useState(null);
   const [form] = Form.useForm();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
 
   // Fetch books with pagination
   const fetchBooks = (pageNum = 1, pageSize = 5) => {
@@ -49,6 +52,61 @@ const AdminBooks = () => {
       });
   };
 
+  // New function to handle book search
+  const searchBooks = (pageNum = 1, pageSize = 5) => {
+    if (!searchTerm.trim()) {
+      fetchBooks(pageNum, pageSize);
+      return;
+    }
+    
+    setSearchLoading(true);
+    setLoading(true);
+    axiosInstance.get(`/api/books/search?searchTerm=${encodeURIComponent(searchTerm)}&pageNum=${pageNum}&pageSize=${pageSize}`)
+      .then(res => {
+        console.log('Search results:', res.data);
+        setBooks(res.data.items);
+        setPagination({
+          current: res.data.pageNum,
+          pageSize: res.data.pageSize,
+          total: res.data.totalCount,
+          totalPages: res.data.totalPage,
+          hasNext: res.data.hasNext,
+          hasPrev: res.data.hasPrev,
+        });
+      })
+      .catch(err => {
+        console.error('Failed to search books:', err);
+        message.error('Search failed. Please try again.');
+      })
+      .finally(() => {
+        setLoading(false);
+        setSearchLoading(false);
+      });
+  };
+
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Handle search submission
+  const handleSearch = () => {
+    searchBooks(1, pagination.pageSize);
+  };
+
+  // Handle enter key press in search input
+  const handleSearchKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  // Clear search and reset to all books
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    fetchBooks(1, pagination.pageSize);
+  };
+
   // Fetch categories for the form dropdown
   const fetchCategories = () => {
     axiosInstance.get('/api/categories?pageSize=1000')
@@ -72,12 +130,21 @@ const AdminBooks = () => {
     fetchCategories();
   }, []);
 
+  // Modify the existing page change handlers to use search when there's a search term
   const handlePageChange = (page, pageSize) => {
-    fetchBooks(page, pageSize);
+    if (searchTerm.trim()) {
+      searchBooks(page, pageSize);
+    } else {
+      fetchBooks(page, pageSize);
+    }
   };
 
   const handlePageSizeChange = (newPageSize) => {
-    fetchBooks(1, newPageSize);
+    if (searchTerm.trim()) {
+      searchBooks(1, newPageSize);
+    } else {
+      fetchBooks(1, newPageSize);
+    }
   };
 
   // Show modal for adding a new book
@@ -257,29 +324,49 @@ const AdminBooks = () => {
         />
       )}
 
+      {/* Search bar component */}
+      <SearchBar 
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        handleSearch={handleSearch}
+        handleClearSearch={handleClearSearch}
+        searchLoading={searchLoading}
+      />
+
       {loading && !books.length ? (
         <div className="flex justify-center items-center h-64">
           <Spin size="large" />
         </div>
       ) : (
         <>
-          <Table
-            dataSource={books}
-            columns={columns}
-            rowKey="id"
-            pagination={false}
-            bordered
-            loading={loading}
-          />
-          
-          <div className="mt-4">
-            <PaginationControls 
-              pagination={pagination}
-              onPageChange={handlePageChange}
-              onPageSizeChange={handlePageSizeChange}
-              itemName="books"
+          {!books.length > 0 ? (
+            <Alert 
+              message="No books available."
+              type="info"
+              showIcon
+              className="mb-4"
             />
-          </div>
+          ) : (
+            <>
+              <Table
+                dataSource={books}
+                columns={columns}
+                rowKey="id"
+                pagination={false}
+                bordered
+                loading={loading}
+              />
+              
+              <div className="mt-4">
+                <PaginationControls 
+                  pagination={pagination}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  itemName="books"
+                />
+              </div>
+            </>
+          )}
         </>
       )}
 

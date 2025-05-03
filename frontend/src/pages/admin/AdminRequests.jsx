@@ -169,12 +169,20 @@ const AdminRequests = () => {
     return (
       <div className="px-4 py-2">
         <h4 className="font-semibold mb-2">Books in this request:</h4>
-        <Table 
-          columns={columns} 
-          dataSource={record.books} 
-          pagination={false} 
-          rowKey={record => `${record.title}-${record.author}`} // Create unique key from title and author
-        />
+        {!record.books?.length ? (
+          <Alert 
+            message="No books in this request."
+            type="info"
+            showIcon
+          />
+        ) : (
+          <Table 
+            columns={columns} 
+            dataSource={record.books} 
+            pagination={false} 
+            rowKey={record => `${record.title}-${record.author}`} // Create unique key from title and author
+          />
+        )}
       </div>
     );
   };
@@ -304,6 +312,17 @@ const AdminRequests = () => {
         <div className="flex justify-center items-center h-64">
           <Spin size="large" />
         </div>
+      );
+    }
+    
+    if (!requests.length > 0) {
+      return (
+        <Alert 
+          message="No requests found."
+          type="info"
+          showIcon
+          className="mb-4"
+        />
       );
     }
     
