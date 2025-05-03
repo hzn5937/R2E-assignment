@@ -193,7 +193,7 @@
           }
         }
       },
-      "patch": {
+      "put": {
         "tags": [
           "Book"
         ],
@@ -338,7 +338,7 @@
           }
         }
       },
-      "patch": {
+      "put": {
         "tags": [
           "Category"
         ],
@@ -505,6 +505,13 @@
         ],
         "parameters": [
           {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "pageNum",
             "in": "query",
             "schema": {
@@ -562,7 +569,7 @@
       }
     },
     "/api/requests/{requestId}": {
-      "patch": {
+      "put": {
         "tags": [
           "Request"
         ],

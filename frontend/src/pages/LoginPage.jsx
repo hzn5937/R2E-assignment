@@ -40,7 +40,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-full bg-gray-100">
+    <div className="flex justify-center items-center bg-gray-100 h-screen pb-32">
       <Card title="Login" className="w-full max-w-sm">
         {error && (
           <Alert 

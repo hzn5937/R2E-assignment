@@ -6,6 +6,7 @@ using LibraryManagement.Application.Interfaces;
 using LibraryManagement.Domain.Common;
 using LibraryManagement.Domain.Entities;
 using LibraryManagement.Domain.Interfaces;
+using System.Globalization;
 
 namespace LibraryManagement.Application.Services
 {
@@ -61,14 +62,17 @@ namespace LibraryManagement.Application.Services
         {
             Category? existing = await _categoryRepository.GetByNameAsync(createCategoryDto.Name);
 
+            string processedName = CultureInfo.CurrentCulture.TextInfo
+                .ToTitleCase(createCategoryDto.Name.ToLowerInvariant());
+
             if (existing is not null)
             {
-                throw new ConflictException($"Category with name: {createCategoryDto.Name} already exists!");
+                throw new ConflictException($"Category with name: {processedName} already exists!");
             }
 
             var category = new Category
             {
-                Name = createCategoryDto.Name,
+                Name = processedName,
             };
 
             var created = await _categoryRepository.CreateAsync(category);
@@ -84,6 +88,9 @@ namespace LibraryManagement.Application.Services
 
         public async Task<CategoryOutputDto?> UpdateAsync(int id, UpdateCategoryDto updateCategoryDto)
         {
+            string processedName = CultureInfo.CurrentCulture.TextInfo
+                .ToTitleCase(updateCategoryDto.Name.ToLowerInvariant());
+
             var existing = await _categoryRepository.GetByIdAsync(id);
 
             if (existing is null)
@@ -91,14 +98,14 @@ namespace LibraryManagement.Application.Services
                 throw new NotFoundException($"There is no category entry with Id: {id}!");
             }
 
-            var duplicate = await _categoryRepository.GetByNameAsync(updateCategoryDto.Name);
+            var duplicate = await _categoryRepository.GetByNameAsync(processedName);
 
             if (duplicate is not null)
             {
-                throw new ConflictException($"Category with name: {updateCategoryDto.Name} already exists!");
+                throw new ConflictException($"Category with name: {processedName} already exists!");
             }
 
-            existing.Name = updateCategoryDto.Name;
+            existing.Name = processedName;
 
             var updated = await _categoryRepository.UpdateAsync(existing);
 

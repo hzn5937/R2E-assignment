@@ -44,13 +44,14 @@ namespace LibraryManagement.Persistence.Repositories
         public async Task<IEnumerable<BookBorrowingRequest>> GetAllUserRequestsAsync(int userId)
         {
             var result = await _context.BookBorrowingRequests
-                .Include(r => r.Requestor)
-                .Include(r => r.Approver)
-                .Include(r => r.Details)
-                    .ThenInclude(d => d.Book)
-                    .ThenInclude(b => b.Category)
-                .Where(r => r.RequestorId == userId)
-                .ToListAsync();
+.Include(r => r.Requestor)
+               .Include(r => r.Approver)
+               .Include(r => r.Details)
+                   .ThenInclude(d => d.Book)
+                   .ThenInclude(b => b.Category)
+               .Where(r => r.RequestorId == userId)
+               .OrderByDescending(r => r.DateRequested)
+               .ToListAsync();
 
             return result;
         }
@@ -58,12 +59,13 @@ namespace LibraryManagement.Persistence.Repositories
         public async Task<IEnumerable<BookBorrowingRequest>> GetAllRequestsAsync()
         {
             var result = await _context.BookBorrowingRequests
-                .Include(r => r.Requestor)
-                .Include(r => r.Approver)
-                .Include(r => r.Details)
-                    .ThenInclude(d => d.Book)
-                    .ThenInclude(b => b.Category)
-                .ToListAsync();
+               .Include(r => r.Requestor)
+               .Include(r => r.Approver)
+               .Include(r => r.Details)
+                   .ThenInclude(d => d.Book)
+                   .ThenInclude(b => b.Category)
+               .OrderByDescending(r => r.DateRequested)
+               .ToListAsync();
 
             return result;
         }

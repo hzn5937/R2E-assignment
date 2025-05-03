@@ -52,6 +52,7 @@ namespace LibraryManagement.Application.Services
                     Title = book.Title,
                     Author = book.Author,
                     CategoryName = (book.CategoryId is null) ? Constants.NullCategoryName : book.Category.Name,
+                    TotalQuantity = book.TotalQuantity,
                     AvailableQuantity = book.AvailableQuantity,
                 };
                 bookList.Add(record);

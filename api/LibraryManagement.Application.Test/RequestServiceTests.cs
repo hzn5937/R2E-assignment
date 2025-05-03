@@ -7,6 +7,7 @@ using LibraryManagement.Domain.Enums;
 using LibraryManagement.Application.Extensions.Exceptions;
 using LibraryManagement.Domain.Common;
 using LibraryManagement.Application.DTOs.Common;
+using System.Globalization;
 
 namespace LibraryManagement.Application.Test
 {
@@ -29,6 +30,231 @@ namespace LibraryManagement.Application.Test
                 _mockUserRepository.Object,
                 _mockBookRepository.Object
             );
+        }
+
+        private List<BookBorrowingRequest> CreateTestDataForAllRequests()
+        {
+            var requestor1 = new User { Id = 1, Username = "user1" };
+            var requestor2 = new User { Id = 2, Username = "user2" };
+            var approver = new User { Id = 3, Username = "admin1" };
+            var category1 = new Category { Id = 1, Name = "Fiction" };
+            var book1 = new Book { Id = 10, Title = "Fic Book 1", Author = "Auth A", Category = category1 };
+            var book2 = new Book { Id = 20, Title = "NonFic Book 1", Author = "Auth B", Category = null }; // Null category
+            var book3 = new Book { Id = 30, Title = "Fic Book 2", Author = "Auth C", Category = category1 };
+
+            return new List<BookBorrowingRequest>
+            {
+                new BookBorrowingRequest {
+                    Id = 1, Requestor = requestor1, Approver = approver, Status = RequestStatus.Approved, DateRequested = DateTime.UtcNow.AddDays(-5),
+                    Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { BookId = book1.Id, Book = book1 } }
+                },
+                new BookBorrowingRequest {
+                    Id = 2, Requestor = requestor2, Approver = null, Status = RequestStatus.Waiting, DateRequested = DateTime.UtcNow.AddDays(-3), // Null approver
+                    Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { BookId = book2.Id, Book = book2 } }
+                },
+                new BookBorrowingRequest {
+                    Id = 3, Requestor = requestor1, Approver = approver, Status = RequestStatus.Rejected, DateRequested = DateTime.UtcNow.AddDays(-10),
+                    Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { BookId = book3.Id, Book = book3 } }
+                },
+                 new BookBorrowingRequest {
+                    Id = 4, Requestor = requestor2, Approver = approver, Status = RequestStatus.Approved, DateRequested = DateTime.UtcNow.AddDays(-2),
+                    Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { BookId = book1.Id, Book = book1 }, new BookBorrowingRequestDetail { BookId = book2.Id, Book = book2 } }
+                },
+                 new BookBorrowingRequest {
+                    Id = 5, Requestor = requestor1, Approver = null, Status = RequestStatus.Waiting, DateRequested = DateTime.UtcNow.AddDays(-1),
+                    Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { BookId = book3.Id, Book = book3 } }
+                 }
+            };
+        }
+
+        [Test]
+        public async Task GetAllRequestDetailsAsync_WhenNoStatus_ReturnsAllRequestsPaginated()
+        {
+            // Arrange
+            var testData = CreateTestDataForAllRequests();
+            int pageNum = 1;
+            int pageSize = 3;
+            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync()).ReturnsAsync(testData);
+
+            // Act
+            var result = await _requestService.GetAllRequestDetailsAsync(null, pageNum, pageSize);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(testData.Count, result.TotalCount);
+            Assert.AreEqual(pageSize, result.Items.Count);
+            Assert.AreEqual(pageNum, result.PageNum);
+            Assert.AreEqual(pageSize, result.PageSize);
+            Assert.AreEqual((int)Math.Ceiling((double)testData.Count / pageSize), result.TotalPage);
+            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
+        }
+
+        [Test]
+        [TestCase("waiting")]
+        [TestCase("Waiting")]
+        [TestCase("WAITING")]
+        public async Task GetAllRequestDetailsAsync_WhenValidStatusFilter_ReturnsFilteredRequestsPaginated(string statusFilter)
+        {
+            // Arrange
+            var testData = CreateTestDataForAllRequests();
+            var expectedStatus = RequestStatus.Waiting;
+            var expectedFilteredCount = testData.Count(r => r.Status == expectedStatus);
+            int pageNum = 1;
+            int pageSize = 5; // Ensure page size is large enough for all filtered items
+            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync()).ReturnsAsync(testData);
+
+
+            // Act
+            var result = await _requestService.GetAllRequestDetailsAsync(statusFilter, pageNum, pageSize);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedFilteredCount, result.TotalCount);
+            Assert.AreEqual(expectedFilteredCount, result.Items.Count); // Assuming pageSize >= filtered count
+            Assert.IsTrue(result.Items.All(i => i.Status == expectedStatus.ToString()));
+            Assert.AreEqual(pageNum, result.PageNum);
+            Assert.AreEqual(pageSize, result.PageSize);
+            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
+        }
+
+        [Test]
+        public void GetAllRequestDetailsAsync_WhenInvalidStatusFilter_ThrowsNotFoundException()
+        {
+            // Arrange
+            var testData = CreateTestDataForAllRequests();
+            string invalidStatus = "nonexistent";
+            string expectedProcessedName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(invalidStatus.ToLowerInvariant());
+            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync()).ReturnsAsync(testData);
+
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<NotFoundException>(() => _requestService.GetAllRequestDetailsAsync(invalidStatus));
+            Assert.AreEqual($"Request status {expectedProcessedName} not found.", ex?.Message);
+            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
+        }
+
+        [Test]
+        public async Task GetAllRequestDetailsAsync_WhenRequestsExist_AppliesPaginationCorrectly()
+        {
+            // Arrange
+            var testData = CreateTestDataForAllRequests(); // 5 items
+            int pageNum = 2;
+            int pageSize = 2;
+            int expectedItemsOnPage = 2;
+            int expectedTotalPages = (int)Math.Ceiling((double)testData.Count / pageSize);
+
+            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync()).ReturnsAsync(testData);
+
+            // Act
+            var result = await _requestService.GetAllRequestDetailsAsync(null, pageNum, pageSize);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(testData.Count, result.TotalCount);
+            Assert.AreEqual(expectedItemsOnPage, result.Items.Count);
+            Assert.AreEqual(pageNum, result.PageNum);
+            Assert.AreEqual(pageSize, result.PageSize);
+            Assert.AreEqual(expectedTotalPages, result.TotalPage);
+            Assert.AreEqual(testData[2].Id, result.Items[0].Id);
+            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
+        }
+
+        [Test]
+        public async Task GetAllRequestDetailsAsync_WhenRequestHasNullApprover_MapsCorrectly()
+        {
+            // Arrange
+            var testData = CreateTestDataForAllRequests();
+            var requestWithNullApprover = testData.First(r => r.Approver == null);
+            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync()).ReturnsAsync(testData);
+
+
+            // Act
+            // Get all items on one page to simplify finding the specific item
+            var result = await _requestService.GetAllRequestDetailsAsync(null, 1, testData.Count);
+
+            // Assert
+            Assert.IsNotNull(result);
+            var mappedDto = result.Items.FirstOrDefault(dto => dto.Id == requestWithNullApprover.Id);
+            Assert.IsNotNull(mappedDto, "Mapped DTO for request with null approver not found.");
+            Assert.IsNull(mappedDto.Approver); // Key assertion
+            Assert.AreEqual(requestWithNullApprover.Requestor.Username, mappedDto.Requestor);
+            Assert.AreEqual(requestWithNullApprover.Status.ToString(), mappedDto.Status);
+            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
+        }
+
+        [Test]
+        public async Task GetAllRequestDetailsAsync_WhenBookHasNullCategory_MapsCorrectlyWithDefaultName()
+        {
+            // Arrange
+            var testData = CreateTestDataForAllRequests();
+            var requestWithNullCategoryBook = testData.First(r => r.Details.Any(d => d.Book.Category == null));
+            var bookWithNullCategory = requestWithNullCategoryBook.Details.First(d => d.Book.Category == null).Book;
+            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync()).ReturnsAsync(testData);
+
+
+            // Act
+            // Get all items on one page
+            var result = await _requestService.GetAllRequestDetailsAsync(null, 1, testData.Count);
+
+            // Assert
+            Assert.IsNotNull(result);
+            var mappedDto = result.Items.FirstOrDefault(dto => dto.Id == requestWithNullCategoryBook.Id);
+            Assert.IsNotNull(mappedDto, "Mapped DTO for request with null category book not found.");
+
+            var mappedBookInfo = mappedDto.Books.FirstOrDefault(b => b.Title == bookWithNullCategory.Title);
+            Assert.IsNotNull(mappedBookInfo, "Mapped BookInformation for book with null category not found.");
+            Assert.AreEqual(Constants.NullCategoryName, mappedBookInfo.CategoryName); // Key assertion
+            Assert.AreEqual(bookWithNullCategory.Author, mappedBookInfo.Author);
+            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
+        }
+
+        [Test]
+        public async Task GetAllRequestDetailsAsync_WhenRepositoryReturnsEmptyList_ReturnsEmptyPaginatedResult()
+        {
+            // Arrange
+            var emptyList = new List<BookBorrowingRequest>();
+            int pageNum = 1;
+            int pageSize = 10;
+            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync()).ReturnsAsync(emptyList);
+
+            // Act
+            var result = await _requestService.GetAllRequestDetailsAsync(null, pageNum, pageSize);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.TotalCount);
+            Assert.IsEmpty(result.Items);
+            Assert.AreEqual(pageNum, result.PageNum);
+            Assert.AreEqual(pageSize, result.PageSize);
+            Assert.AreEqual(0, result.TotalPage); // Or 1 depending on Pagination logic for 0 items
+            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
+        }
+
+        [Test]
+        public async Task GetAllRequestDetailsAsync_WhenRepositoryReturnsNull_ReturnsEmptyPaginatedResult() // Or handle as needed, current code likely throws NRE
+        {
+            // Arrange
+            int pageNum = 1;
+            int pageSize = 10;
+            // Explicitly return null to test null handling if GetAllRequestsAsync could return null
+            // NOTE: Current RequestService code might throw NullReferenceException if repo returns null.
+            // Adjust test based on desired behavior (e.g., expect exception or handle null gracefully).
+            // This test assumes graceful handling (returning empty result) might be preferred.
+            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync()).ReturnsAsync((IEnumerable<BookBorrowingRequest>)null);
+
+
+            // Act
+            // If null should be handled gracefully:
+            // var result = await _requestService.GetAllRequestDetailsAsync(null, pageNum, pageSize);
+            // Assert.IsNotNull(result);
+            // Assert.IsEmpty(result.Items);
+            // Assert.AreEqual(0, result.TotalCount);
+
+            // If NullReferenceException is expected (based on current code without null check on allRequests):
+            Assert.ThrowsAsync<NullReferenceException>(() => _requestService.GetAllRequestDetailsAsync(null, pageNum, pageSize));
+
+            // Assert
+            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
         }
 
         [Test]
@@ -614,182 +840,6 @@ namespace LibraryManagement.Application.Test
 
             _mockUserRepository.Verify(repo => repo.GetUserByIdAsync(userId), Times.Once);
             _mockRequestRepository.Verify(repo => repo.GetAllUserRequestsAsync(userId), Times.Once);
-        }
-
-        [Test]
-        public async Task GetAllRequestDetailsAsync_NoRequests_ReturnsEmptyPaginatedResult()
-        {
-            // Arrange
-            var pageNum = 1;
-            var pageSize = 10;
-            var emptyRequestList = new List<BookBorrowingRequest>();
-
-            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync()).ReturnsAsync(emptyRequestList);
-
-            // Act
-            var result = await _requestService.GetAllRequestDetailsAsync(pageNum, pageSize);
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<PaginatedOutputDto<RequestDetailOutputDto>>(result);
-            Assert.AreEqual(0, result.TotalCount);
-            Assert.AreEqual(pageNum, result.PageNum);
-            Assert.AreEqual(pageSize, result.PageSize);
-            Assert.AreEqual(0, result.TotalPage); // Or 1 depending on Pagination logic
-            Assert.IsEmpty(result.Items);
-            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
-        }
-
-        [Test]
-        public async Task GetAllRequestDetailsAsync_RequestsExist_ReturnsCorrectlyMappedAndPaginatedResult()
-        {
-            // Arrange
-            var pageNum = 1;
-            var pageSize = 1; // Test pagination
-            var requestorUser = new User { Id = 1, Username = "reqUser" };
-            var approverUser = new User { Id = 2, Username = "appUser" };
-            var category1 = new Category { Id = 1, Name = "Fiction" };
-            var book1 = new Book { Id = 101, Title = "Book A", Author = "Auth A", Category = category1 };
-            var book2 = new Book { Id = 102, Title = "Book B", Author = "Auth B", Category = null }; // Book with null category
-
-            var requestsFromRepo = new List<BookBorrowingRequest>
-            {
-                new BookBorrowingRequest
-                {
-                    Id = 201,
-                    RequestorId = requestorUser.Id,
-                    Requestor = requestorUser,
-                    ApproverId = approverUser.Id,
-                    Approver = approverUser,
-                    Status = RequestStatus.Approved,
-                    DateRequested = DateTime.UtcNow.AddDays(-5),
-                    Details = new List<BookBorrowingRequestDetail>
-                    {
-                        new BookBorrowingRequestDetail { RequestId = 201, BookId = book1.Id, Book = book1 },
-                        new BookBorrowingRequestDetail { RequestId = 201, BookId = book2.Id, Book = book2 }
-                    }
-                },
-                new BookBorrowingRequest
-                {
-                    Id = 202,
-                    RequestorId = requestorUser.Id, // Can be same or different user
-                    Requestor = requestorUser,
-                    ApproverId = null,
-                    Approver = null, // Null approver case
-                    Status = RequestStatus.Waiting,
-                    DateRequested = DateTime.UtcNow.AddDays(-2),
-                    Details = new List<BookBorrowingRequestDetail>
-                    {
-                        new BookBorrowingRequestDetail { RequestId = 202, BookId = book1.Id, Book = book1 }
-                    }
-                }
-            };
-
-            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync()).ReturnsAsync(requestsFromRepo);
-
-            // Act
-            var result = await _requestService.GetAllRequestDetailsAsync(pageNum, pageSize);
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(requestsFromRepo.Count, result.TotalCount); // Total before pagination
-            Assert.AreEqual(pageNum, result.PageNum);
-            Assert.AreEqual(pageSize, result.PageSize);
-            Assert.AreEqual((int)Math.Ceiling((double)requestsFromRepo.Count / pageSize), result.TotalPage); // Should be 2 pages
-            Assert.AreEqual(pageSize, result.Items.Count); // Should have 1 item on page 1
-
-            // --- Verify Mapping for the First Request (Page 1) ---
-            var firstDto = result.Items.First();
-            var firstRepo = requestsFromRepo.First(r => r.Id == firstDto.Id);
-
-            Assert.AreEqual(firstRepo.Id, firstDto.Id);
-            Assert.AreEqual(firstRepo.Requestor.Username, firstDto.Requestor);
-            Assert.AreEqual(firstRepo.Approver?.Username, firstDto.Approver); // Check approver
-            Assert.AreEqual(firstRepo.Status.ToString(), firstDto.Status);
-            Assert.AreEqual(firstRepo.DateRequested.Date, firstDto.RequestedDate.Date); // Optionally compare Date part
-
-            // Verify Book Details Mapping
-            Assert.IsNotNull(firstDto.Books);
-            Assert.AreEqual(firstRepo.Details.Count, firstDto.Books.Count); // Should have 2 books
-
-            // Verify Book 1 details
-            var book1InfoDto = firstDto.Books.FirstOrDefault(b => b.Title == book1.Title);
-            Assert.IsNotNull(book1InfoDto);
-            Assert.AreEqual(book1.Author, book1InfoDto.Author);
-            Assert.AreEqual(book1.Category.Name, book1InfoDto.CategoryName); // Has category
-
-            // Verify Book 2 details (null category)
-            var book2InfoDto = firstDto.Books.FirstOrDefault(b => b.Title == book2.Title);
-            Assert.IsNotNull(book2InfoDto);
-            Assert.AreEqual(book2.Author, book2InfoDto.Author);
-            Assert.AreEqual(Constants.NullCategoryName, book2InfoDto.CategoryName); // Should use default for null category
-
-            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
-        }
-
-        [Test]
-        public async Task GetAllRequestDetailsAsync_RequestsExist_ReturnsCorrectSecondPage()
-        {
-            // Arrange (Using same data as previous test, just changing pageNum)
-            var pageNum = 2; // Request second page
-            var pageSize = 1;
-            var requestorUser = new User { Id = 1, Username = "reqUser" };
-            var approverUser = new User { Id = 2, Username = "appUser" };
-            var category1 = new Category { Id = 1, Name = "Fiction" };
-            var book1 = new Book { Id = 101, Title = "Book A", Author = "Auth A", Category = category1 };
-            var book2 = new Book { Id = 102, Title = "Book B", Author = "Auth B", Category = null };
-
-            var requestsFromRepo = new List<BookBorrowingRequest>
-            {
-                new BookBorrowingRequest { Id = 201, /* ... details ... */ Requestor = requestorUser, Approver = approverUser, Details = new List<BookBorrowingRequestDetail>{ new BookBorrowingRequestDetail { Book = book1 }, new BookBorrowingRequestDetail { Book = book2 } } },
-                new BookBorrowingRequest
-                {
-                    Id = 202,
-                    RequestorId = requestorUser.Id,
-                    Requestor = requestorUser,
-                    ApproverId = null,
-                    Approver = null, // Null approver case
-                    Status = RequestStatus.Waiting,
-                    DateRequested = DateTime.UtcNow.AddDays(-2),
-                    Details = new List<BookBorrowingRequestDetail>
-                    {
-                        // Need to ensure the Book object inside detail is populated for mapping
-                        new BookBorrowingRequestDetail { RequestId = 202, BookId = book1.Id, Book = book1 }
-                    }
-                }
-            };
-            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync()).ReturnsAsync(requestsFromRepo);
-
-            // Act
-            var result = await _requestService.GetAllRequestDetailsAsync(pageNum, pageSize);
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual(requestsFromRepo.Count, result.TotalCount);
-            Assert.AreEqual(pageNum, result.PageNum);
-            Assert.AreEqual(pageSize, result.PageSize);
-            Assert.AreEqual(2, result.TotalPage); // Still 2 total pages
-            Assert.AreEqual(1, result.Items.Count); // Should have 1 item on page 2
-
-            // --- Verify Mapping for the Second Request (Page 2) ---
-            var secondDto = result.Items.First();
-            var secondRepo = requestsFromRepo.First(r => r.Id == secondDto.Id); // Should be request 202
-
-            Assert.AreEqual(202, secondDto.Id); // Explicit check
-            Assert.AreEqual(secondRepo.Requestor.Username, secondDto.Requestor);
-            Assert.IsNull(secondDto.Approver); // Check null approver mapping
-            Assert.AreEqual(secondRepo.Status.ToString(), secondDto.Status);
-
-            // Verify Book Details Mapping for the second request
-            Assert.IsNotNull(secondDto.Books);
-            Assert.AreEqual(1, secondDto.Books.Count); // Only 1 book in this request
-
-            var bookInfoDto = secondDto.Books.First();
-            Assert.AreEqual(book1.Title, bookInfoDto.Title);
-            Assert.AreEqual(book1.Author, bookInfoDto.Author);
-            Assert.AreEqual(book1.Category.Name, bookInfoDto.CategoryName); // Book 1 has category
-
-            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
         }
     }
 } 

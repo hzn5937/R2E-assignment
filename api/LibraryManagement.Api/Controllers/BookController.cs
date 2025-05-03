@@ -56,7 +56,7 @@ namespace LibraryManagement.Api.Controllers
             return Ok(createdBook);
         }
 
-        [HttpPatch("{id}")]
+        [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateBook(int id, UpdateBookDto updateBookDto)
         {

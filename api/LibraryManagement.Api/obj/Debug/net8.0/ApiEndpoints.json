@@ -104,7 +104,7 @@
     "ContainingType": "LibraryManagement.Api.Controllers.BookController",
     "Method": "UpdateBook",
     "RelativePath": "api/books/{id}",
-    "HttpMethod": "PATCH",
+    "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -204,7 +204,7 @@
     "ContainingType": "LibraryManagement.Api.Controllers.CategoryController",
     "Method": "UpdateCategory",
     "RelativePath": "api/categories/{id}",
-    "HttpMethod": "PATCH",
+    "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -267,7 +267,7 @@
     "ContainingType": "LibraryManagement.Api.Controllers.RequestController",
     "Method": "UpdateRequest",
     "RelativePath": "api/requests/{requestId}",
-    "HttpMethod": "PATCH",
+    "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -308,6 +308,11 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [
+      {
+        "Name": "status",
+        "Type": "System.String",
+        "IsRequired": false
+      },
       {
         "Name": "pageNum",
         "Type": "System.Int32",

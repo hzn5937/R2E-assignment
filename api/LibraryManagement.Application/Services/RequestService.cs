@@ -1,4 +1,5 @@
-﻿using LibraryManagement.Application.DTOs.Common;
+﻿using LibraryManagement.Application.DTOs.Category;
+using LibraryManagement.Application.DTOs.Common;
 using LibraryManagement.Application.DTOs.Request;
 using LibraryManagement.Application.Extensions;
 using LibraryManagement.Application.Extensions.Exceptions;
@@ -7,6 +8,7 @@ using LibraryManagement.Domain.Common;
 using LibraryManagement.Domain.Entities;
 using LibraryManagement.Domain.Enums;
 using LibraryManagement.Domain.Interfaces;
+using System.Globalization;
 
 namespace LibraryManagement.Application.Services
 {
@@ -129,9 +131,24 @@ namespace LibraryManagement.Application.Services
             return paginated;
         }
 
-        public async Task<PaginatedOutputDto<RequestDetailOutputDto>?> GetAllRequestDetailsAsync(int pageNum = Constants.DefaultPageNum, int pageSize = Constants.DefaultPageSize)
+        public async Task<PaginatedOutputDto<RequestDetailOutputDto>?> GetAllRequestDetailsAsync(string? status, int pageNum = Constants.DefaultPageNum, int pageSize = Constants.DefaultPageSize)
         {
             var allRequests = await _requestRepository.GetAllRequestsAsync();
+
+            if (status is not null)
+            {
+                string processedName = CultureInfo.CurrentCulture.TextInfo
+                    .ToTitleCase(status.ToLowerInvariant());
+
+                if (Enum.IsDefined(typeof(RequestStatus), processedName))
+                {
+                    allRequests = allRequests.Where(x => x.Status.ToString() == processedName).ToList();
+                }
+                else
+                {
+                    throw new NotFoundException($"Request status {processedName} not found.");
+                }
+            }
 
             var requestList = new List<RequestDetailOutputDto>();
 
@@ -159,7 +176,6 @@ namespace LibraryManagement.Application.Services
 
             return paginated;
         }
-
 
         public async Task<RequestDetailOutputDto?> CreateRequestAsync(CreateRequestDto createRequestDto)
         {

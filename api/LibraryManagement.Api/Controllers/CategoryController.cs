@@ -47,7 +47,7 @@ namespace LibraryManagement.Api.Controllers
             return Ok(createdCategory);
         }
 
-        [HttpPatch("{id}")]
+        [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDto updateCategoryDto)
         {

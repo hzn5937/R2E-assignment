@@ -69,9 +69,9 @@ namespace LibraryManagement.Api.Controllers
 
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllRequests([FromQuery] int pageNum = Constants.DefaultPageNum, [FromQuery] int pageSize = Constants.DefaultPageSize)
+        public async Task<IActionResult> GetAllRequests([FromQuery] string? status, [FromQuery] int pageNum = Constants.DefaultPageNum, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
-            var requests = await _requestService.GetAllRequestDetailsAsync(pageNum, pageSize);
+            var requests = await _requestService.GetAllRequestDetailsAsync(status, pageNum, pageSize);
 
             if (requests is null)
             {
@@ -80,7 +80,6 @@ namespace LibraryManagement.Api.Controllers
 
             return Ok(requests);
         }
-
 
         [HttpPost("create")]
         [Authorize(Roles = "User")]
@@ -96,7 +95,7 @@ namespace LibraryManagement.Api.Controllers
             return Ok(createdRequest);
         }
 
-        [HttpPatch("{requestId}")]
+        [HttpPut("{requestId}")]
         public async Task<IActionResult> UpdateRequest(int requestId, UpdateRequestDto updateRequestDto)
         {
             if (updateRequestDto.Status == RequestStatus.Waiting)

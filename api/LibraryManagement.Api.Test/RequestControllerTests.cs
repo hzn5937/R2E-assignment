@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using LibraryManagement.Domain.Enums;
 using LibraryManagement.Application.DTOs.Common;
 using LibraryManagement.Application.Extensions.Exceptions;
-using Microsoft.AspNetCore.Http; 
+using Microsoft.AspNetCore.Http;
+using LibraryManagement.Domain.Common;
 
 namespace LibraryManagement.Api.Test
 {
@@ -119,23 +120,6 @@ namespace LibraryManagement.Api.Test
             Assert.AreEqual($"User with ID {userId} not found.", (result as NotFoundObjectResult).Value);
             _mockRequestService.Verify(s => s.GetAllUserRequestsAsync(userId, 1, 5), Times.Once);
         }
-
-        [Test]
-        public async Task GetAllRequests_ReturnsOkResult()
-        {
-            // Arrange
-            var paginatedRequests = new PaginatedOutputDto<RequestDetailOutputDto> { Items = new List<RequestDetailOutputDto>() };
-            _mockRequestService.Setup(s => s.GetAllRequestDetailsAsync(1, 5)).ReturnsAsync(paginatedRequests);
-
-            // Act
-            var result = await _requestController.GetAllRequests(1, 5);
-
-            // Assert
-            Assert.IsInstanceOf<OkObjectResult>(result);
-            Assert.AreEqual(paginatedRequests, (result as OkObjectResult).Value);
-            _mockRequestService.Verify(s => s.GetAllRequestDetailsAsync(1, 5), Times.Once);
-        }
-
 
         [Test]
         public async Task CreateRequest_Successful_ReturnsOkResult()
@@ -325,24 +309,95 @@ namespace LibraryManagement.Api.Test
         }
 
         [Test]
-        public async Task GetAllRequests_ServiceReturnsNull_ReturnsNotFoundResult()
+        public async Task GetAllRequests_RequestsFound_ReturnsOkResultWithPaginatedData()
         {
             // Arrange
+            string status = RequestStatus.Waiting.ToString(); // Example status
             int pageNum = 1;
             int pageSize = 10;
-            // Explicitly cast null to the expected return type for ReturnsAsync
-            _mockRequestService.Setup(s => s.GetAllRequestDetailsAsync(pageNum, pageSize))
-                               .ReturnsAsync((PaginatedOutputDto<RequestDetailOutputDto>)null);
+            var requestDetails = new List<RequestDetailOutputDto> //
+            {
+                new RequestDetailOutputDto { Id = 1, Requestor = "User One", Status = status, RequestedDate = DateTime.UtcNow, Books = new List<BookInformation>() },
+                new RequestDetailOutputDto { Id = 2, Requestor = "User Two", Status = status, RequestedDate = DateTime.UtcNow.AddDays(-1), Books = new List<BookInformation>() }
+            };
+            var paginatedResult = new PaginatedOutputDto<RequestDetailOutputDto> //
+            {
+                Items = requestDetails,
+                PageNum = pageNum,
+                PageSize = pageSize,
+                TotalCount = 50, // Example total count
+                TotalPage = 5 // Example total pages
+            };
+
+            _mockRequestService.Setup(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize)) //
+                               .ReturnsAsync(paginatedResult);
 
             // Act
-            var result = await _requestController.GetAllRequests(pageNum, pageSize);
+            var result = await _requestController.GetAllRequests(status, pageNum, pageSize); //
 
             // Assert
-            Assert.IsInstanceOf<NotFoundObjectResult>(result); // Check for NotFound result type
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult.Value);
+            Assert.AreEqual(paginatedResult, okResult.Value);
+            _mockRequestService.Verify(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize), Times.Once);
+        }
+
+        [Test]
+        public async Task GetAllRequests_RequestsFoundWithDefaultParams_ReturnsOkResultWithPaginatedData()
+        {
+            // Arrange
+            string? status = null; // Test with null status
+            int pageNum = Constants.DefaultPageNum; //
+            int pageSize = Constants.DefaultPageSize; //
+            var requestDetails = new List<RequestDetailOutputDto>
+            {
+                new RequestDetailOutputDto { Id = 3, Requestor = "User Three", Status = RequestStatus.Approved.ToString(), RequestedDate = DateTime.UtcNow, Books = new List<BookInformation>() }
+            };
+            var paginatedResult = new PaginatedOutputDto<RequestDetailOutputDto>
+            {
+                Items = requestDetails,
+                PageNum = pageNum,
+                PageSize = pageSize,
+                TotalCount = 1,
+                TotalPage = 1
+            };
+
+            _mockRequestService.Setup(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize))
+                               .ReturnsAsync(paginatedResult);
+
+            // Act
+            // Call without optional parameters to test defaults
+            var result = await _requestController.GetAllRequests(status); //
+
+            // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult.Value);
+            Assert.AreEqual(paginatedResult, okResult.Value);
+            _mockRequestService.Verify(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize), Times.Once);
+        }
+
+        [Test]
+        public async Task GetAllRequests_NoRequestsFound_ReturnsNotFoundResult()
+        {
+            // Arrange
+            string? status = RequestStatus.Rejected.ToString();
+            int pageNum = 1;
+            int pageSize = 5;
+
+            _mockRequestService.Setup(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize))
+                               .ReturnsAsync((PaginatedOutputDto<RequestDetailOutputDto>)null); // Service returns null
+
+            // Act
+            var result = await _requestController.GetAllRequests(status, pageNum, pageSize); //
+
+            // Assert
+            Assert.IsInstanceOf<NotFoundObjectResult>(result);
             var notFoundResult = result as NotFoundObjectResult;
-            Assert.IsNotNull(notFoundResult);
-            Assert.AreEqual("No requests found.", notFoundResult.Value); // Check the message
-            _mockRequestService.Verify(s => s.GetAllRequestDetailsAsync(pageNum, pageSize), Times.Once); // Verify the service was called
+            Assert.IsNotNull(notFoundResult.Value);
+            Assert.AreEqual("No requests found.", notFoundResult.Value); //
+            _mockRequestService.Verify(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize), Times.Once);
         }
     }
 }

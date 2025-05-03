@@ -16,6 +16,9 @@ import RequestDetailPage from './pages/user/Request/RequestDetailPage';
 
 // Admin Pages
 import AdminHome from './pages/admin/AdminHome';
+import AdminBooks from './pages/admin/AdminBooks'; // Import AdminBooks component
+import AdminCategories from './pages/admin/AdminCategories'; // Import AdminCategories component
+import AdminRequests from './pages/admin/AdminRequests'; // Import AdminRequests component
 
 function App() {
   return (
@@ -29,6 +32,9 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route element={<AppLayout />}>
               <Route path="/admin" element={<AdminHome />} />
+              <Route path="/admin/books" element={<AdminBooks />} /> {/* Add AdminBooks route */}
+              <Route path="/admin/categories" element={<AdminCategories />} /> {/* Add AdminCategories route */}
+              <Route path="/admin/requests" element={<AdminRequests />} /> {/* Add AdminRequests route */}
               {/* Add more admin routes as they become available */}
             </Route>
           </Route>
