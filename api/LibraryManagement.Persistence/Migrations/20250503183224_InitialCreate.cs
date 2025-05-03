@@ -150,17 +150,17 @@ namespace LibraryManagement.Persistence.Migrations
                 columns: new[] { "Id", "Email", "PasswordHash", "RefreshToken", "RefreshTokenExpiryTime", "Role", "Username" },
                 values: new object[,]
                 {
-                    { 1, "admin1@example.com", "AQAAAAIAAYagAAAAEAfr/wVhqerOmxIm75wWwoGI3LIdpcFSX2dq2GwcvbyXzNPIio5DqZ88jNAIkh0dgg==", null, null, "Admin", "admin1" },
-                    { 2, "admin2@example.com", "AQAAAAIAAYagAAAAEIJpbIzLnSkCAVkWyLrxW7KuHzakQRonqkw8oaIsdl2L853MHxr7srjZkrIIDUstPA==", null, null, "Admin", "admin2" },
-                    { 3, "admin3@example.com", "AQAAAAIAAYagAAAAEI9WVLLOQ2WeMlC7DcT7k6osUL1PmRYdRjpzhopZuL6y5hM4z4KTOABRLCaXxcuGlQ==", null, null, "Admin", "admin3" },
-                    { 4, "user1@example.com", "AQAAAAIAAYagAAAAEKYolcdfBcqwerX3X9n3rxiQexcJ/xd/523iGdGLpYXMVPkPorKGpWQHz4nkxAQJIg==", null, null, "User", "user1" },
-                    { 5, "user2@example.com", "AQAAAAIAAYagAAAAEDjKUUr0SeuPn4pCd8zKA3GyMgWZvcYF/t/o/vliLGuGzlwZzw2RRe7w5jabK7aWJA==", null, null, "User", "user2" },
-                    { 6, "user3@example.com", "AQAAAAIAAYagAAAAEBbLeimphTTvJeFYfpbCQHlxRy+oLTdSgG/VFRIXYnWcyhUIOBZoWGtNXmVGmTqIrQ==", null, null, "User", "user3" },
-                    { 7, "user4@example.com", "AQAAAAIAAYagAAAAEPsqIcvWuGWud3PqOmIJnzqf4nrR95oCL54Y7D0BKLIpjSxyQIy5ObkMnhGom4RGCA==", null, null, "User", "user4" },
-                    { 8, "user5@example.com", "AQAAAAIAAYagAAAAEJibK2kTVUO1XZFRY8dqOwO3Do9XvolVEZAiTc5+lUG0IABvBjSSKMMZsWGZplSqJA==", null, null, "User", "user5" },
-                    { 9, "user6@example.com", "AQAAAAIAAYagAAAAECHqzaaGtx6EH4rVijJF8zrWdgolmS4KZozcT2hj8YdGIpDTz7Z2AKy0YoaR9/JwkA==", null, null, "User", "user6" },
-                    { 10, "user7@example.com", "AQAAAAIAAYagAAAAELsC7J7o5hpHPxHTfAb2UEVnjMx9gP4dQ1rh0Etq4o1JVnGlcc7XPWEVwwTzAqOZdg==", null, null, "User", "user7" },
-                    { 11, "user8@example.com", "AQAAAAIAAYagAAAAEK7RUsiSqWJ6LA8XjAJy+ls46ZoqSMN30MLjcJ7meIcUkuq3fpCT6oXmPhekqexYaA==", null, null, "User", "user8" }
+                    { 1, "admin1@example.com", "AQAAAAIAAYagAAAAEPTT95ZoG4A1YLWx/ZNulKJnxjPRCHF0YTDIsrWxWmRP758ZKIXwdJeSlJmMUBdBNg==", null, null, "Admin", "admin1" },
+                    { 2, "admin2@example.com", "AQAAAAIAAYagAAAAENU2b+si1vmTif26kOAaQRMGUII5FhFFsfXTj+4Q0EpyKfr3N5sMfyVdPtvXgdAaxw==", null, null, "Admin", "admin2" },
+                    { 3, "admin3@example.com", "AQAAAAIAAYagAAAAEGcCqumrEjHVfWf7fvN4k3Ay8wrKe+HGQeLKLTLcoQBhg8HpByBxmnfrfn1EI+y1/w==", null, null, "Admin", "admin3" },
+                    { 4, "user1@example.com", "AQAAAAIAAYagAAAAEIUwCm938Qh/1WSiFC7ErKwWnDRIxHoLapxEsciuLwR69HmvmO0N0r+956rlB7aYiw==", null, null, "User", "user1" },
+                    { 5, "user2@example.com", "AQAAAAIAAYagAAAAEGN+8nQU5cTdsBc14AvnaPa0lcmShqWEibpFiu7DuLyidQZ9rUQIeZZKeeSFt6D8Nw==", null, null, "User", "user2" },
+                    { 6, "user3@example.com", "AQAAAAIAAYagAAAAEHcZ+9aopLOUH9JJYeBY0NFrtz6jG0fRhkKGCnUCPBlSJpxYWQuXzVlCaA8XeCBnAA==", null, null, "User", "user3" },
+                    { 7, "user4@example.com", "AQAAAAIAAYagAAAAEDTB1D5b/VBWdMCgvHBDKavUXWLUifGYGxKvctESoamJb3OgfGPoTRlC45CwgXniCw==", null, null, "User", "user4" },
+                    { 8, "user5@example.com", "AQAAAAIAAYagAAAAEGeTHbnBhb/wg208idw/LeLTieyIPsbd+XuVB64omUXrVfR5l4J2tHywl7hlr7X/Fg==", null, null, "User", "user5" },
+                    { 9, "user6@example.com", "AQAAAAIAAYagAAAAEG8Yh9n4YfMWgPAGCslqe/3F02k/co4bSVfBfLxBWKZ5MiT05utpDgOft5L9MTaodA==", null, null, "User", "user6" },
+                    { 10, "user7@example.com", "AQAAAAIAAYagAAAAEMeEtFyNMhWR2xj12Mas+X+jJvQJZunTTEjT+EszzlgGuNokNmGe7TWbUeFH+7QGlQ==", null, null, "User", "user7" },
+                    { 11, "user8@example.com", "AQAAAAIAAYagAAAAEAfZb2Nm5E9F78qj/i+H261pOrDd5n+GmNzX1MGSJOxaAmLWK1KKj6SWdHuOUFZa3Q==", null, null, "User", "user8" }
                 });
 
             migrationBuilder.InsertData(
@@ -168,13 +168,24 @@ namespace LibraryManagement.Persistence.Migrations
                 columns: new[] { "Id", "ApproverId", "DateRequested", "RequestorId", "Status" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2025, 4, 23, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8940), 4, "Approved" },
-                    { 2, null, new DateTime(2025, 4, 28, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8955), 5, "Waiting" },
-                    { 3, 2, new DateTime(2025, 5, 1, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8957), 6, "Rejected" },
-                    { 4, null, new DateTime(2025, 5, 2, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8958), 4, "Waiting" },
-                    { 5, 1, new DateTime(2025, 4, 18, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8959), 7, "Approved" },
-                    { 6, 3, new DateTime(2025, 4, 25, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8961), 8, "Approved" },
-                    { 7, null, new DateTime(2025, 4, 30, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8963), 9, "Waiting" }
+                    { 1, 1, new DateTime(2025, 4, 23, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4794), 4, "Approved" },
+                    { 2, null, new DateTime(2025, 4, 28, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4829), 5, "Waiting" },
+                    { 3, 2, new DateTime(2025, 5, 1, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4831), 6, "Rejected" },
+                    { 4, null, new DateTime(2025, 5, 2, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4833), 4, "Waiting" },
+                    { 5, 1, new DateTime(2025, 4, 18, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4834), 7, "Approved" },
+                    { 6, 3, new DateTime(2025, 4, 25, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4837), 8, "Approved" },
+                    { 7, null, new DateTime(2025, 4, 30, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4839), 9, "Waiting" },
+                    { 8, null, new DateTime(2025, 5, 3, 6, 32, 24, 253, DateTimeKind.Utc).AddTicks(4840), 4, "Waiting" },
+                    { 9, 1, new DateTime(2025, 4, 29, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4858), 5, "Approved" },
+                    { 10, null, new DateTime(2025, 5, 2, 23, 20, 24, 253, DateTimeKind.Utc).AddTicks(4861), 5, "Waiting" },
+                    { 11, 2, new DateTime(2025, 4, 27, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4863), 6, "Rejected" },
+                    { 12, null, new DateTime(2025, 5, 2, 6, 32, 24, 253, DateTimeKind.Utc).AddTicks(4865), 6, "Waiting" },
+                    { 13, 3, new DateTime(2025, 5, 2, 13, 44, 24, 253, DateTimeKind.Utc).AddTicks(4868), 6, "Approved" },
+                    { 14, null, new DateTime(2025, 4, 30, 6, 32, 24, 253, DateTimeKind.Utc).AddTicks(4869), 10, "Waiting" },
+                    { 15, 1, new DateTime(2025, 4, 30, 13, 44, 24, 253, DateTimeKind.Utc).AddTicks(4871), 10, "Approved" },
+                    { 16, 2, new DateTime(2025, 4, 30, 23, 20, 24, 253, DateTimeKind.Utc).AddTicks(4874), 10, "Approved" },
+                    { 17, null, new DateTime(2025, 5, 1, 13, 44, 24, 253, DateTimeKind.Utc).AddTicks(4875), 11, "Waiting" },
+                    { 18, 3, new DateTime(2025, 5, 1, 23, 20, 24, 253, DateTimeKind.Utc).AddTicks(4878), 11, "Rejected" }
                 });
 
             migrationBuilder.InsertData(
@@ -185,7 +196,7 @@ namespace LibraryManagement.Persistence.Migrations
                     { 1, "Harper Lee", 7, 1, null, "To Kill a Mockingbird", 10 },
                     { 2, "George Orwell", 10, 1, null, "1984", 12 },
                     { 3, "F. Scott Fitzgerald", 5, 1, null, "The Great Gatsby", 8 },
-                    { 4, "Jane Austen", 7, 1, null, "Pride and Prejudice", 7 },
+                    { 4, "Jane Austen", 7, 1, null, "Pride and Prejudice", 10 },
                     { 5, "J.D. Salinger", 3, 1, null, "The Catcher in the Rye", 6 },
                     { 6, "Yuval Noah Harari", 11, 3, null, "Sapiens: A Brief History of Humankind", 15 },
                     { 7, "Stephen Hawking", 8, 2, null, "A Brief History of Time", 9 },
@@ -255,7 +266,31 @@ namespace LibraryManagement.Persistence.Migrations
                     { 17, 23, 6 },
                     { 18, 3, 7 },
                     { 19, 10, 7 },
-                    { 20, 43, 7 }
+                    { 20, 43, 7 },
+                    { 21, 8, 8 },
+                    { 22, 27, 8 },
+                    { 23, 16, 9 },
+                    { 24, 36, 9 },
+                    { 25, 44, 9 },
+                    { 26, 30, 10 },
+                    { 27, 5, 11 },
+                    { 28, 32, 11 },
+                    { 29, 28, 12 },
+                    { 30, 29, 12 },
+                    { 31, 31, 12 },
+                    { 32, 46, 13 },
+                    { 33, 9, 14 },
+                    { 34, 24, 14 },
+                    { 35, 34, 14 },
+                    { 36, 38, 14 },
+                    { 37, 42, 14 },
+                    { 38, 19, 15 },
+                    { 39, 20, 15 },
+                    { 40, 49, 16 },
+                    { 41, 35, 17 },
+                    { 42, 45, 17 },
+                    { 43, 25, 17 },
+                    { 44, 41, 18 }
                 });
 
             migrationBuilder.CreateIndex(

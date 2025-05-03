@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryManagement.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250503123345_InitialCreate")]
+    [Migration("20250503183224_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -96,7 +96,7 @@ namespace LibraryManagement.Persistence.Migrations
                             AvailableQuantity = 7,
                             CategoryId = 1,
                             Title = "Pride and Prejudice",
-                            TotalQuantity = 7
+                            TotalQuantity = 10
                         },
                         new
                         {
@@ -547,14 +547,14 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 1,
                             ApproverId = 1,
-                            DateRequested = new DateTime(2025, 4, 23, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8940),
+                            DateRequested = new DateTime(2025, 4, 23, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4794),
                             RequestorId = 4,
                             Status = "Approved"
                         },
                         new
                         {
                             Id = 2,
-                            DateRequested = new DateTime(2025, 4, 28, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8955),
+                            DateRequested = new DateTime(2025, 4, 28, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4829),
                             RequestorId = 5,
                             Status = "Waiting"
                         },
@@ -562,14 +562,14 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 3,
                             ApproverId = 2,
-                            DateRequested = new DateTime(2025, 5, 1, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8957),
+                            DateRequested = new DateTime(2025, 5, 1, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4831),
                             RequestorId = 6,
                             Status = "Rejected"
                         },
                         new
                         {
                             Id = 4,
-                            DateRequested = new DateTime(2025, 5, 2, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8958),
+                            DateRequested = new DateTime(2025, 5, 2, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4833),
                             RequestorId = 4,
                             Status = "Waiting"
                         },
@@ -577,7 +577,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 5,
                             ApproverId = 1,
-                            DateRequested = new DateTime(2025, 4, 18, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8959),
+                            DateRequested = new DateTime(2025, 4, 18, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4834),
                             RequestorId = 7,
                             Status = "Approved"
                         },
@@ -585,16 +585,99 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 6,
                             ApproverId = 3,
-                            DateRequested = new DateTime(2025, 4, 25, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8961),
+                            DateRequested = new DateTime(2025, 4, 25, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4837),
                             RequestorId = 8,
                             Status = "Approved"
                         },
                         new
                         {
                             Id = 7,
-                            DateRequested = new DateTime(2025, 4, 30, 12, 33, 44, 600, DateTimeKind.Utc).AddTicks(8963),
+                            DateRequested = new DateTime(2025, 4, 30, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4839),
                             RequestorId = 9,
                             Status = "Waiting"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            DateRequested = new DateTime(2025, 5, 3, 6, 32, 24, 253, DateTimeKind.Utc).AddTicks(4840),
+                            RequestorId = 4,
+                            Status = "Waiting"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            ApproverId = 1,
+                            DateRequested = new DateTime(2025, 4, 29, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4858),
+                            RequestorId = 5,
+                            Status = "Approved"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            DateRequested = new DateTime(2025, 5, 2, 23, 20, 24, 253, DateTimeKind.Utc).AddTicks(4861),
+                            RequestorId = 5,
+                            Status = "Waiting"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            ApproverId = 2,
+                            DateRequested = new DateTime(2025, 4, 27, 18, 32, 24, 253, DateTimeKind.Utc).AddTicks(4863),
+                            RequestorId = 6,
+                            Status = "Rejected"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            DateRequested = new DateTime(2025, 5, 2, 6, 32, 24, 253, DateTimeKind.Utc).AddTicks(4865),
+                            RequestorId = 6,
+                            Status = "Waiting"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            ApproverId = 3,
+                            DateRequested = new DateTime(2025, 5, 2, 13, 44, 24, 253, DateTimeKind.Utc).AddTicks(4868),
+                            RequestorId = 6,
+                            Status = "Approved"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            DateRequested = new DateTime(2025, 4, 30, 6, 32, 24, 253, DateTimeKind.Utc).AddTicks(4869),
+                            RequestorId = 10,
+                            Status = "Waiting"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            ApproverId = 1,
+                            DateRequested = new DateTime(2025, 4, 30, 13, 44, 24, 253, DateTimeKind.Utc).AddTicks(4871),
+                            RequestorId = 10,
+                            Status = "Approved"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            ApproverId = 2,
+                            DateRequested = new DateTime(2025, 4, 30, 23, 20, 24, 253, DateTimeKind.Utc).AddTicks(4874),
+                            RequestorId = 10,
+                            Status = "Approved"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            DateRequested = new DateTime(2025, 5, 1, 13, 44, 24, 253, DateTimeKind.Utc).AddTicks(4875),
+                            RequestorId = 11,
+                            Status = "Waiting"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            ApproverId = 3,
+                            DateRequested = new DateTime(2025, 5, 1, 23, 20, 24, 253, DateTimeKind.Utc).AddTicks(4878),
+                            RequestorId = 11,
+                            Status = "Rejected"
                         });
                 });
 
@@ -741,6 +824,150 @@ namespace LibraryManagement.Persistence.Migrations
                             Id = 20,
                             BookId = 43,
                             RequestId = 7
+                        },
+                        new
+                        {
+                            Id = 21,
+                            BookId = 8,
+                            RequestId = 8
+                        },
+                        new
+                        {
+                            Id = 22,
+                            BookId = 27,
+                            RequestId = 8
+                        },
+                        new
+                        {
+                            Id = 23,
+                            BookId = 16,
+                            RequestId = 9
+                        },
+                        new
+                        {
+                            Id = 24,
+                            BookId = 36,
+                            RequestId = 9
+                        },
+                        new
+                        {
+                            Id = 25,
+                            BookId = 44,
+                            RequestId = 9
+                        },
+                        new
+                        {
+                            Id = 26,
+                            BookId = 30,
+                            RequestId = 10
+                        },
+                        new
+                        {
+                            Id = 27,
+                            BookId = 5,
+                            RequestId = 11
+                        },
+                        new
+                        {
+                            Id = 28,
+                            BookId = 32,
+                            RequestId = 11
+                        },
+                        new
+                        {
+                            Id = 29,
+                            BookId = 28,
+                            RequestId = 12
+                        },
+                        new
+                        {
+                            Id = 30,
+                            BookId = 29,
+                            RequestId = 12
+                        },
+                        new
+                        {
+                            Id = 31,
+                            BookId = 31,
+                            RequestId = 12
+                        },
+                        new
+                        {
+                            Id = 32,
+                            BookId = 46,
+                            RequestId = 13
+                        },
+                        new
+                        {
+                            Id = 33,
+                            BookId = 9,
+                            RequestId = 14
+                        },
+                        new
+                        {
+                            Id = 34,
+                            BookId = 24,
+                            RequestId = 14
+                        },
+                        new
+                        {
+                            Id = 35,
+                            BookId = 34,
+                            RequestId = 14
+                        },
+                        new
+                        {
+                            Id = 36,
+                            BookId = 38,
+                            RequestId = 14
+                        },
+                        new
+                        {
+                            Id = 37,
+                            BookId = 42,
+                            RequestId = 14
+                        },
+                        new
+                        {
+                            Id = 38,
+                            BookId = 19,
+                            RequestId = 15
+                        },
+                        new
+                        {
+                            Id = 39,
+                            BookId = 20,
+                            RequestId = 15
+                        },
+                        new
+                        {
+                            Id = 40,
+                            BookId = 49,
+                            RequestId = 16
+                        },
+                        new
+                        {
+                            Id = 41,
+                            BookId = 35,
+                            RequestId = 17
+                        },
+                        new
+                        {
+                            Id = 42,
+                            BookId = 45,
+                            RequestId = 17
+                        },
+                        new
+                        {
+                            Id = 43,
+                            BookId = 25,
+                            RequestId = 17
+                        },
+                        new
+                        {
+                            Id = 44,
+                            BookId = 41,
+                            RequestId = 18
                         });
                 });
 
@@ -843,7 +1070,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 1,
                             Email = "admin1@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEAfr/wVhqerOmxIm75wWwoGI3LIdpcFSX2dq2GwcvbyXzNPIio5DqZ88jNAIkh0dgg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPTT95ZoG4A1YLWx/ZNulKJnxjPRCHF0YTDIsrWxWmRP758ZKIXwdJeSlJmMUBdBNg==",
                             Role = "Admin",
                             Username = "admin1"
                         },
@@ -851,7 +1078,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 2,
                             Email = "admin2@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEIJpbIzLnSkCAVkWyLrxW7KuHzakQRonqkw8oaIsdl2L853MHxr7srjZkrIIDUstPA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENU2b+si1vmTif26kOAaQRMGUII5FhFFsfXTj+4Q0EpyKfr3N5sMfyVdPtvXgdAaxw==",
                             Role = "Admin",
                             Username = "admin2"
                         },
@@ -859,7 +1086,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 3,
                             Email = "admin3@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEI9WVLLOQ2WeMlC7DcT7k6osUL1PmRYdRjpzhopZuL6y5hM4z4KTOABRLCaXxcuGlQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGcCqumrEjHVfWf7fvN4k3Ay8wrKe+HGQeLKLTLcoQBhg8HpByBxmnfrfn1EI+y1/w==",
                             Role = "Admin",
                             Username = "admin3"
                         },
@@ -867,7 +1094,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 4,
                             Email = "user1@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKYolcdfBcqwerX3X9n3rxiQexcJ/xd/523iGdGLpYXMVPkPorKGpWQHz4nkxAQJIg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIUwCm938Qh/1WSiFC7ErKwWnDRIxHoLapxEsciuLwR69HmvmO0N0r+956rlB7aYiw==",
                             Role = "User",
                             Username = "user1"
                         },
@@ -875,7 +1102,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 5,
                             Email = "user2@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDjKUUr0SeuPn4pCd8zKA3GyMgWZvcYF/t/o/vliLGuGzlwZzw2RRe7w5jabK7aWJA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGN+8nQU5cTdsBc14AvnaPa0lcmShqWEibpFiu7DuLyidQZ9rUQIeZZKeeSFt6D8Nw==",
                             Role = "User",
                             Username = "user2"
                         },
@@ -883,7 +1110,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 6,
                             Email = "user3@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBbLeimphTTvJeFYfpbCQHlxRy+oLTdSgG/VFRIXYnWcyhUIOBZoWGtNXmVGmTqIrQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHcZ+9aopLOUH9JJYeBY0NFrtz6jG0fRhkKGCnUCPBlSJpxYWQuXzVlCaA8XeCBnAA==",
                             Role = "User",
                             Username = "user3"
                         },
@@ -891,7 +1118,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 7,
                             Email = "user4@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEPsqIcvWuGWud3PqOmIJnzqf4nrR95oCL54Y7D0BKLIpjSxyQIy5ObkMnhGom4RGCA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDTB1D5b/VBWdMCgvHBDKavUXWLUifGYGxKvctESoamJb3OgfGPoTRlC45CwgXniCw==",
                             Role = "User",
                             Username = "user4"
                         },
@@ -899,7 +1126,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 8,
                             Email = "user5@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJibK2kTVUO1XZFRY8dqOwO3Do9XvolVEZAiTc5+lUG0IABvBjSSKMMZsWGZplSqJA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGeTHbnBhb/wg208idw/LeLTieyIPsbd+XuVB64omUXrVfR5l4J2tHywl7hlr7X/Fg==",
                             Role = "User",
                             Username = "user5"
                         },
@@ -907,7 +1134,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 9,
                             Email = "user6@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAECHqzaaGtx6EH4rVijJF8zrWdgolmS4KZozcT2hj8YdGIpDTz7Z2AKy0YoaR9/JwkA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEG8Yh9n4YfMWgPAGCslqe/3F02k/co4bSVfBfLxBWKZ5MiT05utpDgOft5L9MTaodA==",
                             Role = "User",
                             Username = "user6"
                         },
@@ -915,7 +1142,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 10,
                             Email = "user7@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAELsC7J7o5hpHPxHTfAb2UEVnjMx9gP4dQ1rh0Etq4o1JVnGlcc7XPWEVwwTzAqOZdg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEMeEtFyNMhWR2xj12Mas+X+jJvQJZunTTEjT+EszzlgGuNokNmGe7TWbUeFH+7QGlQ==",
                             Role = "User",
                             Username = "user7"
                         },
@@ -923,7 +1150,7 @@ namespace LibraryManagement.Persistence.Migrations
                         {
                             Id = 11,
                             Email = "user8@example.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEK7RUsiSqWJ6LA8XjAJy+ls46ZoqSMN30MLjcJ7meIcUkuq3fpCT6oXmPhekqexYaA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEAfZb2Nm5E9F78qj/i+H261pOrDd5n+GmNzX1MGSJOxaAmLWK1KKj6SWdHuOUFZa3Q==",
                             Role = "User",
                             Username = "user8"
                         });
