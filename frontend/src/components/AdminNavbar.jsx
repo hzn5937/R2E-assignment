@@ -7,6 +7,7 @@ import {
   BarsOutlined,
   DatabaseTwoTone,
   HomeOutlined,
+  BarChartOutlined,
 } from '@ant-design/icons';
 
 const SiderMenu = () => {
@@ -30,6 +31,9 @@ const SiderMenu = () => {
         </Menu.Item>
         <Menu.Item key="/admin/users" icon={<UserOutlined />}>
           <Link to="/admin/users">User Management</Link>
+        </Menu.Item>
+        <Menu.Item key="/admin/reports" icon={<BarChartOutlined />}>
+          <Link to="/admin/reports">Reports</Link>
         </Menu.Item>
       </Menu>
     </>

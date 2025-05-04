@@ -526,6 +526,110 @@
   },
   {
     "ContainingType": "LibraryManagement.Api.Controllers.StatisticController",
+    "Method": "ExportMonthlyReport",
+    "RelativePath": "api/statistics/export/monthly-report",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "year",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "month",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.StatisticController",
+    "Method": "ExportMonthlyReportsRange",
+    "RelativePath": "api/statistics/export/monthly-reports-range",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "startYear",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "startMonth",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "endYear",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "endMonth",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.StatisticController",
+    "Method": "GetMonthlyReport",
+    "RelativePath": "api/statistics/monthly-report",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "year",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "month",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.StatisticController",
+    "Method": "GetMonthlyReportsRange",
+    "RelativePath": "api/statistics/monthly-reports-range",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "startYear",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "startMonth",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "endYear",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "endMonth",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.StatisticController",
     "Method": "GetMostPopular",
     "RelativePath": "api/statistics/most-popular",
     "HttpMethod": "GET",

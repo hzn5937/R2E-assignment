@@ -10,5 +10,13 @@ namespace LibraryManagement.Application.Interfaces
         Task<UserCountOutputDto> GetUserCountAsync();
         Task<RequestOverviewOutputDto?> GetRequestOverviewAsync();
         Task<BookCountOutputDto> GetBookOverviewAsync();
+        
+        // Monthly reports
+        Task<MonthlyReportOutputDto> GetMonthlyReportAsync(DateTime month);
+        Task<List<MonthlyReportOutputDto>> GetMonthlyReportsRangeAsync(DateTime startMonth, DateTime endMonth);
+        
+        // Excel exports
+        Task<byte[]> ExportMonthlyReportToExcelAsync(DateTime month);
+        Task<byte[]> ExportMonthlyReportsRangeToExcelAsync(DateTime startMonth, DateTime endMonth);
     }
 }

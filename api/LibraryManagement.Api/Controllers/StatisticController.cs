@@ -66,5 +66,81 @@ namespace LibraryManagement.Api.Controllers
             var bookCount = await _statisticService.GetBookOverviewAsync();
             return Ok(bookCount);
         }
+
+        // New endpoints for monthly reports
+        [HttpGet("monthly-report")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetMonthlyReport([FromQuery] int year, [FromQuery] int month)
+        {
+            try
+            {
+                var reportDate = new DateTime(year, month, 1);
+                var report = await _statisticService.GetMonthlyReportAsync(reportDate);
+                return Ok(report);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return BadRequest("Invalid date. Year and month must be valid.");
+            }
+        }
+
+        [HttpGet("monthly-reports-range")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetMonthlyReportsRange(
+            [FromQuery] int startYear, [FromQuery] int startMonth, 
+            [FromQuery] int endYear, [FromQuery] int endMonth)
+        {
+            try
+            {
+                var startDate = new DateTime(startYear, startMonth, 1);
+                var endDate = new DateTime(endYear, endMonth, 1);
+                var reports = await _statisticService.GetMonthlyReportsRangeAsync(startDate, endDate);
+                return Ok(reports);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return BadRequest("Invalid date range. Year and month must be valid.");
+            }
+        }
+
+        // Excel export endpoints
+        [HttpGet("export/monthly-report")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ExportMonthlyReport([FromQuery] int year, [FromQuery] int month)
+        {
+            try
+            {
+                var reportDate = new DateTime(year, month, 1);
+                var excelData = await _statisticService.ExportMonthlyReportToExcelAsync(reportDate);
+                var reportName = $"Monthly_Report_{year}_{month}.xlsx";
+                
+                return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", reportName);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return BadRequest("Invalid date. Year and month must be valid.");
+            }
+        }
+
+        [HttpGet("export/monthly-reports-range")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ExportMonthlyReportsRange(
+            [FromQuery] int startYear, [FromQuery] int startMonth, 
+            [FromQuery] int endYear, [FromQuery] int endMonth)
+        {
+            try
+            {
+                var startDate = new DateTime(startYear, startMonth, 1);
+                var endDate = new DateTime(endYear, endMonth, 1);
+                var excelData = await _statisticService.ExportMonthlyReportsRangeToExcelAsync(startDate, endDate);
+                var reportName = $"Monthly_Reports_{startYear}_{startMonth}_to_{endYear}_{endMonth}.xlsx";
+                
+                return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", reportName);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return BadRequest("Invalid date range. Year and month must be valid.");
+            }
+        }
     }
 }

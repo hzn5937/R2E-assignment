@@ -307,3 +307,11 @@ C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0
 C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\LibraryManagement.Api.genruntimeconfig.cache
 C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\ref\LibraryManagement.Api.dll
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\bin\Debug\net8.0\ClosedXML.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\bin\Debug\net8.0\ClosedXML.Parser.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\bin\Debug\net8.0\DocumentFormat.OpenXml.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\bin\Debug\net8.0\DocumentFormat.OpenXml.Framework.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\bin\Debug\net8.0\ExcelNumberFormat.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\bin\Debug\net8.0\RBush.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\bin\Debug\net8.0\SixLabors.Fonts.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\bin\Debug\net8.0\System.IO.Packaging.dll

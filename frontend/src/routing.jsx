@@ -10,6 +10,7 @@ import AdminBooks from './pages/admin/AdminBooks'; // Import the new AdminBooks 
 import AdminCategories from './pages/admin/AdminCategories'; // Import the new AdminCategories component
 import AdminRequests from './pages/admin/AdminRequests'; // Import the new AdminRequests component
 import AdminUsers from './pages/admin/AdminUsers'; // Import the new AdminUsers component
+import AdminReports from './pages/admin/AdminReports'; // Import the new AdminReports component
 
 const Routing = () => (
   <Routes>
@@ -73,6 +74,14 @@ const Routing = () => (
             element={
                 <ProtectedRoute allowedRoles={['admin']}>
                     <AdminUsers />
+                </ProtectedRoute>
+            }
+        />
+        <Route
+            path="/admin/reports"
+            element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminReports />
                 </ProtectedRoute>
             }
         />

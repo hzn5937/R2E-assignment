@@ -113,3 +113,11 @@ C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\obj\D
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\obj\Debug\net8.0\LibraryManagement.Application.Test.pdb
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\obj\Debug\net8.0\LibraryManagement.Application.Test.genruntimeconfig.cache
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\obj\Debug\net8.0\ref\LibraryManagement.Application.Test.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\ClosedXML.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\ClosedXML.Parser.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\DocumentFormat.OpenXml.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\DocumentFormat.OpenXml.Framework.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\ExcelNumberFormat.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\RBush.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\SixLabors.Fonts.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\System.IO.Packaging.dll
