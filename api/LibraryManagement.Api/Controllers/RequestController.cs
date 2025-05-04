@@ -21,7 +21,7 @@ namespace LibraryManagement.Api.Controllers
         [HttpGet]
         [Route("available/{userId}")]
         [Authorize]
-        public async Task<IActionResult> GetAvailableRequests(int userId)
+        public async Task<IActionResult> GetNumberOfAvailableRequests(int userId)
         {
             var availableRequest = await _requestService.GetAvailableRequestsAsync(userId);
 
@@ -59,14 +59,19 @@ namespace LibraryManagement.Api.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllRequests([FromQuery] string? status, [FromQuery] int pageNum = Constants.DefaultPageNum, [FromQuery] int pageSize = Constants.DefaultPageSize)
         {
-            var requests = await _requestService.GetAllRequestDetailsAsync(status, pageNum, pageSize);
+            var requestDetails = await _requestService.GetAllRequestDetailsAsync(status, pageNum, pageSize);
 
-            if (requests is null)
+            if (requestDetails is null)
             {
-                return NotFound($"No requests found.");
+                return NotFound($"Failed to load request details.");
             }
 
-            return Ok(requests);
+            if (requestDetails.TotalCount <= 0)
+            {
+                return NotFound($"No requests found with status: {status}");
+            }
+
+            return Ok(requestDetails);
         }
 
         [HttpPost("create")]
@@ -84,6 +89,7 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpPut("{requestId}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateRequest(int requestId, UpdateRequestDto updateRequestDto)
         {
             if (updateRequestDto.Status == RequestStatus.Waiting)
@@ -99,6 +105,26 @@ namespace LibraryManagement.Api.Controllers
             }
 
             return Ok(updatedRequest);
+        }
+
+        [HttpPost("{requestId}/return")]
+        [Authorize]
+        public async Task<IActionResult> ReturnBooks(int requestId, [FromBody] ReturnBookRequestDto returnBookRequestDto)
+        {
+            // Ensure the request ID in path matches the one in the body
+            if (requestId != returnBookRequestDto.RequestId)
+            {
+                return BadRequest("Request ID in the URL does not match the request ID in the body.");
+            }
+
+            var returnedRequest = await _requestService.ReturnBooksAsync(returnBookRequestDto);
+
+            if (returnedRequest is null)
+            {
+                return NotFound($"Failed to process return for request with ID {requestId}.");
+            }
+
+            return Ok(returnedRequest);
         }
     }
 }

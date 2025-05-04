@@ -13,6 +13,7 @@ const AdminHome = () => {
     approvedRequestCount: 0,
     pendingRequestCount: 0,
     rejectedRequestCount: 0,
+    returnedRequestCount: 0,
     books: []
   });
 
@@ -40,7 +41,8 @@ const AdminHome = () => {
           totalRequestCount: requestsResponse.data.totalRequestCount,
           approvedRequestCount: requestsResponse.data.approvedRequestCount,
           pendingRequestCount: requestsResponse.data.pendingRequestCount,
-          rejectedRequestCount: requestsResponse.data.rejectedRequestCount
+          rejectedRequestCount: requestsResponse.data.rejectedRequestCount,
+          returnedRequestCount: requestsResponse.data.returnedRequestCount
         });
         setLoading(false);
       } catch (error) {
@@ -186,7 +188,7 @@ const AdminHome = () => {
                 <ChartComponent
                   type="pie"
                   data={{
-                    labels: ['Approved', 'Pending', 'Rejected'],
+                    labels: ['Approved', 'Pending', 'Rejected', 'Returned'],
                     datasets: [
                       {
                         label: 'Requests',
@@ -194,8 +196,9 @@ const AdminHome = () => {
                           requestStatus.approvedRequestCount,
                           requestStatus.pendingRequestCount,
                           requestStatus.rejectedRequestCount,
+                          requestStatus.returnedRequestCount,
                         ],
-                        backgroundColor: ['#4BC0C0', '#FFCE56', '#FF6384'],
+                        backgroundColor: ['#4BC0C0', '#FFCE56', '#FF6384', '#9966FF'],
                       },
                     ],
                   }}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, Table, Tag, Button, Spin, Alert, message, Space, Modal } from 'antd';
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, RollbackOutlined } from '@ant-design/icons';
 import axiosInstance from '../../utils/axiosConfig';
 import PaginationControls from '../../components/pagination';
 import { useAuth } from '../../context/AuthContext';
@@ -95,6 +95,7 @@ const AdminRequests = () => {
     if (status === 'Approved') color = 'green';
     else if (status === 'Rejected') color = 'red';
     else if (status === 'Waiting' || status === 'Pending') color = 'gold';
+    else if (status === 'Returned') color = 'blue';
 
     return <Tag color={color}>{status.toUpperCase()}</Tag>;
   };
@@ -202,19 +203,28 @@ const AdminRequests = () => {
       },
       { 
         title: 'Requested Date', 
-        dataIndex: 'requestedDate', 
-        key: 'requestedDate',
-        render: date => new Date(date).toLocaleString()
+        dataIndex: 'dateRequested', 
+        key: 'dateRequested',
+        render: date => date ? new Date(date).toLocaleString() : 'N/A'
       }
     ];
 
-    // Only add actions column for All and Waiting tabs
-    if (activeTab === 'all' || activeTab === 'Waiting') {
+    // Add date returned for returned books
+    if (activeTab === 'all' || activeTab === 'Returned') {
+      baseColumns.push({ 
+        title: 'Date Returned', 
+        dataIndex: 'dateReturned', 
+        key: 'dateReturned',
+        render: date => date ? new Date(date).toLocaleString() : 'N/A'
+      });
+    }
+
+    // Add actions column only for "all" and "Waiting" tabs (excluding Approved, Rejected, and Returned)
+    if (activeTab === 'all' || activeTab === 'Waiting' || activeTab === 'Pending') {
       baseColumns.push({
         title: 'Actions',
         key: 'actions',
         render: (_, record) => {
-          // Only show action buttons for requests with Waiting/Pending status
           if (record.status === 'Waiting' || record.status === 'Pending') {
             return (
               <Space size="small">
@@ -222,7 +232,7 @@ const AdminRequests = () => {
                   type="primary"
                   icon={<CheckCircleOutlined />}
                   onClick={() => handleApproveRequest(record.id)}
-                  loading={processingRequestId === record.id} // Show loading only for this specific request
+                  loading={processingRequestId === record.id}
                 >
                   Approve
                 </Button>
@@ -230,7 +240,7 @@ const AdminRequests = () => {
                   danger
                   icon={<CloseCircleOutlined />}
                   onClick={() => handleRejectRequest(record.id)}
-                  loading={processingRequestId === record.id} // Show loading only for this specific request
+                  loading={processingRequestId === record.id}
                 >
                   Reject
                 </Button>
@@ -272,6 +282,9 @@ const AdminRequests = () => {
           {renderRequestsTable()}
         </TabPane>
         <TabPane tab="Rejected" key="Rejected">
+          {renderRequestsTable()}
+        </TabPane>
+        <TabPane tab="Returned" key="Returned">
           {renderRequestsTable()}
         </TabPane>
       </Tabs>

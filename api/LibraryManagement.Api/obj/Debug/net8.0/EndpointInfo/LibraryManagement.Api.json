@@ -684,6 +684,48 @@
         }
       }
     },
+    "/api/requests/{requestId}/return": {
+      "post": {
+        "tags": [
+          "Request"
+        ],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnBookRequestDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnBookRequestDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnBookRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/statistics/book-quantities": {
       "get": {
         "tags": [
@@ -1186,9 +1228,28 @@
         "enum": [
           "Waiting",
           "Approved",
-          "Rejected"
+          "Rejected",
+          "Returned"
         ],
         "type": "string"
+      },
+      "ReturnBookRequestDto": {
+        "required": [
+          "requestId"
+        ],
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "processedById": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "UpdateBookDto": {
         "required": [

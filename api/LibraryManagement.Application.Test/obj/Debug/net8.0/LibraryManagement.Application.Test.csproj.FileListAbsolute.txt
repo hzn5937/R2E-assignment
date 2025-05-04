@@ -12,6 +12,11 @@ C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\D
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\LibraryManagement.Application.Test.dll
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\LibraryManagement.Application.Test.pdb
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\Castle.Core.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\ClosedXML.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\ClosedXML.Parser.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\DocumentFormat.OpenXml.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\DocumentFormat.OpenXml.Framework.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\ExcelNumberFormat.dll
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\Microsoft.VisualStudio.CodeCoverage.Shim.dll
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
@@ -31,7 +36,10 @@ C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\D
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\Newtonsoft.Json.dll
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\NuGet.Frameworks.dll
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\nunit.framework.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\RBush.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\SixLabors.Fonts.dll
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\System.IO.Packaging.dll
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\cs\Microsoft.TestPlatform.CoreUtilities.resources.dll
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\cs\Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\de\Microsoft.TestPlatform.CoreUtilities.resources.dll
@@ -113,11 +121,3 @@ C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\obj\D
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\obj\Debug\net8.0\LibraryManagement.Application.Test.pdb
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\obj\Debug\net8.0\LibraryManagement.Application.Test.genruntimeconfig.cache
 C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\obj\Debug\net8.0\ref\LibraryManagement.Application.Test.dll
-C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\ClosedXML.dll
-C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\ClosedXML.Parser.dll
-C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\DocumentFormat.OpenXml.dll
-C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\DocumentFormat.OpenXml.Framework.dll
-C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\ExcelNumberFormat.dll
-C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\RBush.dll
-C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\SixLabors.Fonts.dll
-C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Application.Test\bin\Debug\net8.0\System.IO.Packaging.dll

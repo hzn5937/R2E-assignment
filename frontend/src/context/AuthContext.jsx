@@ -82,7 +82,8 @@ export const AuthProvider = ({ children }) => {
       axiosInstance.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
       return accessToken;
     } catch (err) {
-      logout(); // force logout if refresh fails
+      logout();
+      console.log('Error refreshing access token:', err);
       return null;
     }
   }, []); // no deps – reads latest tokens from the ref

@@ -12,5 +12,6 @@ namespace LibraryManagement.Application.DTOs.Statistic
         public int ApprovedRequestCount { get; set; }
         public int PendingRequestCount { get; set; }
         public int RejectedRequestCount { get; set; }
+        public int ReturnedRequestCount { get; set; }
     }
 }

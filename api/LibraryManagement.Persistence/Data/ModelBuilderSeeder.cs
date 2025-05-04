@@ -139,16 +139,16 @@ namespace LibraryManagement.Persistence.Data
                 // --- Additional Requests to Demonstrate Monthly Quota System ---
                 
                 // User 4 - Previous month requests (April 2025 - quota should reset in May)
-                new BookBorrowingRequest { Id = 19, RequestorId = 4, ApproverId = 1, DateRequested = new DateTime(2025, 4, 5, 10, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // April - Active #1
-                new BookBorrowingRequest { Id = 20, RequestorId = 4, ApproverId = 2, DateRequested = new DateTime(2025, 4, 12, 14, 45, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // April - Active #2
+                new BookBorrowingRequest { Id = 19, RequestorId = 4, ApproverId = 1, DateRequested = new DateTime(2025, 4, 5, 10, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 4, 15, 14, 30, 0, DateTimeKind.Utc) }, // April - Returned #1
+                new BookBorrowingRequest { Id = 20, RequestorId = 4, ApproverId = 2, DateRequested = new DateTime(2025, 4, 12, 14, 45, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 4, 25, 16, 00, 0, DateTimeKind.Utc) }, // April - Returned #2
                 new BookBorrowingRequest { Id = 21, RequestorId = 4, ApproverId = 3, DateRequested = new DateTime(2025, 4, 20, 9, 15, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // April - Active #3 (Max quota reached for April)
                 new BookBorrowingRequest { Id = 22, RequestorId = 4, ApproverId = 1, DateRequested = new DateTime(2025, 4, 25, 16, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Rejected }, // April - Rejected (over quota)
                 
                 // User 5 - Multiple months showing quota reset
-                new BookBorrowingRequest { Id = 23, RequestorId = 5, ApproverId = 2, DateRequested = new DateTime(2025, 3, 15, 11, 20, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // March - Active #1
-                new BookBorrowingRequest { Id = 24, RequestorId = 5, ApproverId = 3, DateRequested = new DateTime(2025, 3, 22, 13, 40, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // March - Active #2
+                new BookBorrowingRequest { Id = 23, RequestorId = 5, ApproverId = 2, DateRequested = new DateTime(2025, 3, 15, 11, 20, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 3, 30, 9, 45, 0, DateTimeKind.Utc) }, // March - Returned #1
+                new BookBorrowingRequest { Id = 24, RequestorId = 5, ApproverId = 3, DateRequested = new DateTime(2025, 3, 22, 13, 40, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 4, 5, 10, 20, 0, DateTimeKind.Utc) }, // March - Returned #2
                 new BookBorrowingRequest { Id = 25, RequestorId = 5, ApproverId = 1, DateRequested = new DateTime(2025, 3, 28, 9, 50, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // March - Active #3 (Max quota reached for March)
-                new BookBorrowingRequest { Id = 26, RequestorId = 5, ApproverId = 3, DateRequested = new DateTime(2025, 4, 4, 14, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // April - Active #1 (Quota reset)
+                new BookBorrowingRequest { Id = 26, RequestorId = 5, ApproverId = 3, DateRequested = new DateTime(2025, 4, 4, 14, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 4, 20, 11, 30, 0, DateTimeKind.Utc) }, // April - Returned #1 (Quota reset)
                 new BookBorrowingRequest { Id = 27, RequestorId = 5, ApproverId = 2, DateRequested = new DateTime(2025, 4, 18, 10, 15, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // April - Active #2
                 
                 // User 7 - Mixture of approved, waiting, and rejected across multiple months
@@ -157,9 +157,9 @@ namespace LibraryManagement.Persistence.Data
                 new BookBorrowingRequest { Id = 30, RequestorId = 7, ApproverId = 2, DateRequested = new DateTime(2025, 4, 22, 11, 20, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // April - Active #2
                 
                 // User 9 - Showing 0, 1, 2, and 3 active requests in different months
-                new BookBorrowingRequest { Id = 31, RequestorId = 9, ApproverId = 1, DateRequested = new DateTime(2025, 2, 10, 10, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // Feb - Active #1 (Only 1 in Feb)
-                new BookBorrowingRequest { Id = 32, RequestorId = 9, ApproverId = 2, DateRequested = new DateTime(2025, 3, 5, 14, 20, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // March - Active #1
-                new BookBorrowingRequest { Id = 33, RequestorId = 9, ApproverId = 3, DateRequested = new DateTime(2025, 3, 15, 9, 45, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // March - Active #2 (2 in March)
+                new BookBorrowingRequest { Id = 31, RequestorId = 9, ApproverId = 1, DateRequested = new DateTime(2025, 2, 10, 10, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 2, 28, 15, 15, 0, DateTimeKind.Utc) }, // Feb - Returned #1 (Only 1 in Feb)
+                new BookBorrowingRequest { Id = 32, RequestorId = 9, ApproverId = 2, DateRequested = new DateTime(2025, 3, 5, 14, 20, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 3, 25, 10, 45, 0, DateTimeKind.Utc) }, // March - Returned #1
+                new BookBorrowingRequest { Id = 33, RequestorId = 9, ApproverId = 3, DateRequested = new DateTime(2025, 3, 15, 9, 45, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 4, 1, 14, 00, 0, DateTimeKind.Utc) }, // March - Returned #2 (2 in March)
                 new BookBorrowingRequest { Id = 34, RequestorId = 9, ApproverId = 1, DateRequested = new DateTime(2025, 4, 3, 11, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // April - Active #1
                 new BookBorrowingRequest { Id = 35, RequestorId = 9, ApproverId = 2, DateRequested = new DateTime(2025, 4, 10, 15, 45, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // April - Active #2
                 new BookBorrowingRequest { Id = 36, RequestorId = 9, ApproverId = null, DateRequested = new DateTime(2025, 4, 20, 9, 15, 0, DateTimeKind.Utc), Status = RequestStatus.Waiting }, // April - Active #3 (3 in April - max quota)

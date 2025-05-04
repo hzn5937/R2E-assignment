@@ -19,6 +19,8 @@ namespace LibraryManagement.Domain.Entities
         [Required]
         public DateTime DateRequested { get; set; }
 
+        public DateTime? DateReturned { get; set; }
+
         [Required]
         public RequestStatus Status { get; set; }
 

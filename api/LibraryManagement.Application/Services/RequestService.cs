@@ -56,9 +56,11 @@ namespace LibraryManagement.Application.Services
             
             List<BookInformation> bookInformationList = existing.Details.Select(detail => new BookInformation
             {
+                Id = detail.Book.Id,
                 Title = detail.Book.Title,
                 Author = detail.Book.Author,
-                CategoryName = (detail.Book.Category is null) ? Constants.NullCategoryName : detail.Book.Category.Name
+                CategoryName = (detail.Book.Category is null) ? Constants.NullCategoryName : detail.Book.Category.Name,
+                Category = (detail.Book.Category is null) ? Constants.NullCategoryName : detail.Book.Category.Name
             }).ToList();
 
             var output = new RequestDetailOutputDto
@@ -69,6 +71,8 @@ namespace LibraryManagement.Application.Services
                 Approver = existing.Approver?.Username,
                 Status = existing.Status.ToString(),
                 RequestedDate = existing.DateRequested,
+                DateRequested = existing.DateRequested.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                DateReturned = existing.DateReturned?.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
             };
 
             return output;
@@ -133,14 +137,18 @@ namespace LibraryManagement.Application.Services
                     Id = request.Id,
                     Books = request.Details.Select(detail => new BookInformation
                     {
+                        Id = detail.Book.Id,
                         Title = detail.Book.Title,
                         Author = detail.Book.Author,
-                        CategoryName = (detail.Book.Category is null) ? Constants.NullCategoryName : detail.Book.Category.Name
+                        CategoryName = (detail.Book.Category is null) ? Constants.NullCategoryName : detail.Book.Category.Name,
+                        Category = (detail.Book.Category is null) ? Constants.NullCategoryName : detail.Book.Category.Name
                     }).ToList(),
                     Requestor = request.Requestor.Username,
                     Approver = request.Approver?.Username,
                     Status = request.Status.ToString(),
                     RequestedDate = request.DateRequested,
+                    DateRequested = request.DateRequested.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                    DateReturned = request.DateReturned?.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
                 };
 
                 requestList.Add(record);
@@ -208,13 +216,16 @@ namespace LibraryManagement.Application.Services
                 Id = created.Id,
                 Books = created.Details.Select(detail => new BookInformation
                 {
+                    Id = detail.Book.Id,
                     Title = detail.Book.Title,
                     Author = detail.Book.Author,
-                    CategoryName = (detail.Book.Category is null) ? Constants.NullCategoryName : detail.Book.Category.Name
+                    CategoryName = (detail.Book.Category is null) ? Constants.NullCategoryName : detail.Book.Category.Name,
+                    Category = (detail.Book.Category is null) ? Constants.NullCategoryName : detail.Book.Category.Name
                 }).ToList(),
                 Requestor = created.Requestor.Username,
                 Status = created.Status.ToString(),
                 RequestedDate = created.DateRequested,
+                DateRequested = created.DateRequested.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
             };
 
             return output;
@@ -273,14 +284,111 @@ namespace LibraryManagement.Application.Services
                 Id = updatedRequest.Id,
                 Books = updatedRequest.Details.Select(detail => new BookInformation
                 {
+                    Id = detail.Book.Id,
                     Title = detail.Book.Title,
                     Author = detail.Book.Author,
-                    CategoryName = (detail.Book.Category is null) ? Constants.NullCategoryName : detail.Book.Category.Name
+                    CategoryName = (detail.Book.Category is null) ? Constants.NullCategoryName : detail.Book.Category.Name,
+                    Category = (detail.Book.Category is null) ? Constants.NullCategoryName : detail.Book.Category.Name
                 }).ToList(),
                 Requestor = updatedRequest.Requestor.Username,
                 Approver = updatedRequest.Approver.Username, // it shouldn't be null here
                 Status = updatedRequest.Status.ToString(),
                 RequestedDate = updatedRequest.DateRequested,
+                DateRequested = updatedRequest.DateRequested.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
+            };
+
+            return output;
+        }
+
+        public async Task<RequestDetailOutputDto?> ReturnBooksAsync(ReturnBookRequestDto returnBookRequestDto)
+        {
+            var existingRequest = await _requestRepository.GetRequestByIdAsync(returnBookRequestDto.RequestId);
+            
+            if (existingRequest is null)
+            {
+                throw new NotFoundException($"Request with ID {returnBookRequestDto.RequestId} not found.");
+            }
+            
+            if (existingRequest.Status != RequestStatus.Approved)
+            {
+                throw new ConflictException($"Request with ID {returnBookRequestDto.RequestId} is {existingRequest.Status}. Only approved requests can be returned.");
+            }
+            
+            if (existingRequest.DateReturned != null)
+            {
+                throw new ConflictException($"Request with ID {returnBookRequestDto.RequestId} has already been returned on {existingRequest.DateReturned}.");
+            }
+
+            // Process the return
+            existingRequest.Status = RequestStatus.Returned;
+            existingRequest.DateReturned = DateTime.UtcNow;
+            
+            // If there's a user processing the return, validate the user
+            if (returnBookRequestDto.ProcessedById.HasValue)
+            {
+                var user = await _userRepository.GetUserByIdAsync(returnBookRequestDto.ProcessedById.Value);
+                if (user is null)
+                {
+                    throw new NotFoundException($"User with ID {returnBookRequestDto.ProcessedById.Value} not found.");
+                }
+                
+                // Allow both the requestor and admins to process returns
+                bool isRequestor = user.Id == existingRequest.RequestorId;
+                bool isAdmin = user.Role == UserRole.Admin;
+                
+                if (!isRequestor && !isAdmin)
+                {
+                    throw new ConflictException($"User with ID {returnBookRequestDto.ProcessedById.Value} is not authorized to return this book.");
+                }
+                
+                // Only update the approver ID if it's an admin and not already set
+                if (isAdmin && !existingRequest.ApproverId.HasValue)
+                {
+                    existingRequest.ApproverId = returnBookRequestDto.ProcessedById.Value;
+                }
+            }
+
+            // Increment available quantity for each book
+            foreach (var detail in existingRequest.Details)
+            {
+                detail.Book.AvailableQuantity++;
+                
+                // Safety check to make sure we don't exceed total quantity
+                if (detail.Book.AvailableQuantity > detail.Book.TotalQuantity)
+                {
+                    detail.Book.AvailableQuantity = detail.Book.TotalQuantity;
+                }
+                
+                await _bookRepository.UpdateAsync(detail.Book);
+            }
+
+            var updatedRequest = await _requestRepository.UpdateRequestAsync(existingRequest);
+            
+            if (updatedRequest is null)
+            {
+                throw new NotFoundException($"Failed to update request with ID {returnBookRequestDto.RequestId}.");
+            }
+
+            // Map to DTOs for output
+            var bookInfoList = updatedRequest.Details.Select(detail => new BookInformation
+            {
+                Id = detail.Book.Id,
+                Title = detail.Book.Title,
+                Author = detail.Book.Author,
+                CategoryName = detail.Book.Category?.Name ?? Constants.NullCategoryName,
+                Category = detail.Book.Category?.Name ?? Constants.NullCategoryName
+            }).ToList();
+
+            var output = new RequestDetailOutputDto
+            {
+                Id = updatedRequest.Id,
+                Requestor = updatedRequest.Requestor.Username,
+                Approver = updatedRequest.Approver?.Username,
+                Status = updatedRequest.Status.ToString(),
+                RequestedDate = updatedRequest.DateRequested,
+                DateRequested = updatedRequest.DateRequested.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                DateReturned = updatedRequest.DateReturned?.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
+                Books = bookInfoList
             };
 
             return output;

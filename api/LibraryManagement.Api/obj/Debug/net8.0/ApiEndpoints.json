@@ -438,6 +438,27 @@
   },
   {
     "ContainingType": "LibraryManagement.Api.Controllers.RequestController",
+    "Method": "ReturnBooks",
+    "RelativePath": "api/requests/{requestId}/return",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "requestId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "returnBookRequestDto",
+        "Type": "LibraryManagement.Application.DTOs.Request.ReturnBookRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.RequestController",
     "Method": "GetAllRequests",
     "RelativePath": "api/requests/all",
     "HttpMethod": "GET",
@@ -464,7 +485,7 @@
   },
   {
     "ContainingType": "LibraryManagement.Api.Controllers.RequestController",
-    "Method": "GetAvailableRequests",
+    "Method": "GetNumberOfAvailableRequests",
     "RelativePath": "api/requests/available/{userId}",
     "HttpMethod": "GET",
     "IsController": true,

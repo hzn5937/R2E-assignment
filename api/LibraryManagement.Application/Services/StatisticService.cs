@@ -171,13 +171,15 @@ namespace LibraryManagement.Application.Services
             var totalWaiting = existingRequest.Count(x => x.Status == RequestStatus.Waiting);
             var totalApproved = existingRequest.Count(x => x.Status == RequestStatus.Approved);
             var totalRejected = existingRequest.Count(x => x.Status == RequestStatus.Rejected);
+            var totalReturned = existingRequest.Count(x => x.Status == RequestStatus.Returned);
 
             var output = new RequestOverviewOutputDto
             {
                 TotalRequestCount = totalRequest,
                 PendingRequestCount = totalWaiting,
                 ApprovedRequestCount = totalApproved,
-                RejectedRequestCount = totalRejected
+                RejectedRequestCount = totalRejected,
+                ReturnedRequestCount = totalReturned
             };
 
             return output;

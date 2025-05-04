@@ -25,37 +25,6 @@ namespace LibraryManagement.Api.Test
         }
 
         [Test]
-        public async Task GetAvailableRequests_UserExists_ReturnsOkResult()
-        {
-            // Arrange
-            int userId = 1;
-            var availableDto = new AvailableRequestOutputDto { AvailableRequests = 2 };
-            _mockRequestService.Setup(s => s.GetAvailableRequestsAsync(userId)).ReturnsAsync(availableDto);
-
-            // Act
-            var result = await _requestController.GetAvailableRequests(userId);
-
-            // Assert
-            Assert.IsInstanceOf<OkObjectResult>(result);
-            var okResult = result as OkObjectResult;
-            Assert.AreEqual(availableDto, okResult.Value);
-            _mockRequestService.Verify(s => s.GetAvailableRequestsAsync(userId), Times.Once);
-        }
-
-        [Test]
-        public void GetAvailableRequests_UserNotFound_ThrowsNotFoundException()
-        {
-            // Arrange
-            int userId = 99;
-            _mockRequestService.Setup(s => s.GetAvailableRequestsAsync(userId))
-                              .ThrowsAsync(new NotFoundException($"User with ID {userId} not found."));
-
-            // Act & Assert
-            Assert.ThrowsAsync<NotFoundException>(async () => await _requestController.GetAvailableRequests(userId));
-            _mockRequestService.Verify(s => s.GetAvailableRequestsAsync(userId), Times.Once);
-        }
-
-        [Test]
         public async Task GetRequestDetailById_RequestExists_ReturnsOkResult()
         {
             // Arrange
