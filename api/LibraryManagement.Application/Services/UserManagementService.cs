@@ -36,21 +36,18 @@ namespace LibraryManagement.Application.Services
 
         public async Task<UserOutputDto> CreateUserAsync(CreateUserDto createUserDto, CancellationToken ct = default)
         {
-            // Check if username is already taken
             var existingUserByUsername = await _userRepository.GetByUsernameAsync(createUserDto.Username, ct);
             if (existingUserByUsername != null)
             {
                 throw new ConflictException("Username is already taken");
             }
 
-            // Check if email is already taken
             var existingUserByEmail = await _userRepository.GetByEmailAsync(createUserDto.Email, ct);
             if (existingUserByEmail != null)
             {
                 throw new ConflictException("Email is already registered");
             }
 
-            // Create new user entity
             var user = new User
             {
                 Username = createUserDto.Username,
@@ -58,10 +55,8 @@ namespace LibraryManagement.Application.Services
                 Role = createUserDto.Role
             };
 
-            // Hash the password
             user.PasswordHash = _hasher.HashPassword(user, createUserDto.Password);
 
-            // Add user to database
             await _userRepository.AddAsync(user, ct);
 
             return MapToUserDto(user);
@@ -69,14 +64,12 @@ namespace LibraryManagement.Application.Services
 
         public async Task<UserOutputDto> UpdateUserAsync(int id, UpdateUserDto updateUserDto, CancellationToken ct = default)
         {
-            // Verify user exists
             var user = await _userRepository.GetUserByIdAsync(id);
             if (user == null)
             {
                 throw new NotFoundException($"User with ID {id} not found");
             }
 
-            // Check if username is being changed and if it's already taken
             if (updateUserDto.Username != user.Username)
             {
                 var existingUser = await _userRepository.GetByUsernameAsync(updateUserDto.Username, ct);
@@ -86,18 +79,15 @@ namespace LibraryManagement.Application.Services
                 }
             }
 
-            // Update user properties
             user.Username = updateUserDto.Username;
             user.Email = updateUserDto.Email;
             user.Role = updateUserDto.Role;
 
-            // Update password if provided
             if (!string.IsNullOrEmpty(updateUserDto.Password))
             {
                 user.PasswordHash = _hasher.HashPassword(user, updateUserDto.Password);
             }
 
-            // Save changes
             await _userRepository.UpdateAsync(user, ct);
 
             return MapToUserDto(user);
