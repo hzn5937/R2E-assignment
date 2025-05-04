@@ -96,6 +96,16 @@
   },
   {
     "ContainingType": "LibraryManagement.Api.Controllers.AuthenticationController",
+    "Method": "Logout",
+    "RelativePath": "api/authentication/logout",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.AuthenticationController",
     "Method": "Refresh",
     "RelativePath": "api/authentication/refresh",
     "HttpMethod": "POST",

@@ -98,6 +98,18 @@
         }
       }
     },
+    "/api/authentication/logout": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/books": {
       "get": {
         "tags": [

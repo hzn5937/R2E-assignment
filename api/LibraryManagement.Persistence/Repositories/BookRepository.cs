@@ -18,7 +18,6 @@ namespace LibraryManagement.Persistence.Repositories
         public async Task<IEnumerable<Book>> GetAllAsync()
         {
             var query = from b in _context.Books
-                        orderby b.Title
                         select new Book
                         {
                             Id = b.Id,
