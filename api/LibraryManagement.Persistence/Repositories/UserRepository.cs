@@ -45,6 +45,17 @@ namespace LibraryManagement.Persistence.Repositories
             return result;
         }
 
+        public async Task<User?> GetByEmailAsync(string email, CancellationToken ct = default)
+        {
+            var query = from u in _context.Users
+                        where u.Email == email
+                        select u;
+
+            var result = await query.FirstOrDefaultAsync(ct);
+
+            return result;
+        }
+
         public async Task UpdateAsync(User user, CancellationToken ct = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -87,6 +98,35 @@ namespace LibraryManagement.Persistence.Repositories
 
                 await _context.SaveChangesAsync(ct);
                 await transaction.CommitAsync(ct);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(ct);
+                throw new TransactionFailedException();
+            }
+        }
+
+        public async Task DeleteAsync(int id, CancellationToken ct = default)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync(ct);
+
+            try
+            {
+                var user = await _context.Users.FindAsync(new object[] { id }, ct);
+
+                if (user == null)
+                {
+                    throw new NotFoundException($"User with ID {id} not found.");
+                }
+
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync(ct);
+                await transaction.CommitAsync(ct);
+            }
+            catch (NotFoundException)
+            {
+                await transaction.RollbackAsync(ct);
+                throw;
             }
             catch
             {

@@ -11,6 +11,8 @@ namespace LibraryManagement.Api.Extensions
         {
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserRepository, UserRepository>();
+            
+            services.AddScoped<IUserManagementService, UserManagementService>();
 
             services.AddScoped<IStatisticService, StatisticService>();
 

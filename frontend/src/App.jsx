@@ -19,6 +19,7 @@ import AdminHome from './pages/admin/AdminHome';
 import AdminBooks from './pages/admin/AdminBooks'; // Import AdminBooks component
 import AdminCategories from './pages/admin/AdminCategories'; // Import AdminCategories component
 import AdminRequests from './pages/admin/AdminRequests'; // Import AdminRequests component
+import AdminUsers from './pages/admin/AdminUsers'; // Import AdminUsers component
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
               <Route path="/admin/books" element={<AdminBooks />} /> {/* Add AdminBooks route */}
               <Route path="/admin/categories" element={<AdminCategories />} /> {/* Add AdminCategories route */}
               <Route path="/admin/requests" element={<AdminRequests />} /> {/* Add AdminRequests route */}
+              <Route path="/admin/users" element={<AdminUsers />} /> {/* Add AdminUsers route */}
               {/* Add more admin routes as they become available */}
             </Route>
           </Route>
