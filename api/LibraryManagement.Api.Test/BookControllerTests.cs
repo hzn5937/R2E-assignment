@@ -4,7 +4,8 @@ using LibraryManagement.Application.Interfaces;
 using LibraryManagement.Application.DTOs.Book;
 using Microsoft.AspNetCore.Mvc;
 using LibraryManagement.Application.Extensions.Exceptions;
-using LibraryManagement.Application.DTOs.Common; 
+using LibraryManagement.Application.DTOs.Common;
+using LibraryManagement.Application.DTOs.Statistic;
 
 namespace LibraryManagement.Api.Test
 {
@@ -206,37 +207,6 @@ namespace LibraryManagement.Api.Test
             Assert.IsNotNull(notFoundResult);
             Assert.AreEqual($"Book with ID {bookId} not found.", notFoundResult.Value); 
             _mockBookService.Verify(s => s.UpdateAsync(bookId, updateDto), Times.Once); 
-        }
-
-        [Test]
-        public async Task GetBookCount_ShouldReturnOkResult_WithBookCountDto()
-        {
-            // Arrange
-            var expectedBookCount = new BookCountOutputDto
-            {
-                TotalBooks = 10,
-                TotalAvailable = 5,
-                TotalNotAvailable = 5
-            };
-            _mockBookService.Setup(s => s.GetBookCountAsync())
-                           .ReturnsAsync(expectedBookCount); 
-
-            // Act
-            var result = await _bookController.GetBookOverview(); 
-
-            // Assert
-            Assert.That(result, Is.InstanceOf<OkObjectResult>()); 
-            var okResult = result as OkObjectResult;
-            Assert.That(okResult, Is.Not.Null);
-            Assert.That(okResult.StatusCode, Is.EqualTo(200));
-
-            var actualBookCount = okResult.Value as BookCountOutputDto; 
-            Assert.That(actualBookCount, Is.Not.Null);
-            Assert.That(actualBookCount.TotalBooks, Is.EqualTo(expectedBookCount.TotalBooks)); 
-            Assert.That(actualBookCount.TotalAvailable, Is.EqualTo(expectedBookCount.TotalAvailable)); 
-            Assert.That(actualBookCount.TotalNotAvailable, Is.EqualTo(expectedBookCount.TotalNotAvailable)); 
-
-            _mockBookService.Verify(s => s.GetBookCountAsync(), Times.Once);
         }
     }
 }

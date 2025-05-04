@@ -20,20 +20,6 @@ namespace LibraryManagement.Application.Services
             _categoryRepository = categoryRepository;
         }
 
-        public async Task<BookCountOutputDto> GetBookCountAsync()
-        {
-            var books = await _bookRepository.GetAllAsync();
-
-            var output = new BookCountOutputDto
-            {
-                TotalBooks = books.Count(b => b.DeletedAt is null),
-                TotalAvailable = books.Count(b => b.DeletedAt is null && b.AvailableQuantity > 0),
-                TotalNotAvailable = books.Count(b => b.DeletedAt is null && b.AvailableQuantity == 0),
-            };
-
-            return output;
-        }
-
         public async Task<PaginatedOutputDto<UserBookOutputDto>> GetAllAsync(int pageNum=Constants.DefaultPageNum, int pageSize=Constants.DefaultPageSize)
         {
             var books = await _bookRepository.GetAllAsync();

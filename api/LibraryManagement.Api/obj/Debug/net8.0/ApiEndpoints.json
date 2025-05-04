@@ -139,12 +139,59 @@
   },
   {
     "ContainingType": "LibraryManagement.Api.Controllers.BookController",
-    "Method": "GetBookOverview",
-    "RelativePath": "api/books/overview",
+    "Method": "FilterBooks",
+    "RelativePath": "api/books/filter",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "categoryId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "isAvailable",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageNum",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.BookController",
+    "Method": "SearchBooks",
+    "RelativePath": "api/books/search",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "searchTerm",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageNum",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -359,9 +406,9 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "LibraryManagement.Api.Controllers.RequestController",
-    "Method": "GetRequestOverview",
-    "RelativePath": "api/requests/overview",
+    "ContainingType": "LibraryManagement.Api.Controllers.StatisticController",
+    "Method": "GetBookOverview",
+    "RelativePath": "api/statistics/book-overview",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -399,9 +446,19 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "LibraryManagement.Api.Controllers.UserController",
+    "ContainingType": "LibraryManagement.Api.Controllers.StatisticController",
+    "Method": "GetRequestOverview",
+    "RelativePath": "api/statistics/request-overview",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagement.Api.Controllers.StatisticController",
     "Method": "GetUserCount",
-    "RelativePath": "api/users/count",
+    "RelativePath": "api/statistics/user-count",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,

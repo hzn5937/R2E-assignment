@@ -8,6 +8,7 @@ using LibraryManagement.Application.Extensions.Exceptions;
 using LibraryManagement.Domain.Common;
 using LibraryManagement.Application.DTOs.Common;
 using System.Globalization;
+using LibraryManagement.Application.DTOs.Statistic;
 
 namespace LibraryManagement.Application.Test
 {
@@ -642,65 +643,6 @@ namespace LibraryManagement.Application.Test
             // Assert
             Assert.IsNull(result);
             _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Never);
-        }
-
-        [Test]
-        public async Task GetRequestOverviewAsync_NoRequestsFound_ReturnsNull()
-        {
-            // Arrange
-            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync())
-                                 .ReturnsAsync(new List<BookBorrowingRequest>()); // Return empty list
-
-            // Act
-            var result = await _requestService.GetRequestOverviewAsync();
-
-            // Assert
-            Assert.IsNull(result);
-            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
-        }
-
-        [Test]
-        public async Task GetRequestOverviewAsync_RepositoryReturnsNull_ReturnsNull()
-        {
-            // Arrange
-            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync())
-                                 .ReturnsAsync((IEnumerable<BookBorrowingRequest>)null); // Return null
-
-            // Act
-            var result = await _requestService.GetRequestOverviewAsync();
-
-            // Assert
-            Assert.IsNull(result);
-            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
-        }
-
-
-        [Test]
-        public async Task GetRequestOverviewAsync_RequestsExist_ReturnsCorrectOverviewDto()
-        {
-            // Arrange
-            var requests = new List<BookBorrowingRequest>
-            {
-                new BookBorrowingRequest { Id = 1, Status = RequestStatus.Waiting },
-                new BookBorrowingRequest { Id = 2, Status = RequestStatus.Approved },
-                new BookBorrowingRequest { Id = 3, Status = RequestStatus.Approved },
-                new BookBorrowingRequest { Id = 4, Status = RequestStatus.Rejected },
-                new BookBorrowingRequest { Id = 5, Status = RequestStatus.Waiting },
-                new BookBorrowingRequest { Id = 6, Status = RequestStatus.Waiting },
-            };
-            _mockRequestRepository.Setup(repo => repo.GetAllRequestsAsync()).ReturnsAsync(requests);
-
-            // Act
-            var result = await _requestService.GetRequestOverviewAsync();
-
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.IsInstanceOf<RequestOverviewOutputDto>(result);
-            Assert.AreEqual(6, result.TotalRequestCount);
-            Assert.AreEqual(3, result.PendingRequestCount); // Waiting status
-            Assert.AreEqual(2, result.ApprovedRequestCount);
-            Assert.AreEqual(1, result.RejectedRequestCount);
-            _mockRequestRepository.Verify(repo => repo.GetAllRequestsAsync(), Times.Once);
         }
 
         [Test]

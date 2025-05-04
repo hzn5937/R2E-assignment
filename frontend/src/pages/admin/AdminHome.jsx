@@ -27,9 +27,9 @@ const AdminHome = () => {
       try {
         // Fetch data from all three endpoints in parallel
         const [booksResponse, usersResponse, requestsResponse] = await Promise.all([
-          axiosInstance.get('/api/books/overview'),
-          axiosInstance.get('/api/users/count'),
-          axiosInstance.get('/api/requests/overview')
+          axiosInstance.get('/api/statistics/book-overview'),
+          axiosInstance.get('/api/statistics/user-count'),
+          axiosInstance.get('/api/statistics/request-overview')
         ]);
         
         setStats({
@@ -53,7 +53,7 @@ const AdminHome = () => {
       try {
         const [bookQuantitiesRes, requestStatusRes, booksPerCategoryRes, mostPopularRes] = await Promise.all([
           axiosInstance.get('/api/statistics/book-quantities'),
-          axiosInstance.get('/api/requests/overview'),
+          axiosInstance.get('/api/statistics/request-overview'),
           axiosInstance.get('/api/statistics/books-per-category'),
           axiosInstance.get('/api/statistics/most-popular'),
         ]);

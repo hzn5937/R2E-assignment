@@ -306,3 +306,4 @@ C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0
 C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\LibraryManagement.Api.pdb
 C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\LibraryManagement.Api.genruntimeconfig.cache
 C:\Users\harun\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\ref\LibraryManagement.Api.dll
+C:\Users\hzn\Desktop\r2e-assignment\api\LibraryManagement.Api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

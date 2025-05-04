@@ -264,51 +264,6 @@ namespace LibraryManagement.Api.Test
         }
 
         [Test]
-        public async Task GetRequestOverview_ServiceReturnsNull_ReturnsNotFoundResult()
-        {
-            // Arrange
-            _mockRequestService.Setup(s => s.GetRequestOverviewAsync())
-                               .ReturnsAsync((RequestOverviewOutputDto)null);
-
-            // Act
-            var result = await _requestController.GetRequestOverview();
-
-            // Assert
-            Assert.IsInstanceOf<NotFoundObjectResult>(result);
-            var notFoundResult = result as NotFoundObjectResult;
-            Assert.AreEqual("No requests found.", notFoundResult.Value);
-            _mockRequestService.Verify(s => s.GetRequestOverviewAsync(), Times.Once);
-        }
-
-        [Test]
-        public async Task GetRequestOverview_ServiceReturnsDto_ReturnsOkResultWithDto()
-        {
-            // Arrange
-            var overviewDto = new RequestOverviewOutputDto
-            {
-                TotalRequestCount = 10,
-                PendingRequestCount = 5,
-                ApprovedRequestCount = 3,
-                RejectedRequestCount = 2
-            };
-            _mockRequestService.Setup(s => s.GetRequestOverviewAsync()).ReturnsAsync(overviewDto);
-
-            // Act
-            var result = await _requestController.GetRequestOverview();
-
-            // Assert
-            Assert.IsInstanceOf<OkObjectResult>(result);
-            var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult.Value);
-            Assert.AreEqual(overviewDto, okResult.Value);
-            Assert.AreEqual(overviewDto.TotalRequestCount, ((RequestOverviewOutputDto)okResult.Value).TotalRequestCount);
-            Assert.AreEqual(overviewDto.PendingRequestCount, ((RequestOverviewOutputDto)okResult.Value).PendingRequestCount);
-            Assert.AreEqual(overviewDto.ApprovedRequestCount, ((RequestOverviewOutputDto)okResult.Value).ApprovedRequestCount);
-            Assert.AreEqual(overviewDto.RejectedRequestCount, ((RequestOverviewOutputDto)okResult.Value).RejectedRequestCount);
-            _mockRequestService.Verify(s => s.GetRequestOverviewAsync(), Times.Once);
-        }
-
-        [Test]
         public async Task GetAllRequests_RequestsFound_ReturnsOkResultWithPaginatedData()
         {
             // Arrange

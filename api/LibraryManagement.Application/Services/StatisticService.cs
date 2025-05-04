@@ -1,6 +1,8 @@
 ﻿using LibraryManagement.Application.DTOs.Statistic;
 using LibraryManagement.Application.Interfaces;
 using LibraryManagement.Domain.Common;
+using LibraryManagement.Domain.Entities;
+using LibraryManagement.Domain.Enums;
 using LibraryManagement.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,12 +17,18 @@ namespace LibraryManagement.Application.Services
         private readonly IBookRepository _bookRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IRequestRepository _requestRepository;
+        private readonly IUserRepository _userRepository;
 
-        public StatisticService(IBookRepository bookRepository, IRequestRepository requestRepository, ICategoryRepository categoryRepository)
+        public StatisticService(
+            IBookRepository bookRepository, 
+            IRequestRepository requestRepository, 
+            ICategoryRepository categoryRepository,
+            IUserRepository userRepository)
         {
             _bookRepository = bookRepository;
             _requestRepository = requestRepository;
             _categoryRepository = categoryRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<BookQuantitiesOutputDto> GetBookQuantitiesAsync()
@@ -120,6 +128,69 @@ namespace LibraryManagement.Application.Services
             {
                 TitleAuthor = $"{book.Title} by {book.Author}: {mostPopularBook.Value}",
                 CategoryName = $"{category.Name}: { mostPopularCategory.Value}",
+            };
+
+            return output;
+        }
+
+        public async Task<UserCountOutputDto> GetUserCountAsync()
+        {
+            var users = await _userRepository.GetAllAsync();
+
+            var userList = new List<User>();
+
+            foreach (var user in users)
+            {
+                if (user.Role == UserRole.User)
+                {
+                    userList.Add(user);
+                }
+            }
+
+            var output = new UserCountOutputDto
+            {
+                TotalUsers = userList.Count,
+                TotalAdmin = users.Count() - userList.Count,
+            };
+
+            return output;
+        }
+
+        public async Task<RequestOverviewOutputDto?> GetRequestOverviewAsync()
+        {
+            var existingRequest = await _requestRepository.GetAllRequestsAsync();
+
+            if (existingRequest is null || !existingRequest.Any())
+            {
+                return null;
+            }
+
+            var totalRequest = existingRequest.Count();
+
+            var totalWaiting = existingRequest.Count(x => x.Status == RequestStatus.Waiting);
+            var totalApproved = existingRequest.Count(x => x.Status == RequestStatus.Approved);
+            var totalRejected = existingRequest.Count(x => x.Status == RequestStatus.Rejected);
+
+            var output = new RequestOverviewOutputDto
+            {
+                TotalRequestCount = totalRequest,
+                PendingRequestCount = totalWaiting,
+                ApprovedRequestCount = totalApproved,
+                RejectedRequestCount = totalRejected
+            };
+
+            return output;
+        }
+
+        public async Task<BookCountOutputDto> GetBookOverviewAsync()
+        {
+            var books = await _bookRepository.GetAllAsync();
+
+            var output = new BookCountOutputDto
+            {
+                TotalBooks = books.Count(b => b.DeletedAt is null),
+                TotalAvailable = books.Count(b => b.DeletedAt is null && b.AvailableQuantity > 0),
+                TotalNotAvailable = books.Count(b => b.DeletedAt is null && b.AvailableQuantity == 0),
             };
 
             return output;

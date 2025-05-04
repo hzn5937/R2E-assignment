@@ -1,9 +1,4 @@
 ﻿using LibraryManagement.Application.DTOs.Statistic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LibraryManagement.Application.Interfaces
 {
@@ -12,5 +7,8 @@ namespace LibraryManagement.Application.Interfaces
         Task<BookQuantitiesOutputDto> GetBookQuantitiesAsync();
         Task<BooksPerCategoryOutputDto> GetBooksPerCategoryAsync();
         Task<MostPopularOutputDto> GetMostPopularAsync();
+        Task<UserCountOutputDto> GetUserCountAsync();
+        Task<RequestOverviewOutputDto?> GetRequestOverviewAsync();
+        Task<BookCountOutputDto> GetBookOverviewAsync();
     }
 }

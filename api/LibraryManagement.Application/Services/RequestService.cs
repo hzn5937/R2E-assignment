@@ -1,6 +1,7 @@
 ﻿using LibraryManagement.Application.DTOs.Category;
 using LibraryManagement.Application.DTOs.Common;
 using LibraryManagement.Application.DTOs.Request;
+using LibraryManagement.Application.DTOs.Statistic;
 using LibraryManagement.Application.Extensions;
 using LibraryManagement.Application.Extensions.Exceptions;
 using LibraryManagement.Application.Interfaces;
@@ -24,33 +25,6 @@ namespace LibraryManagement.Application.Services
             _userRepository = userRepository;
             _bookRepository = bookRepository;
         }
-
-        public async Task<RequestOverviewOutputDto?> GetRequestOverviewAsync()
-        {
-            var existingRequest = await _requestRepository.GetAllRequestsAsync();
-
-            if (existingRequest is null || !existingRequest.Any())
-            {
-                return null;
-            }
-
-            var totalRequest = existingRequest.Count();
-
-            var totalWaiting = existingRequest.Count(x => x.Status == RequestStatus.Waiting);
-            var totalApproved = existingRequest.Count(x => x.Status == RequestStatus.Approved);
-            var totalRejected = existingRequest.Count(x => x.Status == RequestStatus.Rejected);
-
-            var output = new RequestOverviewOutputDto
-            {
-                TotalRequestCount = totalRequest,
-                PendingRequestCount = totalWaiting,
-                ApprovedRequestCount = totalApproved,
-                RejectedRequestCount = totalRejected
-            };
-
-            return output;
-        }
-
 
         public async Task<AvailableRequestOutputDto> GetAvailableRequestsAsync(int userId)
         {
