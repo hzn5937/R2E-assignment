@@ -320,7 +320,7 @@ namespace LibraryManagement.Api.Test
             Assert.IsInstanceOf<NotFoundObjectResult>(result);
             var notFoundResult = result as NotFoundObjectResult;
             Assert.IsNotNull(notFoundResult.Value);
-            Assert.AreEqual("No requests found.", notFoundResult.Value); //
+            Assert.AreEqual("Failed to load request details.", notFoundResult.Value); //
             _mockRequestService.Verify(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize), Times.Once);
         }
     }

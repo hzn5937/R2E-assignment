@@ -30,8 +30,10 @@ namespace LibraryManagement.Application.Services
             {
                 if (book.DeletedAt is not null)
                 {
+                    // skip if deleted
                     continue;
                 }
+
                 var record = new UserBookOutputDto
                 {
                     Id = book.Id,
@@ -78,6 +80,7 @@ namespace LibraryManagement.Application.Services
         {
             Book? existing = await _bookRepository.GetByTitleAndAuthorAsync(createBookDto.Title, createBookDto.Author);
 
+            // Recreate (or update) soft-deleted book 
             if (existing is not null)
             {
                 if (existing.DeletedAt is null)
@@ -85,6 +88,7 @@ namespace LibraryManagement.Application.Services
                     throw new ConflictException($"Book with title: {createBookDto.Title} and author: {createBookDto.Author} already exists!");
                 }
 
+                // Only recreate book without changing anything (Use update method instead)
                 existing.DeletedAt = null;
 
                 var updated = await _bookRepository.UpdateAsync(existing);

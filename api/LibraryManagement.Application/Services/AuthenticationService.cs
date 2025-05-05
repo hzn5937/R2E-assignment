@@ -144,7 +144,6 @@ namespace LibraryManagement.Application.Services
             user.RefreshTokenExpiryTime = refreshTokenExpiry;
             await _userRepository.UpdateAsync(user, ct);
 
-            // Create output DTO
             var output = new LoginOutputDto()
             {
                 Id = user.Id,

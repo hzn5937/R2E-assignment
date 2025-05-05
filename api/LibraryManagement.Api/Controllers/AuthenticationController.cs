@@ -23,7 +23,6 @@ namespace LibraryManagement.Api.Controllers
                 return BadRequest("Invalid registration request");
             }
 
-            // Here you would typically save the user to the database
             var created = await _authService.RegisterAsync(registerRequest, CancellationToken.None);
 
             if (created == null)

@@ -21,6 +21,7 @@ const AdminCategories = () => {
   const [modalType, setModalType] = useState('add');
   const [currentCategory, setCurrentCategory] = useState(null);
   const [apiError, setApiError] = useState(null);
+  const [apiSuccess, setApiSuccess] = useState(null); // Added success state
   const [form] = Form.useForm();
 
   // Fetch categories with pagination
@@ -85,7 +86,10 @@ const AdminCategories = () => {
         // Add new category
         axiosInstance.post('/api/categories', values)
           .then(() => {
-            message.success('Category added successfully!');
+            setApiSuccess({
+              message: 'Category Added Successfully',
+              description: `Category "${values.name}" has been added to the database.`
+            });
             setIsModalVisible(false);
             fetchCategories(pagination.current, pagination.pageSize);
           })
@@ -105,7 +109,10 @@ const AdminCategories = () => {
         // Edit existing category
         axiosInstance.put(`/api/categories/${currentCategory.id}`, values)
           .then(() => {
-            message.success('Category updated successfully!');
+            setApiSuccess({
+              message: 'Category Updated Successfully',
+              description: `Category "${values.name}" has been updated.`
+            });
             setIsModalVisible(false);
             fetchCategories(pagination.current, pagination.pageSize);
           })
@@ -137,10 +144,25 @@ const AdminCategories = () => {
     if (!categoryToDelete) return;
     
     console.log('OK button clicked, would delete category ID:', categoryToDelete);
+    
+    // Check if we're about to delete the last item on the page
+    const isLastItemOnPage = categories.length === 1;
+    // Check if we're on the last page
+    const isLastPage = pagination.current === pagination.totalPages;
+    // Determine which page to go to after deletion
+    const targetPage = (isLastItemOnPage && isLastPage && pagination.current > 1) 
+      ? pagination.current - 1  // Go to previous page if deleting last item on last page
+      : pagination.current;     // Otherwise stay on current page
+    
     axiosInstance.delete(`/api/categories/${categoryToDelete}`)
       .then(() => {
-        message.success('Category deleted successfully!');
-        fetchCategories(pagination.current, pagination.pageSize);
+        // Find the deleted category to include its name in the success message
+        const deletedCategory = categories.find(category => category.id === categoryToDelete);
+        setApiSuccess({
+          message: 'Category Deleted Successfully',
+          description: `Category "${deletedCategory?.name || 'Selected category'}" has been removed from the database.`
+        });
+        fetchCategories(targetPage, pagination.pageSize);
         setIsDeleteModalVisible(false);
       })
       .catch(err => {
@@ -205,6 +227,18 @@ const AdminCategories = () => {
           showIcon
           closable
           onClose={() => setApiError(null)}
+          className="mb-4"
+        />
+      )}
+
+      {apiSuccess && (
+        <Alert
+          message={apiSuccess.message}
+          description={apiSuccess.description}
+          type="success"
+          showIcon
+          closable
+          onClose={() => setApiSuccess(null)}
           className="mb-4"
         />
       )}

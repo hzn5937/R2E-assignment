@@ -71,6 +71,7 @@ namespace LibraryManagement.Application.Services
                 Approver = existing.Approver?.Username,
                 Status = existing.Status.ToString(),
                 RequestedDate = existing.DateRequested,
+                // Reduntdant, but for consistency and simplicity in frontend 
                 DateRequested = existing.DateRequested.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
                 DateReturned = existing.DateReturned?.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
             };
@@ -118,6 +119,7 @@ namespace LibraryManagement.Application.Services
                 string processedName = CultureInfo.CurrentCulture.TextInfo
                     .ToTitleCase(status.ToLowerInvariant());
 
+                // Check if the given status is defined in RequestStatus enum
                 if (Enum.IsDefined(typeof(RequestStatus), processedName))
                 {
                     allRequests = allRequests.Where(x => x.Status.ToString() == processedName).ToList();
@@ -147,6 +149,7 @@ namespace LibraryManagement.Application.Services
                     Approver = request.Approver?.Username,
                     Status = request.Status.ToString(),
                     RequestedDate = request.DateRequested,
+                    // Reduntdant, but for consistency and simplicity in frontend
                     DateRequested = request.DateRequested.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
                     DateReturned = request.DateReturned?.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
                 };
@@ -369,7 +372,7 @@ namespace LibraryManagement.Application.Services
                 throw new NotFoundException($"Failed to update request with ID {returnBookRequestDto.RequestId}.");
             }
 
-            // Map to DTOs for output
+            // Map to output DTO 
             var bookInfoList = updatedRequest.Details.Select(detail => new BookInformation
             {
                 Id = detail.Book.Id,

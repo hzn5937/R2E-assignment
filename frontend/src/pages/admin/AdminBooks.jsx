@@ -24,6 +24,7 @@ const AdminBooks = () => {
   const [modalType, setModalType] = useState('add');
   const [currentBook, setCurrentBook] = useState(null);
   const [apiError, setApiError] = useState(null);
+  const [apiSuccess, setApiSuccess] = useState(null); // Added success state
   const [form] = Form.useForm();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
@@ -232,7 +233,10 @@ const AdminBooks = () => {
         // Add new book
         axiosInstance.post('/api/books', values)
           .then(() => {
-            message.success('Book added successfully!');
+            setApiSuccess({
+              message: 'Book Added Successfully',
+              description: `Book "${values.title}" has been added to the database.`
+            });
             setIsModalVisible(false);
             fetchBooks(pagination.current, pagination.pageSize);
           })
@@ -254,7 +258,10 @@ const AdminBooks = () => {
         // Edit existing book
         axiosInstance.put(`/api/books/${currentBook.id}`, values)
           .then(() => {
-            message.success('Book updated successfully!');
+            setApiSuccess({
+              message: 'Book Updated Successfully',
+              description: `Book "${values.title}" has been updated.`
+            });
             setIsModalVisible(false);
             fetchBooks(pagination.current, pagination.pageSize);
           })
@@ -288,10 +295,34 @@ const AdminBooks = () => {
     if (!bookToDelete) return;
     
     console.log('OK button clicked, would delete book ID:', bookToDelete);
+    
+    // Check if we're about to delete the last item on the page
+    const isLastItemOnPage = books.length === 1;
+    // Check if we're on the last page
+    const isLastPage = pagination.current === pagination.totalPages;
+    // Determine which page to go to after deletion
+    const targetPage = (isLastItemOnPage && isLastPage && pagination.current > 1) 
+      ? pagination.current - 1  // Go to previous page if deleting last item on last page
+      : pagination.current;     // Otherwise stay on current page
+    
     axiosInstance.delete(`/api/books/${bookToDelete}`)
       .then(() => {
-        message.success('Book deleted successfully!');
-        fetchBooks(pagination.current, pagination.pageSize);
+        // Find the deleted book to include its title in the success message
+        const deletedBook = books.find(book => book.id === bookToDelete);
+        setApiSuccess({
+          message: 'Book Deleted Successfully',
+          description: `Book "${deletedBook?.title || 'Selected book'}" has been removed from the database.`
+        });
+        
+        // If we deleted the last item on the last page, go to the new last page
+        if (searchTerm.trim()) {
+          searchBooks(targetPage, pagination.pageSize);
+        } else if (isFilterApplied) {
+          filterBooks(targetPage, pagination.pageSize);
+        } else {
+          fetchBooks(targetPage, pagination.pageSize);
+        }
+        
         setIsDeleteModalVisible(false);
       })
       .catch(err => {
@@ -377,6 +408,18 @@ const AdminBooks = () => {
           showIcon
           closable
           onClose={() => setApiError(null)}
+          className="mb-4"
+        />
+      )}
+
+      {apiSuccess && (
+        <Alert
+          message={apiSuccess.message}
+          description={apiSuccess.description}
+          type="success"
+          showIcon
+          closable
+          onClose={() => setApiSuccess(null)}
           className="mb-4"
         />
       )}
@@ -495,38 +538,38 @@ const AdminBooks = () => {
             </Select>
           </Form.Item>
           
-          <Form.Item
-            name="totalQuantity"
-            label={
-              modalType === 'edit' && currentBook ? 
+          {/* Only show totalQuantity field when editing */}
+          {modalType === 'edit' && currentBook && (
+            <Form.Item
+              name="totalQuantity"
+              label={
                 <span>
                   Total Quantity 
                   <span className="text-gray-500 ml-2">
                     (minimum: {currentBook.totalQuantity - currentBook.availableQuantity})
                   </span>
-                </span> 
-                : 
-                "Total Quantity"
-            }
-            rules={[
-              { required: true, message: 'Please enter the total quantity' },
-              modalType === 'edit' && currentBook ? {
-                validator: (_, value) => {
-                  const minAllowed = currentBook.totalQuantity - currentBook.availableQuantity;
-                  if (value < minAllowed) {
-                    return Promise.reject(`Minimum allowed quantity is ${minAllowed}`);
+                </span>
+              }
+              rules={[
+                { required: true, message: 'Please enter the total quantity' },
+                {
+                  validator: (_, value) => {
+                    const minAllowed = currentBook.totalQuantity - currentBook.availableQuantity;
+                    if (value < minAllowed) {
+                      return Promise.reject(`Minimum allowed quantity is ${minAllowed}`);
+                    }
+                    return Promise.resolve();
                   }
-                  return Promise.resolve();
                 }
-              } : {}
-            ].filter(rule => Object.keys(rule).length > 0)}
-          >
-            <InputNumber 
-              min={modalType === 'edit' && currentBook ? (currentBook.totalQuantity - currentBook.availableQuantity) : 0} 
-              placeholder="Enter total quantity" 
-              style={{ width: '100%' }} 
-            />
-          </Form.Item>
+              ]}
+            >
+              <InputNumber 
+                min={currentBook.totalQuantity - currentBook.availableQuantity} 
+                placeholder="Enter total quantity" 
+                style={{ width: '100%' }} 
+              />
+            </Form.Item>
+          )}
         </Form>
       </Modal>
     </div>

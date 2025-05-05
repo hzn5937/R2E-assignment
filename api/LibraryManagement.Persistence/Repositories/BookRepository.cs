@@ -65,6 +65,7 @@ namespace LibraryManagement.Persistence.Repositories
             {
                 await _context.Books.AddAsync(book);
                 await _context.SaveChangesAsync();
+                await _context.Entry(book).Reference(b => b.Category).LoadAsync();
                 await transaction.CommitAsync();
                 return book;
             }

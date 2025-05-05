@@ -88,6 +88,7 @@ namespace LibraryManagement.Application.Services
             var bookDict = new Dictionary<int, int>();
             var categoryDict = new Dictionary<int, int>();
 
+            // This is actually just looping through every detail record in the db 
             foreach (var request in requests)
             {
                 foreach (var detail in request.Details)
@@ -127,8 +128,9 @@ namespace LibraryManagement.Application.Services
 
             var output = new MostPopularOutputDto
             {
-                TitleAuthor = $"{book.Title} by {book.Author}: {mostPopularBook.Value}",
-                CategoryName = $"{category.Name}: { mostPopularCategory.Value}",
+                // Name - Borrowed Count
+                TitleAuthor = $"{book.Title} by {book.Author} - {mostPopularBook.Value}",
+                CategoryName = $"{category.Name} - { mostPopularCategory.Value}",
             };
 
             return output;

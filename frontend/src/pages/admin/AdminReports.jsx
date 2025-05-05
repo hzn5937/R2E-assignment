@@ -15,6 +15,7 @@ const AdminReports = () => {
   const [activeTab, setActiveTab] = useState('single');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [apiSuccess, setApiSuccess] = useState(null); // Added success state
 
   // Add debugging log for component state
   useEffect(() => {
@@ -118,11 +119,14 @@ const AdminReports = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
-      message.success('Report downloaded successfully');
+      // Set success alert instead of message
+      setApiSuccess({
+        message: 'Report Downloaded Successfully',
+        description: `Monthly report for ${moment(singleMonth).format('MMMM YYYY')} has been downloaded.`
+      });
     } catch (err) {
       console.error('Error downloading report:', err);
       setError('Failed to download report: ' + (err.response?.data || err.message));
-      message.error('Failed to download report');
     } finally {
       setLoading(false);
     }
@@ -163,11 +167,14 @@ const AdminReports = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
-      message.success('Reports downloaded successfully');
+      // Set success alert instead of message
+      setApiSuccess({
+        message: 'Reports Downloaded Successfully',
+        description: `Monthly reports from ${moment(dateRange[0]).format('MMMM YYYY')} to ${moment(dateRange[1]).format('MMMM YYYY')} have been downloaded.`
+      });
     } catch (err) {
       console.error('Error downloading reports:', err);
       setError('Failed to download reports: ' + (err.response?.data || err.message));
-      message.error('Failed to download reports');
     } finally {
       setLoading(false);
     }
@@ -466,6 +473,20 @@ const AdminReports = () => {
       <div className="flex justify-between items-center mb-6">
         <Title level={2}>Reports</Title>
       </div>
+
+      {error && <Alert type="error" message={error} className="mb-4" />}
+
+      {apiSuccess && (
+        <Alert
+          message={apiSuccess.message}
+          description={apiSuccess.description}
+          type="success"
+          showIcon
+          closable
+          onClose={() => setApiSuccess(null)}
+          className="mb-4"
+        />
+      )}
 
       <Tabs
         activeKey={activeTab}

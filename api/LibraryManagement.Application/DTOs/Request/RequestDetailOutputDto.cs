@@ -8,6 +8,7 @@
         public string? Approver { get; set; }
         public string Status { get; set; }
         public DateTime RequestedDate { get; set; }
+        // Reduntdant, but for consistency and simplicity in frontend
         public string? DateRequested { get; set; }
         public string? DateReturned { get; set; }
     }

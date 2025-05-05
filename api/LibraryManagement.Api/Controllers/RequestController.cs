@@ -63,7 +63,7 @@ namespace LibraryManagement.Api.Controllers
 
             if (requestDetails is null)
             {
-                return NotFound($"Failed to load request details.");
+                return NotFound("Failed to load request details.");
             }
 
             if (requestDetails.TotalCount <= 0)

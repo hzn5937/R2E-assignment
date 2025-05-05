@@ -22,6 +22,7 @@ const AdminUsers = () => {
   const [modalType, setModalType] = useState('add');
   const [currentUser, setCurrentUser] = useState(null);
   const [apiError, setApiError] = useState(null);
+  const [apiSuccess, setApiSuccess] = useState(null); // Added success state
   const [form] = Form.useForm();
   const { user: currentAuthUser } = useAuth();
 
@@ -108,7 +109,10 @@ const AdminUsers = () => {
         // Add new user
         axiosInstance.post('/api/admin/users', values)
           .then(() => {
-            message.success('User added successfully!');
+            setApiSuccess({
+              message: 'User Added Successfully',
+              description: `User "${values.username}" has been added to the system.`
+            });
             setIsModalVisible(false);
             fetchUsers(pagination.current, pagination.pageSize);
           })
@@ -139,7 +143,10 @@ const AdminUsers = () => {
         // Edit existing user
         axiosInstance.put(`/api/admin/users/${currentUser.id}`, values)
           .then(() => {
-            message.success('User updated successfully!');
+            setApiSuccess({
+              message: 'User Updated Successfully',
+              description: `User "${values.username}" has been updated.`
+            });
             setIsModalVisible(false);
             fetchUsers(pagination.current, pagination.pageSize);
           })
@@ -186,10 +193,24 @@ const AdminUsers = () => {
   const confirmDelete = () => {
     if (!userToDelete) return;
     
+    // Check if we're about to delete the last item on the page
+    const isLastItemOnPage = users.length === 1;
+    // Check if we're on the last page
+    const isLastPage = pagination.current === pagination.totalPages;
+    // Determine which page to go to after deletion
+    const targetPage = (isLastItemOnPage && isLastPage && pagination.current > 1) 
+      ? pagination.current - 1  // Go to previous page if deleting last item on last page
+      : pagination.current;     // Otherwise stay on current page
+    
     axiosInstance.delete(`/api/admin/users/${userToDelete}`)
       .then(() => {
-        message.success('User deleted successfully!');
-        fetchUsers(pagination.current, pagination.pageSize);
+        // Find the deleted user to include the username in success message
+        const deletedUser = users.find(user => user.id === userToDelete);
+        setApiSuccess({
+          message: 'User Deleted Successfully',
+          description: `User "${deletedUser?.username || 'Selected user'}" has been removed from the system.`
+        });
+        fetchUsers(targetPage, pagination.pageSize);
         setIsDeleteModalVisible(false);
       })
       .catch(err => {
@@ -269,6 +290,18 @@ const AdminUsers = () => {
           showIcon
           closable
           onClose={() => setApiError(null)}
+          className="mb-4"
+        />
+      )}
+
+      {apiSuccess && (
+        <Alert
+          message={apiSuccess.message}
+          description={apiSuccess.description}
+          type="success"
+          showIcon
+          closable
+          onClose={() => setApiSuccess(null)}
           className="mb-4"
         />
       )}

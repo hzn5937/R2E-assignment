@@ -27,6 +27,7 @@ const AdminRequests = () => {
     hasPrev: false
   });
   const [apiError, setApiError] = useState(null);
+  const [apiSuccess, setApiSuccess] = useState(null); // Added success state
   const { user } = useAuth();
 
   const fetchRequests = (status = '', pageNum = 1, pageSize = 5) => {
@@ -120,12 +121,21 @@ const AdminRequests = () => {
         status: "Approved"
       });
       
-      message.success('Request approved successfully!');
+      // Get the request details for success message
+      const approvedRequest = requests.find(req => req.id === requestToAction);
+      setApiSuccess({
+        message: 'Request Approved Successfully',
+        description: `Request #${requestToAction} from ${approvedRequest?.requestor || 'user'} has been approved.`
+      });
       fetchRequests(activeTab, pagination.current, pagination.pageSize);
       setIsApproveModalVisible(false);
     } catch (err) {
       console.error('Failed to approve request:', err);
-      message.error('Failed to approve request. Please try again.');
+      setApiError({
+        type: 'error',
+        message: 'Failed to Approve Request',
+        description: err.response?.data?.message || 'An error occurred while approving the request. Please try again.'
+      });
     } finally {
       setProcessingRequestId(null);
       setRequestToAction(null);
@@ -142,12 +152,21 @@ const AdminRequests = () => {
         status: "Rejected"
       });
       
-      message.success('Request rejected successfully!');
+      // Get the request details for success message
+      const rejectedRequest = requests.find(req => req.id === requestToAction);
+      setApiSuccess({
+        message: 'Request Rejected Successfully',
+        description: `Request #${requestToAction} from ${rejectedRequest?.requestor || 'user'} has been rejected.`
+      });
       fetchRequests(activeTab, pagination.current, pagination.pageSize);
       setIsRejectModalVisible(false);
     } catch (err) {
       console.error('Failed to reject request:', err);
-      message.error('Failed to reject request. Please try again.');
+      setApiError({
+        type: 'error',
+        message: 'Failed to Reject Request',
+        description: err.response?.data?.message || 'An error occurred while rejecting the request. Please try again.'
+      });
     } finally {
       setProcessingRequestId(null);
       setRequestToAction(null);
@@ -267,6 +286,18 @@ const AdminRequests = () => {
           showIcon
           closable
           onClose={() => setApiError(null)}
+          className="mb-4"
+        />
+      )}
+
+      {apiSuccess && (
+        <Alert
+          message={apiSuccess.message}
+          description={apiSuccess.description}
+          type="success"
+          showIcon
+          closable
+          onClose={() => setApiSuccess(null)}
           className="mb-4"
         />
       )}
