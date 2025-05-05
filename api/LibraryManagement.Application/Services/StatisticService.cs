@@ -88,7 +88,7 @@ namespace LibraryManagement.Application.Services
             var bookDict = new Dictionary<int, int>();
             var categoryDict = new Dictionary<int, int>();
 
-            // This is actually just looping through every detail record in the db 
+            // This is actually just looping through every detail record in the db (count rejected request is intended)
             foreach (var request in requests)
             {
                 foreach (var detail in request.Details)

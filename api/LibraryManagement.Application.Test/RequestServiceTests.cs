@@ -783,5 +783,517 @@ namespace LibraryManagement.Application.Test
             _mockUserRepository.Verify(repo => repo.GetUserByIdAsync(userId), Times.Once);
             _mockRequestRepository.Verify(repo => repo.GetAllUserRequestsAsync(userId), Times.Once);
         }
+
+        [Test]
+        public async Task ReturnBooksAsync_RequestNotFound_ThrowsNotFoundException()
+        {
+            // Arrange
+            var returnDto = new ReturnBookRequestDto { RequestId = 99 };
+            _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(returnDto.RequestId))
+                                  .ReturnsAsync((BookBorrowingRequest)null);
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<NotFoundException>(() => _requestService.ReturnBooksAsync(returnDto));
+            Assert.That(ex.Message, Is.EqualTo($"Request with ID {returnDto.RequestId} not found."));
+            _mockRequestRepository.Verify(repo => repo.GetRequestByIdAsync(returnDto.RequestId), Times.Once);
+            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Never);
+        }
+
+        [Test]
+        [TestCase(RequestStatus.Waiting)]
+        [TestCase(RequestStatus.Rejected)]
+        [TestCase(RequestStatus.Returned)] // Test already returned status as well, though covered by DateReturned check
+        public void ReturnBooksAsync_RequestNotApproved_ThrowsConflictException(RequestStatus currentStatus)
+        {
+            // Arrange
+            var returnDto = new ReturnBookRequestDto { RequestId = 1 };
+            var existingRequest = new BookBorrowingRequest { Id = returnDto.RequestId, Status = currentStatus };
+            _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(returnDto.RequestId))
+                                  .ReturnsAsync(existingRequest);
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<ConflictException>(() => _requestService.ReturnBooksAsync(returnDto));
+            Assert.That(ex.Message, Is.EqualTo($"Request with ID {returnDto.RequestId} is {currentStatus}. Only approved requests can be returned."));
+            _mockRequestRepository.Verify(repo => repo.GetRequestByIdAsync(returnDto.RequestId), Times.Once);
+            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Never);
+        }
+
+        [Test]
+        public void ReturnBooksAsync_RequestAlreadyReturned_ThrowsConflictException()
+        {
+            // Arrange
+            var returnDto = new ReturnBookRequestDto { RequestId = 1 };
+            var returnedDate = DateTime.UtcNow.AddDays(-1);
+            var existingRequest = new BookBorrowingRequest { Id = returnDto.RequestId, Status = RequestStatus.Approved, DateReturned = returnedDate };
+            _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(returnDto.RequestId))
+                                  .ReturnsAsync(existingRequest);
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<ConflictException>(() => _requestService.ReturnBooksAsync(returnDto));
+            Assert.That(ex.Message, Is.EqualTo($"Request with ID {returnDto.RequestId} has already been returned on {returnedDate}."));
+            _mockRequestRepository.Verify(repo => repo.GetRequestByIdAsync(returnDto.RequestId), Times.Once);
+            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Never);
+        }
+
+        [Test]
+        public void ReturnBooksAsync_ProcessingUserNotFound_ThrowsNotFoundException()
+        {
+            // Arrange
+            int processingUserId = 99;
+            var returnDto = new ReturnBookRequestDto { RequestId = 1, ProcessedById = processingUserId };
+            var requestor = new User { Id = 1, Username = "requestor" };
+            var book = new Book { Id = 10, Title = "Test Book", Author = "Test Author", TotalQuantity = 5, AvailableQuantity = 4 };
+            var existingRequest = new BookBorrowingRequest
+            {
+                Id = returnDto.RequestId,
+                RequestorId = requestor.Id,
+                Requestor = requestor,
+                Status = RequestStatus.Approved,
+                DateReturned = null,
+                Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { BookId = book.Id, Book = book } }
+            };
+
+            _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(returnDto.RequestId))
+                                  .ReturnsAsync(existingRequest);
+            _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(processingUserId))
+                               .ReturnsAsync((User)null);
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<NotFoundException>(() => _requestService.ReturnBooksAsync(returnDto));
+            Assert.That(ex.Message, Is.EqualTo($"User with ID {processingUserId} not found."));
+            _mockRequestRepository.Verify(repo => repo.GetRequestByIdAsync(returnDto.RequestId), Times.Once);
+            _mockUserRepository.Verify(repo => repo.GetUserByIdAsync(processingUserId), Times.Once);
+            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Never);
+            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Book>()), Times.Never);
+        }
+
+        [Test]
+        public void ReturnBooksAsync_ProcessingUserNotAuthorized_ThrowsConflictException()
+        {
+            // Arrange
+            int requestorId = 1;
+            int unauthorizedUserId = 3;
+            var returnDto = new ReturnBookRequestDto { RequestId = 1, ProcessedById = unauthorizedUserId };
+            var requestor = new User { Id = requestorId, Username = "requestor", Role = UserRole.User };
+            var unauthorizedUser = new User { Id = unauthorizedUserId, Username = "otheruser", Role = UserRole.User }; // Not admin, not requestor
+            var book = new Book { Id = 10, Title = "Test Book", Author = "Test Author", TotalQuantity = 5, AvailableQuantity = 4 };
+            var existingRequest = new BookBorrowingRequest
+            {
+                Id = returnDto.RequestId,
+                RequestorId = requestor.Id,
+                Requestor = requestor,
+                Status = RequestStatus.Approved,
+                DateReturned = null,
+                Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { BookId = book.Id, Book = book } }
+            };
+
+            _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(returnDto.RequestId))
+                                  .ReturnsAsync(existingRequest);
+            _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(unauthorizedUserId))
+                               .ReturnsAsync(unauthorizedUser);
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<ConflictException>(() => _requestService.ReturnBooksAsync(returnDto));
+            Assert.That(ex.Message, Is.EqualTo($"User with ID {unauthorizedUserId} is not authorized to return this book."));
+            _mockRequestRepository.Verify(repo => repo.GetRequestByIdAsync(returnDto.RequestId), Times.Once);
+            _mockUserRepository.Verify(repo => repo.GetUserByIdAsync(unauthorizedUserId), Times.Once);
+            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Never);
+            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Book>()), Times.Never);
+        }
+
+        [Test]
+        public void ReturnBooksAsync_FailedToUpdateRequest_ThrowsNotFoundException()
+        {
+            // Arrange
+            var returnDto = new ReturnBookRequestDto { RequestId = 1, ProcessedById = null }; // No processor
+            var requestor = new User { Id = 1, Username = "requestor" };
+            var book = new Book { Id = 10, Title = "Test Book", Author = "Test Author", TotalQuantity = 5, AvailableQuantity = 4 };
+            var category = new Category { Id = 1, Name = "Fiction" };
+            book.Category = category; book.CategoryId = category.Id;
+
+            var existingRequest = new BookBorrowingRequest
+            {
+                Id = returnDto.RequestId,
+                RequestorId = requestor.Id,
+                Requestor = requestor,
+                Status = RequestStatus.Approved,
+                DateReturned = null,
+                Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { BookId = book.Id, Book = book } }
+            };
+
+            _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(returnDto.RequestId))
+                                  .ReturnsAsync(existingRequest);
+            _mockBookRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Book>())).Returns<Book>(b => Task.FromResult(b)); // Book update succeeds
+            _mockRequestRepository.Setup(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()))
+                                  .ReturnsAsync((BookBorrowingRequest)null); // Request update fails
+
+            // Act & Assert
+            var ex = Assert.ThrowsAsync<NotFoundException>(() => _requestService.ReturnBooksAsync(returnDto));
+            Assert.That(ex.Message, Is.EqualTo($"Failed to update request with ID {returnDto.RequestId}."));
+
+            _mockRequestRepository.Verify(repo => repo.GetRequestByIdAsync(returnDto.RequestId), Times.Once);
+            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.Is<Book>(b => b.Id == book.Id)), Times.Once); // Verify book update was attempted
+            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.Is<BookBorrowingRequest>(r => r.Id == returnDto.RequestId)), Times.Once); // Verify request update was attempted
+        }
+
+
+        [Test]
+        public async Task ReturnBooksAsync_SuccessfulReturn_NoProcessor_UpdatesRequestAndBookQuantity()
+        {
+            // Arrange
+            var returnDto = new ReturnBookRequestDto { RequestId = 1, ProcessedById = null };
+            var requestor = new User { Id = 1, Username = "requestor" };
+            var initialBookQuantity = 4;
+            var book = new Book { Id = 10, Title = "Test Book", Author = "Test Author", TotalQuantity = 5, AvailableQuantity = initialBookQuantity };
+            var category = new Category { Id = 1, Name = "Fiction" };
+            book.Category = category; book.CategoryId = category.Id;
+
+            var existingRequest = new BookBorrowingRequest
+            {
+                Id = returnDto.RequestId,
+                RequestorId = requestor.Id,
+                Requestor = requestor,
+                ApproverId = null,
+                Approver = null,
+                Status = RequestStatus.Approved,
+                DateReturned = null,
+                DateRequested = DateTime.UtcNow.AddDays(-5),
+                Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { RequestId = 1, BookId = book.Id, Book = book } }
+            };
+
+            // Capture the request passed to UpdateRequestAsync
+            BookBorrowingRequest updatedRequestCapture = null;
+
+            _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(returnDto.RequestId))
+                                  .ReturnsAsync(existingRequest);
+            _mockBookRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Book>())).Returns<Book>(b => Task.FromResult(b));
+            _mockRequestRepository.Setup(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()))
+                                  .Callback<BookBorrowingRequest>(req => updatedRequestCapture = req) // Capture the updated request
+                                  .ReturnsAsync((BookBorrowingRequest req) => req); // Return the captured request
+
+            // Act
+            var result = await _requestService.ReturnBooksAsync(returnDto);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.That(result.Id, Is.EqualTo(returnDto.RequestId));
+            Assert.That(result.Status, Is.EqualTo(RequestStatus.Returned.ToString()));
+            Assert.That(result.Requestor, Is.EqualTo(requestor.Username));
+            Assert.IsNull(result.Approver); // Should remain null
+            Assert.IsNotNull(result.DateReturned); // Should be set
+            Assert.That(result.Books.Count, Is.EqualTo(1));
+            Assert.That(result.Books[0].Title, Is.EqualTo(book.Title));
+            Assert.That(result.Books[0].CategoryName, Is.EqualTo(category.Name)); // Check category name mapping
+
+            // Verify book quantity increment
+            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.Is<Book>(b => b.Id == book.Id && b.AvailableQuantity == initialBookQuantity + 1)), Times.Once);
+
+            // Verify request update
+            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.Is<BookBorrowingRequest>(r =>
+                r.Id == returnDto.RequestId &&
+                r.Status == RequestStatus.Returned &&
+                r.DateReturned != null &&
+                r.ApproverId == null // Ensure approver ID wasn't set
+            )), Times.Once);
+
+            Assert.IsNotNull(updatedRequestCapture);
+            Assert.That(updatedRequestCapture.Status, Is.EqualTo(RequestStatus.Returned));
+            Assert.IsNotNull(updatedRequestCapture.DateReturned);
+            Assert.IsNull(updatedRequestCapture.ApproverId);
+        }
+
+        [Test]
+        public async Task ReturnBooksAsync_SuccessfulReturn_ProcessedByRequestor_UpdatesRequestAndBookQuantity()
+        {
+            // Arrange
+            int requestorId = 1;
+            var returnDto = new ReturnBookRequestDto { RequestId = 1, ProcessedById = requestorId };
+            var requestor = new User { Id = requestorId, Username = "requestor", Role = UserRole.User };
+            var initialBookQuantity = 4;
+            var book = new Book { Id = 10, Title = "Test Book", Author = "Test Author", TotalQuantity = 5, AvailableQuantity = initialBookQuantity };
+            var category = new Category { Id = 1, Name = "Fiction" };
+            book.Category = category; book.CategoryId = category.Id;
+
+            var existingRequest = new BookBorrowingRequest
+            {
+                Id = returnDto.RequestId,
+                RequestorId = requestor.Id,
+                Requestor = requestor,
+                ApproverId = null, // No approver initially
+                Approver = null,
+                Status = RequestStatus.Approved,
+                DateReturned = null,
+                DateRequested = DateTime.UtcNow.AddDays(-5),
+                Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { RequestId = 1, BookId = book.Id, Book = book } }
+            };
+
+            _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(returnDto.RequestId)).ReturnsAsync(existingRequest);
+            _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(requestorId)).ReturnsAsync(requestor);
+            _mockBookRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Book>())).Returns<Book>(b => Task.FromResult(b));
+            _mockRequestRepository.Setup(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()))
+                                  .ReturnsAsync((BookBorrowingRequest req) => req);
+
+            // Act
+            var result = await _requestService.ReturnBooksAsync(returnDto);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.That(result.Status, Is.EqualTo(RequestStatus.Returned.ToString()));
+            Assert.IsNotNull(result.DateReturned);
+            Assert.IsNull(result.Approver); // Requestor processing shouldn't set approver
+
+            // Verify book quantity increment
+            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.Is<Book>(b => b.Id == book.Id && b.AvailableQuantity == initialBookQuantity + 1)), Times.Once);
+            _mockUserRepository.Verify(repo => repo.GetUserByIdAsync(requestorId), Times.Once);
+            // Verify request update - ensure ApproverId is still null
+            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.Is<BookBorrowingRequest>(r =>
+                r.Id == returnDto.RequestId &&
+                r.Status == RequestStatus.Returned &&
+                r.DateReturned != null &&
+                r.ApproverId == null
+            )), Times.Once);
+        }
+
+        [Test]
+        public async Task ReturnBooksAsync_SuccessfulReturn_ProcessedByAdmin_ApproverNotSet_UpdatesRequestAndSetsApprover()
+        {
+            // Arrange
+            int requestorId = 1;
+            int adminId = 2;
+            var returnDto = new ReturnBookRequestDto { RequestId = 1, ProcessedById = adminId };
+            var requestor = new User { Id = requestorId, Username = "requestor", Role = UserRole.User };
+            var admin = new User { Id = adminId, Username = "admin", Role = UserRole.Admin };
+            var initialBookQuantity = 4;
+            var book = new Book { Id = 10, Title = "Test Book", Author = "Test Author", TotalQuantity = 5, AvailableQuantity = initialBookQuantity };
+            var category = new Category { Id = 1, Name = "Fiction" };
+            book.Category = category; book.CategoryId = category.Id;
+
+            var existingRequest = new BookBorrowingRequest
+            {
+                Id = returnDto.RequestId,
+                RequestorId = requestor.Id,
+                Requestor = requestor,
+                ApproverId = null, // Approver not set yet
+                Approver = null,
+                Status = RequestStatus.Approved,
+                DateReturned = null,
+                DateRequested = DateTime.UtcNow.AddDays(-5),
+                Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { RequestId = 1, BookId = book.Id, Book = book } }
+            };
+
+            // Make the updated request include the admin as approver for mapping check
+            var updatedRequestFromRepo = new BookBorrowingRequest
+            {
+                Id = returnDto.RequestId,
+                RequestorId = requestor.Id,
+                Requestor = requestor,
+                ApproverId = adminId, // Admin is now approver
+                Approver = admin,
+                Status = RequestStatus.Returned,
+                DateReturned = DateTime.UtcNow, // Actual date set in service
+                DateRequested = existingRequest.DateRequested,
+                Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { RequestId = 1, BookId = book.Id, Book = book } }
+            };
+
+            _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(returnDto.RequestId)).ReturnsAsync(existingRequest);
+            _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(adminId)).ReturnsAsync(admin);
+            _mockBookRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Book>())).Returns<Book>(b => Task.FromResult(b));
+            _mockRequestRepository.Setup(repo => repo.UpdateRequestAsync(It.Is<BookBorrowingRequest>(r => r.ApproverId == adminId)))
+                                  .ReturnsAsync(updatedRequestFromRepo); // Return the request with the approver set
+
+            // Act
+            var result = await _requestService.ReturnBooksAsync(returnDto);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.That(result.Status, Is.EqualTo(RequestStatus.Returned.ToString()));
+            Assert.IsNotNull(result.DateReturned);
+            Assert.That(result.Approver, Is.EqualTo(admin.Username)); // Admin should now be the approver
+
+            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.Is<Book>(b => b.Id == book.Id && b.AvailableQuantity == initialBookQuantity + 1)), Times.Once);
+            _mockUserRepository.Verify(repo => repo.GetUserByIdAsync(adminId), Times.Once);
+            // Verify request update - ensure ApproverId is set to adminId
+            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.Is<BookBorrowingRequest>(r =>
+                r.Id == returnDto.RequestId &&
+                r.Status == RequestStatus.Returned &&
+                r.DateReturned != null &&
+                r.ApproverId == adminId
+            )), Times.Once);
+        }
+
+        [Test]
+        public async Task ReturnBooksAsync_SuccessfulReturn_ProcessedByAdmin_ApproverAlreadySet_UpdatesRequestDoesNotChangeApprover()
+        {
+            // Arrange
+            int requestorId = 1;
+            int originalApproverId = 2;
+            int processingAdminId = 3; // Different admin processing the return
+            var returnDto = new ReturnBookRequestDto { RequestId = 1, ProcessedById = processingAdminId };
+            var requestor = new User { Id = requestorId, Username = "requestor", Role = UserRole.User };
+            var originalApprover = new User { Id = originalApproverId, Username = "approver", Role = UserRole.Admin };
+            var processingAdmin = new User { Id = processingAdminId, Username = "admin", Role = UserRole.Admin };
+            var initialBookQuantity = 4;
+            var book = new Book { Id = 10, Title = "Test Book", Author = "Test Author", TotalQuantity = 5, AvailableQuantity = initialBookQuantity };
+            var category = new Category { Id = 1, Name = "Fiction" };
+            book.Category = category; book.CategoryId = category.Id;
+
+            var existingRequest = new BookBorrowingRequest
+            {
+                Id = returnDto.RequestId,
+                RequestorId = requestor.Id,
+                Requestor = requestor,
+                ApproverId = originalApproverId, // Approver already set
+                Approver = originalApprover,
+                Status = RequestStatus.Approved,
+                DateReturned = null,
+                DateRequested = DateTime.UtcNow.AddDays(-5),
+                Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { RequestId = 1, BookId = book.Id, Book = book } }
+            };
+
+            // Updated request should still have original approver
+            var updatedRequestFromRepo = new BookBorrowingRequest
+            {
+                Id = returnDto.RequestId,
+                RequestorId = requestor.Id,
+                Requestor = requestor,
+                ApproverId = originalApproverId, // Keep original approver
+                Approver = originalApprover,
+                Status = RequestStatus.Returned,
+                DateReturned = DateTime.UtcNow, // Actual date set in service
+                DateRequested = existingRequest.DateRequested,
+                Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { RequestId = 1, BookId = book.Id, Book = book } }
+            };
+
+            _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(returnDto.RequestId)).ReturnsAsync(existingRequest);
+            _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(processingAdminId)).ReturnsAsync(processingAdmin);
+            _mockBookRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Book>())).Returns<Book>(b => Task.FromResult(b));
+            _mockRequestRepository.Setup(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()))
+                                  .ReturnsAsync(updatedRequestFromRepo);
+
+            // Act
+            var result = await _requestService.ReturnBooksAsync(returnDto);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.That(result.Status, Is.EqualTo(RequestStatus.Returned.ToString()));
+            Assert.IsNotNull(result.DateReturned);
+            Assert.That(result.Approver, Is.EqualTo(originalApprover.Username)); // Should remain the original approver
+
+            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.Is<Book>(b => b.Id == book.Id && b.AvailableQuantity == initialBookQuantity + 1)), Times.Once);
+            _mockUserRepository.Verify(repo => repo.GetUserByIdAsync(processingAdminId), Times.Once);
+            // Verify request update - ensure ApproverId remains originalApproverId
+            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.Is<BookBorrowingRequest>(r =>
+                r.Id == returnDto.RequestId &&
+                r.Status == RequestStatus.Returned &&
+                r.DateReturned != null &&
+                r.ApproverId == originalApproverId // Approver ID NOT changed
+            )), Times.Once);
+        }
+
+        [Test]
+        public async Task ReturnBooksAsync_BookQuantitySafetyCheck_DoesNotExceedTotalQuantity()
+        {
+            // Arrange
+            var returnDto = new ReturnBookRequestDto { RequestId = 1, ProcessedById = null };
+            var requestor = new User { Id = 1, Username = "requestor" };
+            var initialBookQuantity = 5; // Already at max quantity
+            var book = new Book { Id = 10, Title = "Test Book", Author = "Test Author", TotalQuantity = 5, AvailableQuantity = initialBookQuantity };
+            var category = new Category { Id = 1, Name = "Fiction" };
+            book.Category = category; book.CategoryId = category.Id;
+
+            var existingRequest = new BookBorrowingRequest
+            {
+                Id = returnDto.RequestId,
+                RequestorId = requestor.Id,
+                Requestor = requestor,
+                Status = RequestStatus.Approved,
+                DateReturned = null,
+                DateRequested = DateTime.UtcNow.AddDays(-5),
+                Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { RequestId = 1, BookId = book.Id, Book = book } }
+            };
+
+            var updatedRequestFromRepo = new BookBorrowingRequest // Assume repo returns the updated state
+            {
+                Id = returnDto.RequestId,
+                RequestorId = requestor.Id,
+                Requestor = requestor,
+                Status = RequestStatus.Returned,
+                DateReturned = DateTime.UtcNow, // Actual date set in service
+                DateRequested = existingRequest.DateRequested,
+                Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { RequestId = 1, BookId = book.Id, Book = book } } // Book quantity will be checked in Verify
+            };
+
+            _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(returnDto.RequestId)).ReturnsAsync(existingRequest);
+            _mockBookRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Book>())).Returns<Book>(b => Task.FromResult(b));
+            _mockRequestRepository.Setup(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()))
+                                  .ReturnsAsync(updatedRequestFromRepo);
+
+            // Act
+            var result = await _requestService.ReturnBooksAsync(returnDto);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.That(result.Status, Is.EqualTo(RequestStatus.Returned.ToString()));
+
+            // Verify book quantity was clamped to TotalQuantity
+            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.Is<Book>(b =>
+                b.Id == book.Id &&
+                b.AvailableQuantity == book.TotalQuantity // Should be clamped back to total
+                )), Times.Once);
+
+            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Once);
+        }
+
+        [Test]
+        public async Task ReturnBooksAsync_MapsNullCategoryCorrectly()
+        {
+            // Arrange
+            var returnDto = new ReturnBookRequestDto { RequestId = 1, ProcessedById = null };
+            var requestor = new User { Id = 1, Username = "requestor" };
+            var initialBookQuantity = 4;
+            var book = new Book { Id = 10, Title = "Uncat Book", Author = "Test Author", TotalQuantity = 5, AvailableQuantity = initialBookQuantity, CategoryId = null, Category = null }; // Null Category
+
+            var existingRequest = new BookBorrowingRequest
+            {
+                Id = returnDto.RequestId,
+                RequestorId = requestor.Id,
+                Requestor = requestor,
+                Status = RequestStatus.Approved,
+                DateReturned = null,
+                DateRequested = DateTime.UtcNow.AddDays(-5),
+                Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { RequestId = 1, BookId = book.Id, Book = book } }
+            };
+
+            var updatedRequestFromRepo = new BookBorrowingRequest // Assume repo returns the updated state
+            {
+                Id = returnDto.RequestId,
+                RequestorId = requestor.Id,
+                Requestor = requestor,
+                Status = RequestStatus.Returned,
+                DateReturned = DateTime.UtcNow, // Actual date set in service
+                DateRequested = existingRequest.DateRequested,
+                Details = new List<BookBorrowingRequestDetail> { new BookBorrowingRequestDetail { RequestId = 1, BookId = book.Id, Book = book } }
+            };
+
+
+            _mockRequestRepository.Setup(repo => repo.GetRequestByIdAsync(returnDto.RequestId)).ReturnsAsync(existingRequest);
+            _mockBookRepository.Setup(repo => repo.UpdateAsync(It.IsAny<Book>())).Returns<Book>(b => Task.FromResult(b));
+            _mockRequestRepository.Setup(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()))
+                                  .ReturnsAsync(updatedRequestFromRepo);
+
+            // Act
+            var result = await _requestService.ReturnBooksAsync(returnDto);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.That(result.Books.Count, Is.EqualTo(1));
+            Assert.That(result.Books[0].Title, Is.EqualTo(book.Title));
+            Assert.That(result.Books[0].CategoryName, Is.EqualTo(Constants.NullCategoryName)); // Check null category mapping
+            Assert.That(result.Books[0].Category, Is.EqualTo(Constants.NullCategoryName)); // Check null category mapping
+
+            _mockBookRepository.Verify(repo => repo.UpdateAsync(It.Is<Book>(b => b.Id == book.Id && b.AvailableQuantity == initialBookQuantity + 1)), Times.Once);
+            _mockRequestRepository.Verify(repo => repo.UpdateRequestAsync(It.IsAny<BookBorrowingRequest>()), Times.Once);
+        }
+
     }
 } 

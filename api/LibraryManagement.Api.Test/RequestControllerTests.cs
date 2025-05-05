@@ -323,5 +323,149 @@ namespace LibraryManagement.Api.Test
             Assert.AreEqual("Failed to load request details.", notFoundResult.Value); //
             _mockRequestService.Verify(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize), Times.Once);
         }
+
+        [Test]
+        public async Task GetAllRequests_WithZeroResults_ReturnsNotFound()
+        {
+            // Arrange
+            string status = "Pending";
+            int pageNum = 1;
+            int pageSize = 10;
+
+            var emptyResult = new PaginatedOutputDto<RequestDetailOutputDto>
+            {
+                Items = new List<RequestDetailOutputDto>(),
+                TotalCount = 0,
+                PageNum = pageNum,
+                PageSize = pageSize,
+                TotalPage = 0,
+            };
+
+            _mockRequestService.Setup(service =>
+                service.GetAllRequestDetailsAsync(status, pageNum, pageSize))
+                .ReturnsAsync(emptyResult);
+
+            // Act
+            var result = await _requestController.GetAllRequests(status, pageNum, pageSize);
+
+            // Assert
+            Assert.IsInstanceOf<NotFoundObjectResult>(result);
+            var notFoundResult = result as NotFoundObjectResult;
+            Assert.AreEqual($"No requests found with status: {status}", notFoundResult.Value);
+            _mockRequestService.Verify(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize), Times.Once);
+        }
+
+        [Test]
+        public async Task ReturnBooks_WithMismatchingIds_ReturnsBadRequest()
+        {
+            // Arrange
+            int requestId = 1;
+            var returnBookRequestDto = new ReturnBookRequestDto
+            {
+                RequestId = 2  // Different from the requestId parameter
+            };
+
+            // Act
+            var result = await _requestController.ReturnBooks(requestId, returnBookRequestDto);
+
+            // Assert
+            Assert.IsInstanceOf<BadRequestObjectResult>(result);
+            var badRequestResult = result as BadRequestObjectResult;
+            Assert.AreEqual("Request ID in the URL does not match the request ID in the body.", badRequestResult.Value);
+            // Verify service was not called since validation failed
+            _mockRequestService.Verify(s => s.ReturnBooksAsync(It.IsAny<ReturnBookRequestDto>()), Times.Never);
+        }
+
+        [Test]
+        public async Task ReturnBooks_WhenServiceReturnsNull_ReturnsNotFound()
+        {
+            // Arrange
+            int requestId = 1;
+            var returnBookRequestDto = new ReturnBookRequestDto
+            {
+                RequestId = 1,
+                ProcessedById = 2
+            };
+
+            _mockRequestService.Setup(service =>
+                service.ReturnBooksAsync(returnBookRequestDto))
+                .ReturnsAsync((RequestDetailOutputDto)null);
+
+            // Act
+            var result = await _requestController.ReturnBooks(requestId, returnBookRequestDto);
+
+            // Assert
+            Assert.IsInstanceOf<NotFoundObjectResult>(result);
+            var notFoundResult = result as NotFoundObjectResult;
+            Assert.AreEqual($"Failed to process return for request with ID {requestId}.", notFoundResult.Value);
+            _mockRequestService.Verify(s => s.ReturnBooksAsync(returnBookRequestDto), Times.Once);
+        }
+
+        [Test]
+        public async Task ReturnBooks_WithValidRequest_ReturnsOkResult()
+        {
+            // Arrange
+            int requestId = 1;
+            var returnBookRequestDto = new ReturnBookRequestDto
+            {
+                RequestId = 1,
+                ProcessedById = 2
+            };
+
+            var returnedRequest = new RequestDetailOutputDto
+            {
+                Id = 1,
+                Status = "Returned",
+                Requestor = "Test User",
+                DateRequested = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd"),
+                DateReturned = DateTime.Now.ToString("yyyy-MM-dd"),
+                Books = new List<BookInformation>()
+            };
+
+            _mockRequestService.Setup(service =>
+                service.ReturnBooksAsync(returnBookRequestDto))
+                .ReturnsAsync(returnedRequest);
+
+            // Act
+            var result = await _requestController.ReturnBooks(requestId, returnBookRequestDto);
+
+            // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.AreEqual(returnedRequest, okResult.Value);
+            _mockRequestService.Verify(s => s.ReturnBooksAsync(returnBookRequestDto), Times.Once);
+        }
+
+        [Test]
+        public async Task GetNumberOfAvailableRequests_UserExists_ReturnsOkResultWithAvailableRequests()
+        {
+            // Arrange
+            int userId = 1;
+            var availableRequestDto = new AvailableRequestOutputDto { AvailableRequests = 3 };
+            _mockRequestService.Setup(s => s.GetAvailableRequestsAsync(userId)).ReturnsAsync(availableRequestDto);
+
+            // Act
+            var result = await _requestController.GetNumberOfAvailableRequests(userId);
+
+            // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult.Value);
+            Assert.AreEqual(availableRequestDto, okResult.Value);
+            _mockRequestService.Verify(s => s.GetAvailableRequestsAsync(userId), Times.Once);
+        }
+
+        [Test]
+        public void GetNumberOfAvailableRequests_UserNotFound_ThrowsNotFoundException()
+        {
+            // Arrange
+            int userId = 99;
+            _mockRequestService.Setup(s => s.GetAvailableRequestsAsync(userId))
+                              .ThrowsAsync(new NotFoundException($"User with ID {userId} not found."));
+
+            // Act & Assert
+            Assert.ThrowsAsync<NotFoundException>(async () => await _requestController.GetNumberOfAvailableRequests(userId));
+            _mockRequestService.Verify(s => s.GetAvailableRequestsAsync(userId), Times.Once);
+        }
     }
 }

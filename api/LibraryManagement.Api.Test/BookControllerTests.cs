@@ -208,5 +208,323 @@ namespace LibraryManagement.Api.Test
             Assert.AreEqual($"Book with ID {bookId} not found.", notFoundResult.Value); 
             _mockBookService.Verify(s => s.UpdateAsync(bookId, updateDto), Times.Once); 
         }
+
+        [Test]
+        public async Task FilterBooks_ReturnsOkResult_WithFilteredBooks()
+        {
+            // Arrange
+            int? categoryId = 1;
+            bool? isAvailable = true;
+            int pageNum = 1;
+            int pageSize = 10;
+
+            var paginatedBooks = new PaginatedOutputDto<UserBookOutputDto>
+            {
+                Items = new List<UserBookOutputDto>
+                {
+                    new UserBookOutputDto
+                    {
+                        Id = 1,
+                        Title = "Test Book",
+                        Author = "Test Author",
+                        CategoryId = 1,
+                        CategoryName = "Fiction",
+                        AvailableQuantity = 5,
+                        TotalQuantity = 5
+                    }
+                },
+                TotalCount = 1,
+                PageNum = pageNum,
+                PageSize = pageSize,
+                TotalPage = 1,
+            };
+
+            _mockBookService.Setup(service =>
+                service.FilterBooksAsync(categoryId, isAvailable, pageNum, pageSize))
+                .ReturnsAsync(paginatedBooks);
+
+            // Act
+            var result = await _bookController.FilterBooks(categoryId, isAvailable, pageNum, pageSize);
+
+            // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.AreEqual(paginatedBooks, okResult.Value);
+            _mockBookService.Verify(s => s.FilterBooksAsync(categoryId, isAvailable, pageNum, pageSize), Times.Once);
+        }
+
+        [Test]
+        public async Task FilterBooks_WithNoParameters_ReturnsAllBooks()
+        {
+            // Arrange
+            int pageNum = 1;
+            int pageSize = 10;
+
+            var paginatedBooks = new PaginatedOutputDto<UserBookOutputDto>
+            {
+                Items = new List<UserBookOutputDto>
+                {
+                    new UserBookOutputDto { Id = 1, Title = "Book 1", Author = "Author 1" },
+                    new UserBookOutputDto { Id = 2, Title = "Book 2", Author = "Author 2" }
+                },
+                TotalCount = 2,
+                PageNum = pageNum,
+                PageSize = pageSize,
+                TotalPage = 1
+            };
+
+            _mockBookService.Setup(service =>
+                service.FilterBooksAsync(null, null, pageNum, pageSize))
+                .ReturnsAsync(paginatedBooks);
+
+            // Act
+            var result = await _bookController.FilterBooks(null, null, pageNum, pageSize);
+
+            // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.AreEqual(paginatedBooks, okResult.Value);
+            _mockBookService.Verify(s => s.FilterBooksAsync(null, null, pageNum, pageSize), Times.Once);
+        }
+
+        [Test]
+        public async Task FilterBooks_WithOnlyCategoryId_ReturnsFilteredByCategory()
+        {
+            // Arrange
+            int? categoryId = 1;
+            int pageNum = 1;
+            int pageSize = 10;
+
+            var paginatedBooks = new PaginatedOutputDto<UserBookOutputDto>
+            {
+                Items = new List<UserBookOutputDto>
+                {
+                    new UserBookOutputDto
+                    {
+                        Id = 1,
+                        Title = "Fiction Book",
+                        CategoryId = 1,
+                        CategoryName = "Fiction"
+                    }
+                },
+                TotalCount = 1,
+                PageNum = pageNum,
+                PageSize = pageSize,
+                TotalPage = 1
+            };
+
+            _mockBookService.Setup(service =>
+                service.FilterBooksAsync(categoryId, null, pageNum, pageSize))
+                .ReturnsAsync(paginatedBooks);
+
+            // Act
+            var result = await _bookController.FilterBooks(categoryId, null, pageNum, pageSize);
+
+            // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.AreEqual(paginatedBooks, okResult.Value);
+            _mockBookService.Verify(s => s.FilterBooksAsync(categoryId, null, pageNum, pageSize), Times.Once);
+        }
+
+        [Test]
+        public async Task FilterBooks_WithOnlyAvailability_ReturnsFilteredByAvailability()
+        {
+            // Arrange
+            bool? isAvailable = true;
+            int pageNum = 1;
+            int pageSize = 10;
+
+            var paginatedBooks = new PaginatedOutputDto<UserBookOutputDto>
+            {
+                Items = new List<UserBookOutputDto>
+                {
+                    new UserBookOutputDto
+                    {
+                        Id = 1,
+                        Title = "Available Book",
+                        AvailableQuantity = 3,
+                        TotalQuantity = 5
+                    }
+                },
+                TotalCount = 1,
+                PageNum = pageNum,
+                PageSize = pageSize,
+                TotalPage = 1
+            };
+
+            _mockBookService.Setup(service =>
+                service.FilterBooksAsync(null, isAvailable, pageNum, pageSize))
+                .ReturnsAsync(paginatedBooks);
+
+            // Act
+            var result = await _bookController.FilterBooks(null, isAvailable, pageNum, pageSize);
+
+            // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.AreEqual(paginatedBooks, okResult.Value);
+            _mockBookService.Verify(s => s.FilterBooksAsync(null, isAvailable, pageNum, pageSize), Times.Once);
+        }
+
+        [Test]
+        public async Task SearchBooks_ReturnsOkResult_WithMatchingBooks()
+        {
+            // Arrange
+            string searchTerm = "Programming";
+            int pageNum = 1;
+            int pageSize = 10;
+
+            var paginatedBooks = new PaginatedOutputDto<UserBookOutputDto>
+            {
+                Items = new List<UserBookOutputDto>
+                {
+                    new UserBookOutputDto
+                    {
+                        Id = 1,
+                        Title = "C# Programming",
+                        Author = "John Doe",
+                        CategoryId = 1,
+                        CategoryName = "Programming",
+                        AvailableQuantity = 3,
+                        TotalQuantity = 5
+                    },
+                    new UserBookOutputDto
+                    {
+                        Id = 2,
+                        Title = "Advanced Programming",
+                        Author = "Jane Smith",
+                        CategoryId = 1,
+                        CategoryName = "Programming",
+                        AvailableQuantity = 2,
+                        TotalQuantity = 2
+                    }
+                },
+                TotalCount = 2,
+                PageNum = pageNum,
+                PageSize = pageSize,
+                TotalPage = 1,
+            };
+
+            _mockBookService.Setup(service =>
+                service.SearchBooksAsync(searchTerm, pageNum, pageSize))
+                .ReturnsAsync(paginatedBooks);
+
+            // Act
+            var result = await _bookController.SearchBooks(searchTerm, pageNum, pageSize);
+
+            // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.AreEqual(paginatedBooks, okResult.Value);
+            _mockBookService.Verify(s => s.SearchBooksAsync(searchTerm, pageNum, pageSize), Times.Once);
+        }
+
+        [Test]
+        public async Task SearchBooks_WithEmptySearchTerm_ReturnsEmptyResult()
+        {
+            // Arrange
+            string searchTerm = "";
+            int pageNum = 1;
+            int pageSize = 10;
+
+            var emptyResult = new PaginatedOutputDto<UserBookOutputDto>
+            {
+                Items = new List<UserBookOutputDto>(),
+                TotalCount = 0,
+                PageNum = pageNum,
+                PageSize = pageSize,
+                TotalPage = 0,
+            };
+
+            _mockBookService.Setup(service =>
+                service.SearchBooksAsync(searchTerm, pageNum, pageSize))
+                .ReturnsAsync(emptyResult);
+
+            // Act
+            var result = await _bookController.SearchBooks(searchTerm, pageNum, pageSize);
+
+            // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.AreEqual(emptyResult, okResult.Value);
+            _mockBookService.Verify(s => s.SearchBooksAsync(searchTerm, pageNum, pageSize), Times.Once);
+        }
+
+        [Test]
+        public async Task SearchBooks_WithNonExistingTerm_ReturnsEmptyResult()
+        {
+            // Arrange
+            string searchTerm = "NonExistingBookTitle";
+            int pageNum = 1;
+            int pageSize = 10;
+
+            var emptyResult = new PaginatedOutputDto<UserBookOutputDto>
+            {
+                Items = new List<UserBookOutputDto>(),
+                TotalCount = 0,
+                PageNum = pageNum,
+                PageSize = pageSize,
+                TotalPage = 0,
+            };
+
+            _mockBookService.Setup(service =>
+                service.SearchBooksAsync(searchTerm, pageNum, pageSize))
+                .ReturnsAsync(emptyResult);
+
+            // Act
+            var result = await _bookController.SearchBooks(searchTerm, pageNum, pageSize);
+
+            // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.AreEqual(emptyResult, okResult.Value);
+            _mockBookService.Verify(s => s.SearchBooksAsync(searchTerm, pageNum, pageSize), Times.Once);
+        }
+
+        [Test]
+        public async Task SearchBooks_WithCustomPagination_ReturnsCorrectPage()
+        {
+            // Arrange
+            string searchTerm = "Programming";
+            int pageNum = 2;
+            int pageSize = 5;
+
+            var paginatedBooks = new PaginatedOutputDto<UserBookOutputDto>
+            {
+                Items = new List<UserBookOutputDto>
+                {
+                    new UserBookOutputDto
+                    {
+                        Id = 6,
+                        Title = "Web Programming",
+                        Author = "Alice Johnson"
+                    },
+                    new UserBookOutputDto
+                    {
+                        Id = 7,
+                        Title = "Mobile Programming",
+                        Author = "Bob Anderson"
+                    }
+                },
+                TotalCount = 12,
+                PageNum = pageNum,
+                PageSize = pageSize,
+                TotalPage = 3,
+            };
+
+            _mockBookService.Setup(service =>
+                service.SearchBooksAsync(searchTerm, pageNum, pageSize))
+                .ReturnsAsync(paginatedBooks);
+
+            // Act
+            var result = await _bookController.SearchBooks(searchTerm, pageNum, pageSize);
+
+            // Assert
+            Assert.IsInstanceOf<OkObjectResult>(result);
+            var okResult = result as OkObjectResult;
+            Assert.AreEqual(paginatedBooks, okResult.Value);
+            _mockBookService.Verify(s => s.SearchBooksAsync(searchTerm, pageNum, pageSize), Times.Once);
+        }
     }
 }

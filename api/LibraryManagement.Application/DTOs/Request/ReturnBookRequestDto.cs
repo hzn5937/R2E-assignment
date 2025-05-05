@@ -7,7 +7,6 @@ namespace LibraryManagement.Application.DTOs.Request
         [Required]
         public int RequestId { get; set; }
         
-        // Optional: The admin ID who processed the return (if returned to an admin)
         public int? ProcessedById { get; set; }
     }
 }

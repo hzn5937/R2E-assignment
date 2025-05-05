@@ -179,17 +179,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    // Try to call server-side logout if we have tokens
     if (tokensRef.current && user) {
       try {
         await axiosInstance.post('/api/authentication/logout');
       } catch (err) {
         console.error('Error during logout:', err);
-        // Continue with logout even if server call fails
       }
     }
     
-    // Clear local state
     setUser(null);
     setTokens(null);
   };
@@ -210,7 +207,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-/* Convenience hook */
 export const useAuth = () => useContext(AuthContext);
 
 export default AuthContext;
