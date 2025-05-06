@@ -1,5 +1,5 @@
 import React from 'react';
-import { Select, Button, Space, Divider } from 'antd';
+import { Select, Button, Space } from 'antd';
 import { FilterOutlined, ClearOutlined } from '@ant-design/icons';
 
 const FilterBar = ({ 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, Table, Tag, Button, Spin, Alert, message, Space, Modal } from 'antd';
-import { CheckCircleOutlined, CloseCircleOutlined, RollbackOutlined } from '@ant-design/icons';
+import { Tabs, Table, Tag, Button, Spin, Alert, Space, Modal } from 'antd';
+import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import axiosInstance from '../../utils/axiosConfig';
 import PaginationControls from '../../components/pagination';
 import { useAuth } from '../../context/AuthContext';
@@ -12,12 +12,9 @@ const AdminRequests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [processingRequestId, setProcessingRequestId] = useState(null);
-  
-  // Add modal visibility states
   const [isApproveModalVisible, setIsApproveModalVisible] = useState(false);
   const [isRejectModalVisible, setIsRejectModalVisible] = useState(false);
   const [requestToAction, setRequestToAction] = useState(null);
-  
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 5,
@@ -27,14 +24,13 @@ const AdminRequests = () => {
     hasPrev: false
   });
   const [apiError, setApiError] = useState(null);
-  const [apiSuccess, setApiSuccess] = useState(null); // Added success state
+  const [apiSuccess, setApiSuccess] = useState(null); 
   const { user } = useAuth();
 
   const fetchRequests = (status = '', pageNum = 1, pageSize = 5) => {
     setLoading(true);
     setApiError(null);
     
-    // Build URL with appropriate query parameters
     let url = `/api/requests/all?pageNum=${pageNum}&pageSize=${pageSize}`;
     if (status && status !== 'all') {
       url += `&status=${status}`;
@@ -42,9 +38,6 @@ const AdminRequests = () => {
     
     axiosInstance.get(url)
       .then(res => {
-        console.log('Requests data:', res.data);
-        
-        // Handle paginated response
         if (res.data.items) {
           setRequests(res.data.items);
           setPagination({
@@ -56,7 +49,7 @@ const AdminRequests = () => {
             hasPrev: res.data.hasPrev
           });
         } else {
-          setRequests([]); // Set empty array if data format is unexpected
+          setRequests([]); 
         }
       })
       .catch(err => {
@@ -266,7 +259,7 @@ const AdminRequests = () => {
               </Space>
             );
           }
-          return null; // Don't show action buttons for other statuses
+          return null;
         }
       });
     }
@@ -374,7 +367,7 @@ const AdminRequests = () => {
       <>
         <Table
           dataSource={requests}
-          columns={getColumns()} // Use dynamic columns based on active tab
+          columns={getColumns()} 
           rowKey="id"
           pagination={false}
           expandable={{

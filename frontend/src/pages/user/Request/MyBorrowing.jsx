@@ -36,9 +36,6 @@ export default function MyBorrowing() {
     
     axiosInstance.get(`/api/requests?userId=${user.id}&pageNum=${pageNum}&pageSize=${pageSize}`)
       .then(res => {
-        console.log('Requests data:', res.data);
-        
-        // Check if response is paginated
         if (res.data.items) {
           // Paginated response
           setRequests(res.data.items);
@@ -130,8 +127,6 @@ export default function MyBorrowing() {
     
     try {
       const response = await axiosInstance.get(`/api/requests/${requestId}/details`);
-      console.log('Request details:', response.data);
-      
       // Store the details in state
       setExpandedRequestDetails(prev => ({
         ...prev,

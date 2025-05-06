@@ -31,8 +31,6 @@ const AdminUsers = () => {
     setLoading(true);
     axiosInstance.get(`/api/admin/users?pageNum=${pageNum}&pageSize=${pageSize}`)
       .then(res => {
-        console.log('Users data:', res.data);
-        // Handle both paginated and non-paginated responses
         if (res.data.items) {
           setUsers(res.data.items);
           setPagination({
@@ -79,7 +77,7 @@ const AdminUsers = () => {
     setCurrentUser(null);
     form.resetFields();
     form.setFieldsValue({
-      role: 'User' // Default role
+      role: 'User'
     });
     setIsModalVisible(true);
   };
@@ -100,7 +98,7 @@ const AdminUsers = () => {
   // Handle form submission
   const handleFormSubmit = () => {
     form.validateFields().then(values => {
-      // Remove empty password field for updates if not provided
+      // Remove empty password field for updates if not provi ded
       if (modalType === 'edit' && !values.password) {
         delete values.password;
       }

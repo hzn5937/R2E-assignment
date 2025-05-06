@@ -21,7 +21,7 @@ const AdminCategories = () => {
   const [modalType, setModalType] = useState('add');
   const [currentCategory, setCurrentCategory] = useState(null);
   const [apiError, setApiError] = useState(null);
-  const [apiSuccess, setApiSuccess] = useState(null); // Added success state
+  const [apiSuccess, setApiSuccess] = useState(null); 
   const [form] = Form.useForm();
 
   // Fetch categories with pagination
@@ -29,7 +29,6 @@ const AdminCategories = () => {
     setLoading(true);
     axiosInstance.get(`/api/categories?pageNum=${pageNum}&pageSize=${pageSize}`)
       .then(res => {
-        console.log('Categories data:', res.data);
         setCategories(res.data.items);
         setPagination({
           current: res.data.pageNum,
@@ -134,7 +133,6 @@ const AdminCategories = () => {
 
   // Handle category deletion
   const handleDelete = (categoryId) => {
-    console.log('Delete button clicked for category ID:', categoryId);
     setCategoryToDelete(categoryId);
     setIsDeleteModalVisible(true);
   };
@@ -143,13 +141,9 @@ const AdminCategories = () => {
   const confirmDelete = () => {
     if (!categoryToDelete) return;
     
-    console.log('OK button clicked, would delete category ID:', categoryToDelete);
-    
-    // Check if we're about to delete the last item on the page
     const isLastItemOnPage = categories.length === 1;
-    // Check if we're on the last page
     const isLastPage = pagination.current === pagination.totalPages;
-    // Determine which page to go to after deletion
+    // Determine which page to go to after deletion (last item on last page)
     const targetPage = (isLastItemOnPage && isLastPage && pagination.current > 1) 
       ? pagination.current - 1  // Go to previous page if deleting last item on last page
       : pagination.current;     // Otherwise stay on current page

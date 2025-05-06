@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, DatePicker, Button, Table, Alert, Space, Typography, Spin, Tabs, message } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import axiosInstance from '../../utils/axiosConfig';
 import moment from 'moment';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
 const AdminReports = () => {
@@ -15,20 +15,7 @@ const AdminReports = () => {
   const [activeTab, setActiveTab] = useState('single');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [apiSuccess, setApiSuccess] = useState(null); // Added success state
-
-  // Add debugging log for component state
-  useEffect(() => {
-    console.log("AdminReports state:", {
-      singleMonth,
-      dateRange,
-      singleMonthReport,
-      rangeReports,
-      activeTab,
-      loading,
-      error
-    });
-  }, [singleMonth, dateRange, singleMonthReport, rangeReports, activeTab, loading, error]);
+  const [apiSuccess, setApiSuccess] = useState(null);
 
   const fetchSingleMonthReport = async () => {
     if (!singleMonth) {
@@ -41,13 +28,10 @@ const AdminReports = () => {
 
     try {
       const year = singleMonth.year();
-      const month = singleMonth.month() + 1; // Moment months are 0-indexed
-
-      console.log(`Fetching report for ${year}-${month}`);
+      const month = singleMonth.month() + 1; 
       const response = await axiosInstance.get(
         `/api/statistics/monthly-report?year=${year}&month=${month}`
       );
-      console.log('API response:', response.data);
       setSingleMonthReport(response.data);
     } catch (err) {
       console.error('Error fetching report:', err);
@@ -71,12 +55,9 @@ const AdminReports = () => {
       const startMonth = dateRange[0].month() + 1;
       const endYear = dateRange[1].year();
       const endMonth = dateRange[1].month() + 1;
-
-      console.log(`Fetching reports from ${startYear}-${startMonth} to ${endYear}-${endMonth}`);
       const response = await axiosInstance.get(
         `/api/statistics/monthly-reports-range?startYear=${startYear}&startMonth=${startMonth}&endYear=${endYear}&endMonth=${endMonth}`
       );
-      console.log('API response (range):', response.data);
       setRangeReports(response.data);
     } catch (err) {
       console.error('Error fetching reports:', err);
@@ -96,18 +77,12 @@ const AdminReports = () => {
     try {
       const year = singleMonth.year();
       const month = singleMonth.month() + 1;
-      
-      console.log(`Downloading report for ${year}-${month}`);
-      
-      // Use axios to handle the download with proper authentication
       const response = await axiosInstance.get(
         `/api/statistics/export/monthly-report?year=${year}&month=${month}`,
         { 
           responseType: 'blob', // Important for file downloads
         }
       );
-      
-      console.log('Excel download response:', response);
       
       // Create a download link and trigger it
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -145,8 +120,6 @@ const AdminReports = () => {
       const endYear = dateRange[1].year();
       const endMonth = dateRange[1].month() + 1;
       
-      console.log(`Downloading reports from ${startYear}-${startMonth} to ${endYear}-${endMonth}`);
-      
       // Use axios to handle the download with proper authentication
       const response = await axiosInstance.get(
         `/api/statistics/export/monthly-reports-range?startYear=${startYear}&startMonth=${startMonth}&endYear=${endYear}&endMonth=${endMonth}`,
@@ -154,8 +127,6 @@ const AdminReports = () => {
           responseType: 'blob', // Important for file downloads
         }
       );
-      
-      console.log('Excel download response:', response);
       
       // Create a download link and trigger it
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -247,11 +218,8 @@ const AdminReports = () => {
 
   const renderSingleMonthReport = () => {
     if (!singleMonthReport) {
-      console.log("No single month report to render");
       return null;
     }
-
-    console.log("Rendering single month report:", singleMonthReport);
 
     try {
       // Check if month field exists and is valid
@@ -359,11 +327,8 @@ const AdminReports = () => {
 
   const renderRangeReports = () => {
     if (!rangeReports || rangeReports.length === 0) {
-      console.log("No range reports to render");
       return null;
     }
-
-    console.log("Rendering range reports:", rangeReports);
 
     try {
       // Check if first report has month field

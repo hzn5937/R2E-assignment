@@ -19,12 +19,12 @@ const AdminBooks = () => {
   });
   const [categories, setCategories] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false); // New state for delete modal
-  const [bookToDelete, setBookToDelete] = useState(null); // Book ID to delete
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false); // New state for delete modal (completely different from edit/add modal)
+  const [bookToDelete, setBookToDelete] = useState(null); 
   const [modalType, setModalType] = useState('add');
   const [currentBook, setCurrentBook] = useState(null);
   const [apiError, setApiError] = useState(null);
-  const [apiSuccess, setApiSuccess] = useState(null); // Added success state
+  const [apiSuccess, setApiSuccess] = useState(null); 
   const [form] = Form.useForm();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
@@ -40,7 +40,6 @@ const AdminBooks = () => {
     setLoading(true);
     axiosInstance.get(`/api/books?pageNum=${pageNum}&pageSize=${pageSize}`)
       .then(res => {
-        console.log('Books data:', res.data);
         setBooks(res.data.items);
         setPagination({
           current: res.data.pageNum,
@@ -60,7 +59,7 @@ const AdminBooks = () => {
       });
   };
 
-  // New function to handle book search
+  // Handle search functionality
   const searchBooks = (pageNum = 1, pageSize = 5) => {
     if (!searchTerm.trim()) {
       fetchBooks(pageNum, pageSize);
@@ -71,7 +70,6 @@ const AdminBooks = () => {
     setLoading(true);
     axiosInstance.get(`/api/books/search?searchTerm=${encodeURIComponent(searchTerm)}&pageNum=${pageNum}&pageSize=${pageSize}`)
       .then(res => {
-        console.log('Search results:', res.data);
         setBooks(res.data.items);
         setPagination({
           current: res.data.pageNum,
@@ -92,7 +90,7 @@ const AdminBooks = () => {
       });
   };
   
-  // New function to handle filtering books by category and availability
+  // Handle filtering books by category and availability
   const filterBooks = (pageNum = 1, pageSize = 5) => {
     setFilterLoading(true);
     setLoading(true);
@@ -109,7 +107,6 @@ const AdminBooks = () => {
     
     axiosInstance.get(url)
       .then(res => {
-        console.log('Filter results:', res.data);
         setBooks(res.data.items);
         setPagination({
           current: res.data.pageNum,
@@ -165,8 +162,6 @@ const AdminBooks = () => {
   const fetchCategories = () => {
     axiosInstance.get('/api/categories?pageSize=1000')
       .then(res => {
-        console.log('Categories response:', res.data); // Log the response to see its structure
-        // Make sure categories is always an array
         const categoriesData = Array.isArray(res.data) ? res.data : 
                               res.data.items ? res.data.items : [];
         setCategories(categoriesData);
@@ -184,7 +179,6 @@ const AdminBooks = () => {
     fetchCategories();
   }, []);
 
-  // Modify the existing page change handlers to use search when there's a search term
   const handlePageChange = (page, pageSize) => {
     if (searchTerm.trim()) {
       searchBooks(page, pageSize);
@@ -247,7 +241,7 @@ const AdminBooks = () => {
             
             setApiError({
               type: 'error',
-              message: errorMsg, // Use API's error message as the main message
+              message: errorMsg, 
               description: 'Please check your input and try again.'
             });
             
@@ -255,7 +249,6 @@ const AdminBooks = () => {
             setIsModalVisible(false);
           });
       } else {
-        // Edit existing book
         axiosInstance.put(`/api/books/${currentBook.id}`, values)
           .then(() => {
             setApiSuccess({
@@ -272,7 +265,7 @@ const AdminBooks = () => {
             
             setApiError({
               type: 'error',
-              message: errorMsg, // Use API's error message as the main message
+              message: errorMsg, 
               description: 'Please check your input and try again.'
             });
             
@@ -285,7 +278,6 @@ const AdminBooks = () => {
 
   // Handle book deletion - Modified to use custom modal
   const handleDelete = (bookId) => {
-    console.log('Delete button clicked for book ID:', bookId);
     setBookToDelete(bookId);
     setIsDeleteModalVisible(true);
   };
@@ -294,13 +286,9 @@ const AdminBooks = () => {
   const confirmDelete = () => {
     if (!bookToDelete) return;
     
-    console.log('OK button clicked, would delete book ID:', bookToDelete);
-    
-    // Check if we're about to delete the last item on the page
     const isLastItemOnPage = books.length === 1;
-    // Check if we're on the last page
     const isLastPage = pagination.current === pagination.totalPages;
-    // Determine which page to go to after deletion
+    // Determine which page to go to after deletion (last item on last page)
     const targetPage = (isLastItemOnPage && isLastPage && pagination.current > 1) 
       ? pagination.current - 1  // Go to previous page if deleting last item on last page
       : pagination.current;     // Otherwise stay on current page
@@ -314,7 +302,6 @@ const AdminBooks = () => {
           description: `Book "${deletedBook?.title || 'Selected book'}" has been removed from the database.`
         });
         
-        // If we deleted the last item on the last page, go to the new last page
         if (searchTerm.trim()) {
           searchBooks(targetPage, pagination.pageSize);
         } else if (isFilterApplied) {

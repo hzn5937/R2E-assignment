@@ -38,7 +38,6 @@ const Home = () => {
     setLoading(true);
     axiosInstance.get(`/api/books?pageNum=${pageNum}&pageSize=${pageSize}`)
       .then(res => {
-        console.log('Books data:', res.data);
         setBooks(res.data.items);
         setPagination({
           current: res.data.pageNum,
@@ -69,7 +68,6 @@ const Home = () => {
     setLoading(true);
     axiosInstance.get(`/api/books/search?searchTerm=${encodeURIComponent(searchTerm)}&pageNum=${pageNum}&pageSize=${pageSize}`)
       .then(res => {
-        console.log('Search results:', res.data);
         setBooks(res.data.items);
         setPagination({
           current: res.data.pageNum,
@@ -107,7 +105,6 @@ const Home = () => {
     
     axiosInstance.get(url)
       .then(res => {
-        console.log('Filter results:', res.data);
         setBooks(res.data.items);
         setPagination({
           current: res.data.pageNum,
@@ -163,8 +160,6 @@ const Home = () => {
   const fetchCategories = () => {
     axiosInstance.get('/api/categories?pageSize=1000')
       .then(res => {
-        console.log('Categories response:', res.data);
-        // Make sure categories is always an array
         const categoriesData = Array.isArray(res.data) ? res.data : 
                               res.data.items ? res.data.items : [];
         setCategories(categoriesData);
@@ -183,7 +178,6 @@ const Home = () => {
     setRequestsLoading(true);
     axiosInstance.get(`/api/requests/available/${user.id}`)
       .then(res => {
-        console.log('Available requests:', res.data);
         setAvailableRequests(res.data.availableRequests);
       })
       .catch(err => {
@@ -254,7 +248,6 @@ const Home = () => {
       // Send POST request to create a borrow request
       const response = await axiosInstance.post('/api/requests/create', payload);
       
-      console.log('Borrow response:', response.data);
       message.success(`Successfully requested ${selectedRowKeys.length} book(s)!`);
       
       // Clear selections after successful request

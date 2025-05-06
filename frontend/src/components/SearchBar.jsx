@@ -10,7 +10,6 @@ const SearchBar = ({
   searchLoading,
   placeholder = 'Search by title, author, or category...'
 }) => {
-  // Handle search input change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
