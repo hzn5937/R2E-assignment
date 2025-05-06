@@ -176,7 +176,7 @@ namespace LibraryManagement.Api.Test
         {
             // Arrange
             int year = 2024;
-            int invalidMonth = 13; // Invalid month
+            int invalidMonth = 13; 
 
             // Act
             var result = await _statisticController.GetMonthlyReport(year, invalidMonth);
@@ -185,7 +185,6 @@ namespace LibraryManagement.Api.Test
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
             var badRequestResult = result as BadRequestObjectResult;
             Assert.That(badRequestResult?.Value, Is.EqualTo("Invalid date. Year and month must be valid."));
-            // Service should not be called with invalid date parts before DateTime creation
             _mockStatisticService.Verify(s => s.GetMonthlyReportAsync(It.IsAny<DateTime>()), Times.Never);
         }
 
@@ -229,7 +228,6 @@ namespace LibraryManagement.Api.Test
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
             var badRequestResult = result as BadRequestObjectResult;
             Assert.That(badRequestResult?.Value, Is.EqualTo("Invalid date range. Year and month must be valid."));
-            // Service should not be called with invalid date parts before DateTime creation
             _mockStatisticService.Verify(s => s.GetMonthlyReportsRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Never);
         }
 
@@ -263,7 +261,7 @@ namespace LibraryManagement.Api.Test
         {
             // Arrange
             int year = 2024;
-            int invalidMonth = 0; // Invalid month
+            int invalidMonth = 0; 
 
             // Act
             var result = await _statisticController.ExportMonthlyReport(year, invalidMonth);
@@ -306,7 +304,7 @@ namespace LibraryManagement.Api.Test
         {
             // Arrange
             int startYear = 2024, startMonth = 1;
-            int endYear = 2023, endMonth = 13; // Invalid end month and end year < start year (DateTime handles this check, but we test the controller entry)
+            int endYear = 2023, endMonth = 13;
 
             // Act
             var result = await _statisticController.ExportMonthlyReportsRange(startYear, startMonth, endYear, endMonth);

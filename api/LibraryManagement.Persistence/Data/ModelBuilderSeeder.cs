@@ -2,8 +2,6 @@
 using LibraryManagement.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System; // Add this for DateTime
-using System.Collections.Generic; // Add this for List<>
 
 namespace LibraryManagement.Persistence.Data
 {

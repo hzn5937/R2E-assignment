@@ -1,14 +1,10 @@
 ﻿using Moq;
-using NUnit.Framework;
 using LibraryManagement.Api.Controllers;
 using LibraryManagement.Application.Interfaces;
 using LibraryManagement.Application.DTOs.UserManagement;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using LibraryManagement.Application.Extensions.Exceptions; // Assuming NotFoundException might be used
-using LibraryManagement.Domain.Enums; // Assuming UserRole might be needed for DTOs
+using LibraryManagement.Application.Extensions.Exceptions; 
+using LibraryManagement.Domain.Enums;
 
 namespace LibraryManagement.Api.Test
 {

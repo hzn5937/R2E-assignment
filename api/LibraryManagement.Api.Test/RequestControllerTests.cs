@@ -112,7 +112,7 @@ namespace LibraryManagement.Api.Test
         {
             // Arrange
             var createDto = new CreateRequestDto { UserId = 1, BookIds = new List<int> { 1 } };
-            _mockRequestService.Setup(s => s.CreateRequestAsync(createDto)).ReturnsAsync((RequestDetailOutputDto)null); // Service returns null if limit reached
+            _mockRequestService.Setup(s => s.CreateRequestAsync(createDto)).ReturnsAsync((RequestDetailOutputDto)null); 
 
             // Act
             var result = await _requestController.CreateRequest(createDto);
@@ -120,7 +120,7 @@ namespace LibraryManagement.Api.Test
             // Assert
             Assert.IsInstanceOf<ObjectResult>(result);
             var objectResult = result as ObjectResult;
-            Assert.AreEqual(StatusCodes.Status429TooManyRequests, objectResult.StatusCode); // Check for 429
+            Assert.AreEqual(StatusCodes.Status429TooManyRequests, objectResult.StatusCode); 
             Assert.AreEqual($"User with ID {createDto.UserId} has reached the maximum number of requests for this month!", objectResult.Value);
             _mockRequestService.Verify(s => s.CreateRequestAsync(createDto), Times.Once);
         }
@@ -211,7 +211,7 @@ namespace LibraryManagement.Api.Test
             int requestId = 99;
             var updateDto = new UpdateRequestDto { AdminId = 1, Status = RequestStatus.Approved };
             _mockRequestService.Setup(s => s.UpdateRequestAsync(requestId, updateDto))
-                               .ThrowsAsync(new NotFoundException("Request not found."));
+                .ThrowsAsync(new NotFoundException("Request not found."));
 
             // Act & Assert
             Assert.ThrowsAsync<NotFoundException>(async () => await _requestController.UpdateRequest(requestId, updateDto));
@@ -225,7 +225,7 @@ namespace LibraryManagement.Api.Test
             int requestId = 1;
             var updateDto = new UpdateRequestDto { AdminId = 1, Status = RequestStatus.Approved };
             _mockRequestService.Setup(s => s.UpdateRequestAsync(requestId, updateDto))
-                               .ThrowsAsync(new ConflictException("Request already processed."));
+                .ThrowsAsync(new ConflictException("Request already processed."));
 
             // Act & Assert
             Assert.ThrowsAsync<ConflictException>(async () => await _requestController.UpdateRequest(requestId, updateDto));
@@ -236,28 +236,28 @@ namespace LibraryManagement.Api.Test
         public async Task GetAllRequests_RequestsFound_ReturnsOkResultWithPaginatedData()
         {
             // Arrange
-            string status = RequestStatus.Waiting.ToString(); // Example status
+            string status = RequestStatus.Waiting.ToString(); 
             int pageNum = 1;
             int pageSize = 10;
-            var requestDetails = new List<RequestDetailOutputDto> //
+            var requestDetails = new List<RequestDetailOutputDto> 
             {
                 new RequestDetailOutputDto { Id = 1, Requestor = "User One", Status = status, RequestedDate = DateTime.UtcNow, Books = new List<BookInformation>() },
                 new RequestDetailOutputDto { Id = 2, Requestor = "User Two", Status = status, RequestedDate = DateTime.UtcNow.AddDays(-1), Books = new List<BookInformation>() }
             };
-            var paginatedResult = new PaginatedOutputDto<RequestDetailOutputDto> //
+            var paginatedResult = new PaginatedOutputDto<RequestDetailOutputDto> 
             {
                 Items = requestDetails,
                 PageNum = pageNum,
                 PageSize = pageSize,
-                TotalCount = 50, // Example total count
-                TotalPage = 5 // Example total pages
+                TotalCount = 50, 
+                TotalPage = 5
             };
 
-            _mockRequestService.Setup(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize)) //
-                               .ReturnsAsync(paginatedResult);
+            _mockRequestService.Setup(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize)) 
+                .ReturnsAsync(paginatedResult);
 
             // Act
-            var result = await _requestController.GetAllRequests(status, pageNum, pageSize); //
+            var result = await _requestController.GetAllRequests(status, pageNum, pageSize); 
 
             // Assert
             Assert.IsInstanceOf<OkObjectResult>(result);
@@ -271,9 +271,9 @@ namespace LibraryManagement.Api.Test
         public async Task GetAllRequests_RequestsFoundWithDefaultParams_ReturnsOkResultWithPaginatedData()
         {
             // Arrange
-            string? status = null; // Test with null status
-            int pageNum = Constants.DefaultPageNum; //
-            int pageSize = Constants.DefaultPageSize; //
+            string? status = null; 
+            int pageNum = Constants.DefaultPageNum; 
+            int pageSize = Constants.DefaultPageSize;
             var requestDetails = new List<RequestDetailOutputDto>
             {
                 new RequestDetailOutputDto { Id = 3, Requestor = "User Three", Status = RequestStatus.Approved.ToString(), RequestedDate = DateTime.UtcNow, Books = new List<BookInformation>() }
@@ -288,11 +288,10 @@ namespace LibraryManagement.Api.Test
             };
 
             _mockRequestService.Setup(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize))
-                               .ReturnsAsync(paginatedResult);
+                .ReturnsAsync(paginatedResult);
 
             // Act
-            // Call without optional parameters to test defaults
-            var result = await _requestController.GetAllRequests(status); //
+            var result = await _requestController.GetAllRequests(status); 
 
             // Assert
             Assert.IsInstanceOf<OkObjectResult>(result);
@@ -311,16 +310,16 @@ namespace LibraryManagement.Api.Test
             int pageSize = 5;
 
             _mockRequestService.Setup(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize))
-                               .ReturnsAsync((PaginatedOutputDto<RequestDetailOutputDto>)null); // Service returns null
+                .ReturnsAsync((PaginatedOutputDto<RequestDetailOutputDto>)null); 
 
             // Act
-            var result = await _requestController.GetAllRequests(status, pageNum, pageSize); //
+            var result = await _requestController.GetAllRequests(status, pageNum, pageSize); 
 
             // Assert
             Assert.IsInstanceOf<NotFoundObjectResult>(result);
             var notFoundResult = result as NotFoundObjectResult;
             Assert.IsNotNull(notFoundResult.Value);
-            Assert.AreEqual("Failed to load request details.", notFoundResult.Value); //
+            Assert.AreEqual("Failed to load request details.", notFoundResult.Value); 
             _mockRequestService.Verify(s => s.GetAllRequestDetailsAsync(status, pageNum, pageSize), Times.Once);
         }
 
@@ -362,7 +361,7 @@ namespace LibraryManagement.Api.Test
             int requestId = 1;
             var returnBookRequestDto = new ReturnBookRequestDto
             {
-                RequestId = 2  // Different from the requestId parameter
+                RequestId = 2 
             };
 
             // Act
@@ -372,7 +371,6 @@ namespace LibraryManagement.Api.Test
             Assert.IsInstanceOf<BadRequestObjectResult>(result);
             var badRequestResult = result as BadRequestObjectResult;
             Assert.AreEqual("Request ID in the URL does not match the request ID in the body.", badRequestResult.Value);
-            // Verify service was not called since validation failed
             _mockRequestService.Verify(s => s.ReturnBooksAsync(It.IsAny<ReturnBookRequestDto>()), Times.Never);
         }
 
@@ -461,7 +459,7 @@ namespace LibraryManagement.Api.Test
             // Arrange
             int userId = 99;
             _mockRequestService.Setup(s => s.GetAvailableRequestsAsync(userId))
-                              .ThrowsAsync(new NotFoundException($"User with ID {userId} not found."));
+                .ThrowsAsync(new NotFoundException($"User with ID {userId} not found."));
 
             // Act & Assert
             Assert.ThrowsAsync<NotFoundException>(async () => await _requestController.GetNumberOfAvailableRequests(userId));

@@ -132,7 +132,6 @@ namespace LibraryManagement.Application.Test
         public async Task RefreshAsync_WithValidUserAndTokenData_ShouldCallUserRepositoryUpdateWithNewToken()
         {
             // Arrange
-            // Simulate the state AFTER GetTokenPrincipal successfully extracted the username
             var usernameFromExpiredToken = "testuser";
             var validRefreshTokenInDb = "valid-refresh-token-in-db";
             var requestDto = new RefreshRequestDto { AccessToken = "structurally-valid-but-expired-token", RefreshToken = validRefreshTokenInDb };
@@ -164,7 +163,6 @@ namespace LibraryManagement.Application.Test
             }
             catch (Exception ex)
             {
-                // Catch any other unexpected exceptions
                 Assert.Fail($"RefreshAsync threw an unexpected exception: {ex.Message}");
                 return;
             }
@@ -174,9 +172,6 @@ namespace LibraryManagement.Application.Test
             Assert.AreEqual(usernameFromExpiredToken, result.Username);
             Assert.IsNotEmpty(result.AccessToken);
             Assert.AreNotEqual(validRefreshTokenInDb, result.RefreshToken, "A new refresh token should have been generated and returned.");
-
-            // Verify that UpdateAsync was called with the correct user ID,
-            // a NEW refresh token, and a NEW expiry time.
             _mockUserRepository.Verify(repo => repo.UpdateAsync(
                 It.Is<User>(u =>
                     u.Id == userFromDb.Id &&
@@ -209,13 +204,11 @@ namespace LibraryManagement.Application.Test
         public async Task RefreshAsync_WhenRefreshTokenMismatch_ReturnsNull()
         {
             // Arrange
-            // Assume GetTokenPrincipal returned "testuser"
             var usernameFromExpiredToken = "testuser";
             var userRefreshToken = "correct-refresh-token";
             var requestRefreshToken = "incorrect-refresh-token";
             var refreshDto = new RefreshRequestDto { AccessToken = "expired-token-string", RefreshToken = requestRefreshToken };
             var user = new User { Id = 1, Username = usernameFromExpiredToken, RefreshToken = userRefreshToken, RefreshTokenExpiryTime = DateTime.UtcNow.AddHours(1) };
-
             _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(usernameFromExpiredToken, It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
             // Act
@@ -230,11 +223,9 @@ namespace LibraryManagement.Application.Test
         public async Task RefreshAsync_WhenRefreshTokenExpired_ReturnsNull()
         {
             // Arrange
-            // Assume GetTokenPrincipal returned "testuser"
             var usernameFromExpiredToken = "testuser";
             var expiredRefreshToken = "expired-refresh-token";
             var refreshDto = new RefreshRequestDto { AccessToken = "expired-token-string", RefreshToken = expiredRefreshToken };
-            // Representing an user with an expired refresh token
             var user = new User 
             { 
                 Id = 1, 
@@ -242,7 +233,6 @@ namespace LibraryManagement.Application.Test
                 RefreshToken = expiredRefreshToken, 
                 RefreshTokenExpiryTime = DateTime.UtcNow.AddHours(-1) 
             }; 
-
             _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(usernameFromExpiredToken, It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
             // Act
@@ -257,38 +247,29 @@ namespace LibraryManagement.Application.Test
         public async Task RefreshAsync_WithValidTokensAndUser_ReturnsNewTokensAndUpdatesUser()
         {
             // Arrange
-            var userId = 1; // Use int for ID
+            var userId = 1; 
             var username = "testuser";
             var existingValidRefreshToken = "valid-refresh-token";
             var userRole = UserRole.User;
-
-            // Create a user object that the repository will return
             var userFromDb = new User
             {
                 Id = userId, // Use int ID
                 Username = username,
                 Role = userRole,
-                PasswordHash = "hashedpassword", // Not relevant for refresh, but needed for object state
+                PasswordHash = "hashedpassword", 
                 RefreshToken = existingValidRefreshToken,
-                RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1) // Ensure token is not expired
+                RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1) 
             };
-
-            // Generate a structurally valid Access Token
             var accessToken = _authService.GenerateAccessToken(userFromDb);
-
             var refreshRequestDto = new RefreshRequestDto
             {
                 AccessToken = accessToken,
                 RefreshToken = existingValidRefreshToken
             };
-
-            // Setup repository mock to return the user when queried by username
             _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(username, It.IsAny<CancellationToken>()))
-                               .ReturnsAsync(userFromDb);
-
-            // Setup repository mock for the update operation
+                .ReturnsAsync(userFromDb);
             _mockUserRepository.Setup(repo => repo.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
-                               .Returns(Task.CompletedTask);
+                .Returns(Task.CompletedTask);
 
             // Act
             var result = await _authService.RefreshAsync(refreshRequestDto);
@@ -296,14 +277,12 @@ namespace LibraryManagement.Application.Test
             // Assert
             Assert.IsNotNull(result);
             Assert.AreEqual(username, result.Username);
-            Assert.AreEqual(userId, result.Id); // Assert int ID
+            Assert.AreEqual(userId, result.Id); 
             Assert.AreEqual(userRole, result.Role);
             Assert.IsNotEmpty(result.AccessToken);
             Assert.IsNotEmpty(result.RefreshToken);
             Assert.AreNotEqual(existingValidRefreshToken, result.RefreshToken, "New refresh token should be different.");
             Assert.IsTrue(result.RefreshTokenExpires > DateTime.UtcNow.AddDays(Constants.RefreshTokenExpirationDays - 1), "New refresh token expiry should be in the future.");
-
-            // Verify repository interactions
             _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(username, It.IsAny<CancellationToken>()), Times.Once);
             _mockUserRepository.Verify(repo => repo.UpdateAsync(
                 It.Is<User>(u =>
@@ -322,31 +301,23 @@ namespace LibraryManagement.Application.Test
             // Arrange
             var username = "nonexistentuser";
             var userRole = UserRole.User;
-            var userId = 99; // Use int ID
-
-            // Create a dummy user just for generating the token structure
+            var userId = 99; 
             var dummyUserForToken = new User { Id = userId, Username = username, Role = userRole }; // Use int ID
             var accessToken = _authService.GenerateAccessToken(dummyUserForToken); // Token contains 'nonexistentuser'
-
             var refreshRequestDto = new RefreshRequestDto
             {
                 AccessToken = accessToken,
                 RefreshToken = "any-refresh-token"
             };
-
-            // Setup repository mock to return null (user not found)
             _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(username, It.IsAny<CancellationToken>()))
-                               .ReturnsAsync((User)null);
+                .ReturnsAsync((User)null);
 
             // Act
             var result = await _authService.RefreshAsync(refreshRequestDto);
 
             // Assert
             Assert.IsNull(result);
-
-            // Verify repository interactions
             _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(username, It.IsAny<CancellationToken>()), Times.Once);
-            // Update should NOT be called if the user is not found
             _mockUserRepository.Verify(repo => repo.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -354,48 +325,42 @@ namespace LibraryManagement.Application.Test
         public async Task RefreshAsync_WhenRefreshTokenMismatch_ReturnsNullAndInvalidatesUserToken()
         {
             // Arrange
-            var userId = 2; // Use int ID
+            var userId = 2; 
             var username = "testuser";
             var correctRefreshToken = "correct-refresh-token";
-            var incorrectRefreshToken = "incorrect-refresh-token"; // The one sent in the request
+            var incorrectRefreshToken = "incorrect-refresh-token"; 
             var userRole = UserRole.User;
-
             var userFromDb = new User
             {
-                Id = userId, // Use int ID
+                Id = userId, 
                 Username = username,
                 Role = userRole,
                 PasswordHash = "hashedpassword",
-                RefreshToken = correctRefreshToken, // The token stored in DB
+                RefreshToken = correctRefreshToken, 
                 RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1)
             };
-
             var accessToken = _authService.GenerateAccessToken(userFromDb);
-
             var refreshRequestDto = new RefreshRequestDto
             {
                 AccessToken = accessToken,
                 RefreshToken = incorrectRefreshToken // Send the wrong token
             };
-
             _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(username, It.IsAny<CancellationToken>()))
-                               .ReturnsAsync(userFromDb);
+                .ReturnsAsync(userFromDb);
             _mockUserRepository.Setup(repo => repo.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
-                              .Returns(Task.CompletedTask); // Expect UpdateAsync to be called to invalidate
+                .Returns(Task.CompletedTask); 
 
             // Act
             var result = await _authService.RefreshAsync(refreshRequestDto);
 
             // Assert
             Assert.IsNull(result);
-
-            // Verify repository interactions
             _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(username, It.IsAny<CancellationToken>()), Times.Once);
             _mockUserRepository.Verify(repo => repo.UpdateAsync(
                 It.Is<User>(u =>
-                    u.Id == userId && // Check int ID
-                    u.RefreshToken == null && // Check that the token was invalidated (set to null)
-                    u.RefreshTokenExpiryTime < DateTime.UtcNow // Check that expiry time is in the past
+                    u.Id == userId && 
+                    u.RefreshToken == null && 
+                    u.RefreshTokenExpiryTime < DateTime.UtcNow 
                 ),
                 It.IsAny<CancellationToken>()),
                 Times.Once,
@@ -406,47 +371,41 @@ namespace LibraryManagement.Application.Test
         public async Task RefreshAsync_WhenRefreshTokenExpired_ReturnsNullAndInvalidatesUserToken()
         {
             // Arrange
-            var userId = 3; // Use int ID
+            var userId = 3; 
             var username = "testuser";
             var expiredRefreshToken = "expired-refresh-token";
             var userRole = UserRole.User;
-
             var userFromDb = new User
             {
-                Id = userId, // Use int ID
+                Id = userId, 
                 Username = username,
                 Role = userRole,
                 PasswordHash = "hashedpassword",
                 RefreshToken = expiredRefreshToken,
-                RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(-10) // Token expired 10 minutes ago
+                RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(-1) 
             };
-
             var accessToken = _authService.GenerateAccessToken(userFromDb);
-
             var refreshRequestDto = new RefreshRequestDto
             {
                 AccessToken = accessToken,
-                RefreshToken = expiredRefreshToken // Send the expired token
+                RefreshToken = expiredRefreshToken 
             };
-
             _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(username, It.IsAny<CancellationToken>()))
-                              .ReturnsAsync(userFromDb);
+                .ReturnsAsync(userFromDb);
             _mockUserRepository.Setup(repo => repo.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
-                              .Returns(Task.CompletedTask); // Expect UpdateAsync to be called to invalidate
+                .Returns(Task.CompletedTask); 
 
             // Act
             var result = await _authService.RefreshAsync(refreshRequestDto);
 
             // Assert
             Assert.IsNull(result);
-
-            // Verify repository interactions
             _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(username, It.IsAny<CancellationToken>()), Times.Once);
             _mockUserRepository.Verify(repo => repo.UpdateAsync(
                It.Is<User>(u =>
-                   u.Id == userId && // Check int ID
-                   u.RefreshToken == null && // Check that the token was invalidated
-                   u.RefreshTokenExpiryTime < userFromDb.RefreshTokenExpiryTime // Check expiry is further in the past
+                   u.Id == userId && 
+                   u.RefreshToken == null && 
+                   u.RefreshTokenExpiryTime < userFromDb.RefreshTokenExpiryTime 
                ),
                It.IsAny<CancellationToken>()), Times.Never);
         }
@@ -455,7 +414,7 @@ namespace LibraryManagement.Application.Test
         public async Task LogoutAsync_WhenUserExists_InvalidatesTokenAndReturnsTrue()
         {
             // Arrange
-            var userId = 4; // Use int ID
+            var userId = 4;
             var username = "testuser";
             var user = new User { Id = userId, Username = username, RefreshToken = "some-token", RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1) };
             _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(username, It.IsAny<CancellationToken>())).ReturnsAsync(user);
@@ -468,7 +427,7 @@ namespace LibraryManagement.Application.Test
             Assert.IsTrue(result);
             _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(username, It.IsAny<CancellationToken>()), Times.Once);
             _mockUserRepository.Verify(repo => repo.UpdateAsync(
-                It.Is<User>(u => u.Id == userId && u.RefreshToken == null && u.RefreshTokenExpiryTime < DateTime.UtcNow), // Check int ID
+                It.Is<User>(u => u.Id == userId && u.RefreshToken == null && u.RefreshTokenExpiryTime < DateTime.UtcNow),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
 

@@ -1,6 +1,5 @@
 ﻿using LibraryManagement.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManagement.Api.Controllers
@@ -67,7 +66,6 @@ namespace LibraryManagement.Api.Controllers
             return Ok(bookCount);
         }
 
-        // New endpoints for monthly reports
         [HttpGet("monthly-report")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetMonthlyReport([FromQuery] int year, [FromQuery] int month)
@@ -103,7 +101,6 @@ namespace LibraryManagement.Api.Controllers
             }
         }
 
-        // Excel export endpoints
         [HttpGet("export/monthly-report")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ExportMonthlyReport([FromQuery] int year, [FromQuery] int month)

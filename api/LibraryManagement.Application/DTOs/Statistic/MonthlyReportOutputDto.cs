@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace LibraryManagement.Application.DTOs.Statistic
 {
     public class MonthlyReportOutputDto

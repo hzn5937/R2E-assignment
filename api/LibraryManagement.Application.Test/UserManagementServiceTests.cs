@@ -14,14 +14,14 @@ namespace LibraryManagement.Application.Test
     {
         private Mock<IUserRepository> _mockUserRepository;
         private UserManagementService _userManagementService;
-        private PasswordHasher<User> _hasher; // Used for verification if needed, not mocked
+        private PasswordHasher<User> _hasher; 
 
         [SetUp]
         public void Setup()
         {
             _mockUserRepository = new Mock<IUserRepository>();
             _userManagementService = new UserManagementService(_mockUserRepository.Object);
-            _hasher = new PasswordHasher<User>(); // Instantiate for potential verification
+            _hasher = new PasswordHasher<User>();x
         }
 
         private List<User> GetMockUsers()
@@ -110,24 +110,21 @@ namespace LibraryManagement.Application.Test
                 Password = "password123",
                 Role = UserRole.User
             };
-
             _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(createUserDto.Username, It.IsAny<CancellationToken>())).ReturnsAsync((User)null);
             _mockUserRepository.Setup(repo => repo.GetByEmailAsync(createUserDto.Email, It.IsAny<CancellationToken>())).ReturnsAsync((User)null);
             _mockUserRepository.Setup(repo => repo.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
-                               .Callback<User, CancellationToken>((user, ct) => user.Id = 10) // Simulate ID assignment on add
-                               .Returns(Task.CompletedTask);
+                .Callback<User, CancellationToken>((user, ct) => user.Id = 10) 
+                .Returns(Task.CompletedTask);
 
             // Act
             var result = await _userManagementService.CreateUserAsync(createUserDto);
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(10, result.Id); // Check simulated ID
+            Assert.AreEqual(10, result.Id); 
             Assert.AreEqual(createUserDto.Username, result.Username);
             Assert.AreEqual(createUserDto.Email, result.Email);
             Assert.AreEqual(createUserDto.Role, result.Role);
-
-            // Verify repository interactions
             _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(createUserDto.Username, It.IsAny<CancellationToken>()), Times.Once);
             _mockUserRepository.Verify(repo => repo.GetByEmailAsync(createUserDto.Email, It.IsAny<CancellationToken>()), Times.Once);
             _mockUserRepository.Verify(repo => repo.AddAsync(
@@ -135,7 +132,7 @@ namespace LibraryManagement.Application.Test
                     u.Username == createUserDto.Username &&
                     u.Email == createUserDto.Email &&
                     u.Role == createUserDto.Role &&
-                    !string.IsNullOrEmpty(u.PasswordHash) // Check password was hashed
+                    !string.IsNullOrEmpty(u.PasswordHash) 
                 ),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -146,13 +143,11 @@ namespace LibraryManagement.Application.Test
             // Arrange
             var createUserDto = new CreateUserDto { Username = "existinguser", Email = "new@test.com", Password = "password123", Role = UserRole.User };
             var existingUser = new User { Id = 1, Username = "existinguser", Email = "old@test.com" };
-
             _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(createUserDto.Username, It.IsAny<CancellationToken>())).ReturnsAsync(existingUser);
 
             // Act & Assert
             var ex = Assert.ThrowsAsync<ConflictException>(() => _userManagementService.CreateUserAsync(createUserDto));
             Assert.That(ex.Message, Is.EqualTo("Username is already taken"));
-
             _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(createUserDto.Username, It.IsAny<CancellationToken>()), Times.Once);
             _mockUserRepository.Verify(repo => repo.GetByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
             _mockUserRepository.Verify(repo => repo.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -164,14 +159,12 @@ namespace LibraryManagement.Application.Test
             // Arrange
             var createUserDto = new CreateUserDto { Username = "newuser", Email = "existing@test.com", Password = "password123", Role = UserRole.User };
             var existingUser = new User { Id = 1, Username = "anotheruser", Email = "existing@test.com" };
-
             _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(createUserDto.Username, It.IsAny<CancellationToken>())).ReturnsAsync((User)null);
             _mockUserRepository.Setup(repo => repo.GetByEmailAsync(createUserDto.Email, It.IsAny<CancellationToken>())).ReturnsAsync(existingUser);
 
             // Act & Assert
             var ex = Assert.ThrowsAsync<ConflictException>(() => _userManagementService.CreateUserAsync(createUserDto));
             Assert.That(ex.Message, Is.EqualTo("Email is already registered"));
-
             _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(createUserDto.Username, It.IsAny<CancellationToken>()), Times.Once);
             _mockUserRepository.Verify(repo => repo.GetByEmailAsync(createUserDto.Email, It.IsAny<CancellationToken>()), Times.Once);
             _mockUserRepository.Verify(repo => repo.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -187,13 +180,11 @@ namespace LibraryManagement.Application.Test
                 Username = "updateduser",
                 Email = "updated@test.com",
                 Role = UserRole.Admin,
-                Password = null // No password change
+                Password = null 
             };
             var existingUser = GetMockUsers().First(u => u.Id == userId);
             var originalPasswordHash = existingUser.PasswordHash;
-
             _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(userId)).ReturnsAsync(existingUser);
-            // Assume new username is unique or same as old one initially
             _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(updateUserDto.Username, It.IsAny<CancellationToken>())).ReturnsAsync((User)null);
             _mockUserRepository.Setup(repo => repo.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
@@ -206,16 +197,15 @@ namespace LibraryManagement.Application.Test
             Assert.AreEqual(updateUserDto.Username, result.Username);
             Assert.AreEqual(updateUserDto.Email, result.Email);
             Assert.AreEqual(updateUserDto.Role, result.Role);
-
             _mockUserRepository.Verify(repo => repo.GetUserByIdAsync(userId), Times.Once);
-            _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(updateUserDto.Username, It.IsAny<CancellationToken>()), Times.Once); // Check for username conflict is called
+            _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(updateUserDto.Username, It.IsAny<CancellationToken>()), Times.Once); 
             _mockUserRepository.Verify(repo => repo.UpdateAsync(
                 It.Is<User>(u =>
                     u.Id == userId &&
                     u.Username == updateUserDto.Username &&
                     u.Email == updateUserDto.Email &&
                     u.Role == updateUserDto.Role &&
-                    u.PasswordHash == originalPasswordHash // Password hash should NOT change
+                    u.PasswordHash == originalPasswordHash 
                 ),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -230,11 +220,10 @@ namespace LibraryManagement.Application.Test
                 Username = "updateduser",
                 Email = "updated@test.com",
                 Role = UserRole.Admin,
-                Password = "newpassword123" // Password change
+                Password = "newpassword123"
             };
             var existingUser = GetMockUsers().First(u => u.Id == userId);
             var originalPasswordHash = existingUser.PasswordHash;
-
             _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(userId)).ReturnsAsync(existingUser);
             _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(updateUserDto.Username, It.IsAny<CancellationToken>())).ReturnsAsync((User)null);
             _mockUserRepository.Setup(repo => repo.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
@@ -248,7 +237,6 @@ namespace LibraryManagement.Application.Test
             Assert.AreEqual(updateUserDto.Username, result.Username);
             Assert.AreEqual(updateUserDto.Email, result.Email);
             Assert.AreEqual(updateUserDto.Role, result.Role);
-
             _mockUserRepository.Verify(repo => repo.GetUserByIdAsync(userId), Times.Once);
             _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(updateUserDto.Username, It.IsAny<CancellationToken>()), Times.Once);
             _mockUserRepository.Verify(repo => repo.UpdateAsync(
@@ -257,8 +245,8 @@ namespace LibraryManagement.Application.Test
                     u.Username == updateUserDto.Username &&
                     u.Email == updateUserDto.Email &&
                     u.Role == updateUserDto.Role &&
-                    u.PasswordHash != originalPasswordHash && // Password hash SHOULD change
-                    _hasher.VerifyHashedPassword(u, u.PasswordHash, updateUserDto.Password) == PasswordVerificationResult.Success // Verify new hash matches new password
+                    u.PasswordHash != originalPasswordHash && 
+                    _hasher.VerifyHashedPassword(u, u.PasswordHash, updateUserDto.Password) == PasswordVerificationResult.Success 
                 ),
                 It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -271,15 +259,12 @@ namespace LibraryManagement.Application.Test
             var existingUser = GetMockUsers().First(u => u.Id == userId);
             var updateUserDto = new UpdateUserDto
             {
-                Username = existingUser.Username, // Keep username the same
+                Username = existingUser.Username, 
                 Email = "updated@test.com",
                 Role = UserRole.Admin,
                 Password = null
             };
-
             _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(userId)).ReturnsAsync(existingUser);
-            // No need to mock GetByUsernameAsync as it shouldn't be called in this specific path
-
             _mockUserRepository.Setup(repo => repo.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
             // Act
@@ -287,7 +272,6 @@ namespace LibraryManagement.Application.Test
 
             // Assert
             _mockUserRepository.Verify(repo => repo.GetUserByIdAsync(userId), Times.Once);
-            // Crucially, verify GetByUsernameAsync was *not* called because username didn't change
             _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
             _mockUserRepository.Verify(repo => repo.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -304,7 +288,6 @@ namespace LibraryManagement.Application.Test
             // Act & Assert
             var ex = Assert.ThrowsAsync<NotFoundException>(() => _userManagementService.UpdateUserAsync(userId, updateUserDto));
             Assert.That(ex.Message, Is.EqualTo($"User with ID {userId} not found"));
-
             _mockUserRepository.Verify(repo => repo.GetUserByIdAsync(userId), Times.Once);
             _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
             _mockUserRepository.Verify(repo => repo.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -317,20 +300,14 @@ namespace LibraryManagement.Application.Test
             int userIdToUpdate = 1;
             int conflictingUserId = 2;
             var updateUserDto = new UpdateUserDto { Username = "conflictinguser", Email = "updated@test.com", Role = UserRole.Admin };
-            var userToUpdate = GetMockUsers().First(u => u.Id == userIdToUpdate); // User with ID 1
-            var conflictingUser = GetMockUsers().First(u => u.Id == conflictingUserId); // User with ID 2, we'll pretend their username is "conflictinguser"
-
-            // Simulate GetUserByIdAsync returning the user we intend to update
+            var userToUpdate = GetMockUsers().First(u => u.Id == userIdToUpdate); 
+            var conflictingUser = GetMockUsers().First(u => u.Id == conflictingUserId); 
             _mockUserRepository.Setup(repo => repo.GetUserByIdAsync(userIdToUpdate)).ReturnsAsync(userToUpdate);
-
-            // Simulate GetByUsernameAsync returning the *other* user who already has the target username
             _mockUserRepository.Setup(repo => repo.GetByUsernameAsync(updateUserDto.Username, It.IsAny<CancellationToken>())).ReturnsAsync(conflictingUser);
-
 
             // Act & Assert
             var ex = Assert.ThrowsAsync<ConflictException>(() => _userManagementService.UpdateUserAsync(userIdToUpdate, updateUserDto));
             Assert.That(ex.Message, Is.EqualTo("Username is already taken"));
-
             _mockUserRepository.Verify(repo => repo.GetUserByIdAsync(userIdToUpdate), Times.Once);
             _mockUserRepository.Verify(repo => repo.GetByUsernameAsync(updateUserDto.Username, It.IsAny<CancellationToken>()), Times.Once);
             _mockUserRepository.Verify(repo => repo.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -347,11 +324,10 @@ namespace LibraryManagement.Application.Test
             var result = await _userManagementService.DeleteUserAsync(userId);
 
             // Assert
-            Assert.IsTrue(result); // Service method currently returns true
+            Assert.IsTrue(result); 
             _mockUserRepository.Verify(repo => repo.DeleteAsync(userId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
-        // Optional: Test the case where DeleteAsync might throw (though the service catches nothing)
         [Test]
         public void DeleteUserAsync_WhenRepositoryThrows_ExceptionPropagates()
         {

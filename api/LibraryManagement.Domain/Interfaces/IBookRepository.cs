@@ -9,7 +9,6 @@ namespace LibraryManagement.Domain.Interfaces
         Task<Book> CreateAsync(Book book);
         Task<Book> UpdateAsync(Book book);
         Task DeleteAsync(Book book);
-
         Task<Book?> GetByTitleAndAuthorAsync(string title, string author);
     }
 }

@@ -1,7 +1,5 @@
-﻿using LibraryManagement.Application.DTOs.Category;
-using LibraryManagement.Application.DTOs.Common;
+﻿using LibraryManagement.Application.DTOs.Common;
 using LibraryManagement.Application.DTOs.Request;
-using LibraryManagement.Application.DTOs.Statistic;
 using LibraryManagement.Application.Extensions;
 using LibraryManagement.Application.Extensions.Exceptions;
 using LibraryManagement.Application.Interfaces;
