@@ -10,7 +10,7 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
-    pageSize: 10,
+    pageSize: 5,
     total: 0,
     totalPages: 0,
     hasNext: false,
@@ -27,7 +27,7 @@ const AdminUsers = () => {
   const { user: currentAuthUser } = useAuth();
 
   // Fetch users with pagination
-  const fetchUsers = (pageNum = 1, pageSize = 10) => {
+  const fetchUsers = (pageNum = 1, pageSize = 5) => {
     setLoading(true);
     axiosInstance.get(`/api/admin/users?pageNum=${pageNum}&pageSize=${pageSize}`)
       .then(res => {

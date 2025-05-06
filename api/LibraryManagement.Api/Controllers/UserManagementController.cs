@@ -1,5 +1,6 @@
 using LibraryManagement.Application.DTOs.UserManagement;
 using LibraryManagement.Application.Interfaces;
+using LibraryManagement.Domain.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,9 +19,9 @@ namespace LibraryManagement.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllUsers(CancellationToken ct)
+        public async Task<IActionResult> GetAllUsers([FromQuery] int pageNum = Constants.DefaultPageNum, [FromQuery] int pageSize = Constants.DefaultPageSize, CancellationToken ct = default)
         {
-            var users = await _userManagementService.GetAllUsersAsync(ct);
+            var users = await _userManagementService.GetAllUsersAsync(pageNum, pageSize, ct);
             return Ok(users);
         }
 

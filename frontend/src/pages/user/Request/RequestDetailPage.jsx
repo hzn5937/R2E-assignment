@@ -19,17 +19,14 @@ const RequestDetailPage = () => {
   useEffect(() => {
     const fetchRequestDetails = async () => {
       // Log the ID for debugging
-      console.log('Fetching request details for ID:', actualId);
       
       try {
         setLoading(true);
         
         // Log the API URL for debugging
         const apiUrl = `/api/requests/${actualId}/details`;
-        console.log('API URL:', apiUrl);
         
         const response = await axiosInstance.get(apiUrl);
-        console.log('API Response:', response.data);
         
         setRequestDetails(response.data);
         setError(null);
@@ -103,7 +100,6 @@ const RequestDetailPage = () => {
         payload
       );
 
-      console.log('Return response:', response.data);
       message.success('Books returned successfully!');
       
       // Update the request details with the new status and return date
