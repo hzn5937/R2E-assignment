@@ -67,6 +67,7 @@ namespace LibraryManagement.Application.Services
 
         public async Task<LoginOutputDto?> VerifyUserAsync(LoginDto loginDto, CancellationToken ct = default)
         {
+            Console.WriteLine(_jwtSettings.ExpirationMinutes);
             User? user = await _userRepository.GetByUsernameAsync(loginDto.Username);
 
             if (user == null)
