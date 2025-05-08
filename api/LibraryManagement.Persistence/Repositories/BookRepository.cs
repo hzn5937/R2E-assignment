@@ -18,7 +18,6 @@ namespace LibraryManagement.Persistence.Repositories
         public async Task<IEnumerable<Book>> GetAllAsync()
         {
             var query = from b in _context.Books
-                        orderby b.Title
                         select new Book
                         {
                             Id = b.Id,
@@ -66,6 +65,7 @@ namespace LibraryManagement.Persistence.Repositories
             {
                 await _context.Books.AddAsync(book);
                 await _context.SaveChangesAsync();
+                await _context.Entry(book).Reference(b => b.Category).LoadAsync();
                 await transaction.CommitAsync();
                 return book;
             }

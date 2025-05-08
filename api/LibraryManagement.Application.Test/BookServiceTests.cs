@@ -1,6 +1,7 @@
 ﻿using LibraryManagement.Application.DTOs.Book;
 using LibraryManagement.Application.Extensions.Exceptions;
 using LibraryManagement.Application.Services;
+using LibraryManagement.Domain.Common;
 using LibraryManagement.Domain.Entities;
 using LibraryManagement.Domain.Interfaces;
 using Moq;
@@ -22,6 +23,241 @@ namespace LibraryManagement.Application.Test
             _bookService = new BookService(_mockBookRepository.Object, _mockCategoryRepository.Object);
         }
 
+        private List<Book> GetMockBooks()
+        {
+            // Creates a list of categories for books
+            var category1 = new Category { Id = 1, Name = "Fiction" };
+            var category2 = new Category { Id = 2, Name = "Science" };
+
+            // Returns a list of sample books for testing
+            return new List<Book>
+            {
+                new Book { Id = 1, Title = "The Great Novel", Author = "Author A", Category = category1, CategoryId = 1, TotalQuantity = 5, AvailableQuantity = 3, DeletedAt = null },
+                new Book { Id = 2, Title = "Another Story", Author = "Author B", Category = category1, CategoryId = 1, TotalQuantity = 2, AvailableQuantity = 1, DeletedAt = null },
+                new Book { Id = 3, Title = "Science Explained", Author = "Author C", Category = category2, CategoryId = 2, TotalQuantity = 10, AvailableQuantity = 10, DeletedAt = null },
+                new Book { Id = 4, Title = "History Book", Author = "Author A", Category = category2, CategoryId = 2, TotalQuantity = 7, AvailableQuantity = 0, DeletedAt = null },
+                new Book { Id = 5, Title = "Deleted Novel", Author = "Author D", Category = category1, CategoryId = 1, TotalQuantity = 3, AvailableQuantity = 3, DeletedAt = DateTime.UtcNow }, // Represents a deleted book
+                new Book { Id = 6, Title = "Uncategorized Title", Author = "Author E", Category = null, CategoryId = null, TotalQuantity = 1, AvailableQuantity = 1, DeletedAt = null } // Represents a book with no category
+            };
+        }
+
+        [Test]
+        public async Task SearchBooksAsync_WithValidSearchTermMatchingTitle_ReturnsMatchingBooks()
+        {
+            // Arrange
+            var searchTerm = "Novel"; 
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.SearchBooksAsync(searchTerm);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.TotalCount);
+            Assert.AreEqual(1, result.Items.Count);
+            Assert.IsTrue(result.Items.Any(b => b.Id == 1));
+            Assert.AreEqual("The Great Novel", result.Items.First().Title);
+        }
+
+        [Test]
+        public async Task SearchBooksAsync_WithValidSearchTermMatchingAuthor_ReturnsMatchingBooks()
+        {
+            // Arrange
+            var searchTerm = "author a"; 
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.SearchBooksAsync(searchTerm);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result.TotalCount); 
+            Assert.AreEqual(2, result.Items.Count);
+            Assert.IsTrue(result.Items.Any(b => b.Id == 1)); 
+            Assert.IsTrue(result.Items.Any(b => b.Id == 4));
+        }
+
+        [Test]
+        public async Task SearchBooksAsync_WithValidSearchTermMatchingCategory_ReturnsMatchingBooks()
+        {
+            // Arrange
+            var searchTerm = "SCIENCE"; 
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.SearchBooksAsync(searchTerm);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result.TotalCount); 
+            Assert.AreEqual(2, result.Items.Count);
+            Assert.IsTrue(result.Items.Any(b => b.Id == 3)); 
+            Assert.IsTrue(result.Items.Any(b => b.Id == 4)); 
+            Assert.IsTrue(result.Items.All(b => b.CategoryName.Equals("Science", StringComparison.OrdinalIgnoreCase)));
+        }
+
+        [Test]
+        public async Task SearchBooksAsync_WithSearchTermMatchingNullCategoryName_ReturnsMatchingBook()
+        {
+            // Arrange
+            var searchTerm = Constants.NullCategoryName;
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.SearchBooksAsync(searchTerm);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.TotalCount); 
+            Assert.AreEqual(1, result.Items.Count);
+            Assert.IsTrue(result.Items.Any(b => b.Id == 6)); 
+            Assert.AreEqual(Constants.NullCategoryName, result.Items.First().CategoryName);
+            Assert.IsNull(result.Items.First().CategoryId);
+        }
+
+        [Test]
+        public async Task SearchBooksAsync_WithSearchTermNotMatchingAnyBooks_ReturnsEmpty()
+        {
+            // Arrange
+            var searchTerm = "NonExistentTerm"; 
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.SearchBooksAsync(searchTerm);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.TotalCount); 
+            Assert.AreEqual(0, result.Items.Count);
+        }
+
+        [Test]
+        public async Task SearchBooksAsync_WithSearchTermMatchingDeletedBook_DoesNotReturnDeletedBook()
+        {
+            // Arrange
+            var searchTerm = "Deleted Novel"; 
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.SearchBooksAsync(searchTerm);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.TotalCount); 
+            Assert.AreEqual(0, result.Items.Count);
+        }
+
+        [Test]
+        public async Task SearchBooksAsync_WithPagination_ReturnsCorrectPage()
+        {
+            // Arrange
+            var searchTerm = "Author A"; 
+            var pageNum = 2;
+            var pageSize = 1;
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.SearchBooksAsync(searchTerm, pageNum, pageSize);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result.TotalCount); 
+            Assert.AreEqual(pageSize, result.Items.Count); 
+            Assert.AreEqual(pageNum, result.PageNum); 
+            Assert.AreEqual(pageSize, result.PageSize); 
+            Assert.AreEqual(2, result.TotalPage);
+            Assert.IsTrue(result.Items.Any(b => b.Id == 4));
+            Assert.IsFalse(result.Items.Any(b => b.Id == 1));
+        }
+
+        [Test]
+        public async Task SearchBooksAsync_WithEmptySearchTerm_ReturnsAllNonDeletedBooksPaginatedCorrectly()
+        {
+            // Arrange
+            string searchTerm = ""; 
+            var pageNum = 1;
+            var pageSize = 3;
+            var mockBooks = GetMockBooks();
+            var nonDeletedBooks = mockBooks.Where(b => b.DeletedAt == null).ToList();
+            var expectedTotalCount = nonDeletedBooks.Count;
+            var expectedItems = nonDeletedBooks.Take(pageSize).Select(book => new UserBookOutputDto
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                CategoryName = book.CategoryId == null ? Constants.NullCategoryName : book.Category.Name,
+                CategoryId = book.CategoryId,
+                TotalQuantity = book.TotalQuantity,
+                AvailableQuantity = book.AvailableQuantity,
+            }).ToList();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+            
+            // Act
+            var result = await _bookService.SearchBooksAsync(searchTerm, pageNum, pageSize);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedTotalCount, result.TotalCount); 
+            Assert.AreEqual(pageSize, result.Items.Count); 
+            Assert.AreEqual(pageNum, result.PageNum);
+            Assert.AreEqual(pageSize, result.PageSize);
+            Assert.AreEqual((int)Math.Ceiling((double)expectedTotalCount / pageSize), result.TotalPage); 
+            Assert.IsFalse(result.Items.Any(b => b.Id == 5));
+            CollectionAssert.AreEquivalent(expectedItems.Select(i => i.Id), result.Items.Select(i => i.Id));
+        }
+        
+        [Test]
+        public async Task SearchBooksAsync_WithWhitespaceSearchTerm_ReturnsAllNonDeletedBooksPaginatedCorrectly()
+        {
+            // Arrange
+            string searchTerm = "   "; 
+            var pageNum = 1;
+            var pageSize = 5; 
+            var mockBooks = GetMockBooks();
+            var nonDeletedBooks = mockBooks.Where(b => b.DeletedAt == null).ToList(); 
+            var expectedTotalCount = nonDeletedBooks.Count;
+            var expectedItems = nonDeletedBooks.Take(pageSize).Select(book => new UserBookOutputDto
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                CategoryName = book.CategoryId == null ? Constants.NullCategoryName : book.Category.Name,
+                CategoryId = book.CategoryId,
+                TotalQuantity = book.TotalQuantity,
+                AvailableQuantity = book.AvailableQuantity,
+            }).ToList();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.SearchBooksAsync(searchTerm, pageNum, pageSize);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedTotalCount, result.TotalCount); 
+            Assert.AreEqual(expectedTotalCount, result.Items.Count);
+            Assert.AreEqual(pageNum, result.PageNum);
+            Assert.AreEqual(pageSize, result.PageSize);
+            Assert.AreEqual(1, result.TotalPage); 
+            Assert.IsFalse(result.Items.Any(b => b.Id == 5)); 
+            CollectionAssert.AreEquivalent(expectedItems.Select(i => i.Id), result.Items.Select(i => i.Id));
+        }
+
         [Test]
         public async Task GetAllAsync_WhenBooksExist_ReturnsPaginatedBooks()
         {
@@ -37,7 +273,6 @@ namespace LibraryManagement.Application.Test
                 new UserBookOutputDto { Id = 1, Title = "Test Book 1", Author = "Author 1", CategoryName = "Fiction", AvailableQuantity = 5 },
                 new UserBookOutputDto { Id = 2, Title = "Test Book 2", Author = "Author 2", CategoryName = "Fiction", AvailableQuantity = 3 }
             };
-
             _mockBookRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(books);
 
             // Act
@@ -125,7 +360,7 @@ namespace LibraryManagement.Application.Test
             var category = new Category { Id = 1, Name = "Fiction" };
             var createdBook = new Book { Id = 10, Title = createDto.Title, Author = createDto.Author, CategoryId = createDto.CategoryId, Category = category, TotalQuantity = 1, AvailableQuantity = 1 };
 
-            _mockBookRepository.Setup(repo => repo.GetByTitleAndAuthorAsync(createDto.Title, createDto.Author)).ReturnsAsync((Book)null); // No existing book
+            _mockBookRepository.Setup(repo => repo.GetByTitleAndAuthorAsync(createDto.Title, createDto.Author)).ReturnsAsync((Book)null); 
             _mockCategoryRepository.Setup(repo => repo.GetByIdAsync(createDto.CategoryId)).ReturnsAsync(category); 
             _mockBookRepository.Setup(repo => repo.CreateAsync(It.IsAny<Book>())).ReturnsAsync(createdBook);
 
@@ -147,8 +382,7 @@ namespace LibraryManagement.Application.Test
             var createDto = new CreateBookDto { Title = "Existing Deleted Book", Author = "Existing Author", CategoryId = 1 };
             var category = new Category { Id = 1, Name = "Fiction" };
             var existingDeletedBook = new Book { Id = 5, Title = createDto.Title, Author = createDto.Author, CategoryId = createDto.CategoryId, Category = category, TotalQuantity = 2, AvailableQuantity = 0, DeletedAt = DateTime.UtcNow.AddDays(-1) };
-            var updatedBook = new Book { Id = 5, Title = createDto.Title, Author = createDto.Author, CategoryId = createDto.CategoryId, Category = category, TotalQuantity = 2, AvailableQuantity = 0, DeletedAt = null }; // Should be undeleted
-
+            var updatedBook = new Book { Id = 5, Title = createDto.Title, Author = createDto.Author, CategoryId = createDto.CategoryId, Category = category, TotalQuantity = 2, AvailableQuantity = 0, DeletedAt = null }; 
             _mockBookRepository.Setup(repo => repo.GetByTitleAndAuthorAsync(createDto.Title, createDto.Author)).ReturnsAsync(existingDeletedBook);
             _mockBookRepository.Setup(repo => repo.UpdateAsync(It.Is<Book>(b => b.Id == existingDeletedBook.Id && b.DeletedAt == null))).ReturnsAsync(updatedBook); 
 
@@ -159,7 +393,7 @@ namespace LibraryManagement.Application.Test
             Assert.IsNotNull(result);
             Assert.AreEqual(existingDeletedBook.Id, result.Id);
             Assert.AreEqual(existingDeletedBook.Title, result.Title);
-            Assert.IsNull(result.DeletedAt); // Check it's undeleted
+            Assert.IsNull(result.DeletedAt);
             _mockBookRepository.Verify(repo => repo.UpdateAsync(It.Is<Book>(b => b.Id == existingDeletedBook.Id && b.DeletedAt == null)), Times.Once);
             _mockBookRepository.Verify(repo => repo.CreateAsync(It.IsAny<Book>()), Times.Never); 
         }
@@ -170,7 +404,6 @@ namespace LibraryManagement.Application.Test
             // Arrange
             var createDto = new CreateBookDto { Title = "Existing Active Book", Author = "Existing Author", CategoryId = 1 };
             var existingActiveBook = new Book { Id = 6, Title = createDto.Title, Author = createDto.Author, CategoryId = 1, DeletedAt = null };
-
             _mockBookRepository.Setup(repo => repo.GetByTitleAndAuthorAsync(createDto.Title, createDto.Author)).ReturnsAsync(existingActiveBook);
 
             // Act & Assert
@@ -187,8 +420,7 @@ namespace LibraryManagement.Application.Test
             var updateDto = new UpdateBookDto { Title = "Updated Title", Author = "Updated Author", CategoryId = 2, TotalQuantity = 10 };
             var existingBook = new Book { Id = bookId, Title = "Old Title", Author = "Old Author", CategoryId = 1, TotalQuantity = 5, AvailableQuantity = 3 };
             var newCategory = new Category { Id = 2, Name = "Science" };
-            var updatedBook = new Book { Id = bookId, Title = updateDto.Title, Author = updateDto.Author, CategoryId = updateDto.CategoryId, Category = newCategory, TotalQuantity = updateDto.TotalQuantity, AvailableQuantity = 8 }; // 3 + (10 - 5) = 8
-
+            var updatedBook = new Book { Id = bookId, Title = updateDto.Title, Author = updateDto.Author, CategoryId = updateDto.CategoryId, Category = newCategory, TotalQuantity = updateDto.TotalQuantity, AvailableQuantity = 8 };
             _mockBookRepository.Setup(repo => repo.GetByTitleAndAuthorAsync(updateDto.Title, updateDto.Author)).ReturnsAsync((Book)null); 
             _mockBookRepository.Setup(repo => repo.GetByIdAsync(bookId)).ReturnsAsync(existingBook);
             _mockCategoryRepository.Setup(repo => repo.GetByIdAsync(updateDto.CategoryId)).ReturnsAsync(newCategory);
@@ -213,9 +445,8 @@ namespace LibraryManagement.Application.Test
             // Arrange
             int bookId = 99;
             var updateDto = new UpdateBookDto { Title = "Any Title", Author = "Any Author", CategoryId = 1, TotalQuantity = 5 };
-
             _mockBookRepository.Setup(repo => repo.GetByTitleAndAuthorAsync(updateDto.Title, updateDto.Author)).ReturnsAsync((Book)null);
-            _mockBookRepository.Setup(repo => repo.GetByIdAsync(bookId)).ReturnsAsync((Book)null); // Book not found
+            _mockBookRepository.Setup(repo => repo.GetByIdAsync(bookId)).ReturnsAsync((Book)null); 
 
             // Act & Assert
             Assert.ThrowsAsync<NotFoundException>(() => _bookService.UpdateAsync(bookId, updateDto));
@@ -230,7 +461,6 @@ namespace LibraryManagement.Application.Test
             int duplicateBookId = 2;
             var updateDto = new UpdateBookDto { Title = "Duplicate Title", Author = "Duplicate Author", CategoryId = 1, TotalQuantity = 5 };
             var duplicateBook = new Book { Id = duplicateBookId, Title = updateDto.Title, Author = updateDto.Author, CategoryId = 1 };
-
             _mockBookRepository.Setup(repo => repo.GetByTitleAndAuthorAsync(updateDto.Title, updateDto.Author)).ReturnsAsync(duplicateBook); 
 
             // Act & Assert
@@ -246,13 +476,12 @@ namespace LibraryManagement.Application.Test
             int bookId = 1;
             var updateDto = new UpdateBookDto { Title = "Updated Title", Author = "Updated Author", CategoryId = 1, TotalQuantity = 1 }; 
             var existingBook = new Book { Id = bookId, Title = "Old Title", Author = "Old Author", CategoryId = 1, TotalQuantity = 5, AvailableQuantity = 3 }; 
-
             _mockBookRepository.Setup(repo => repo.GetByTitleAndAuthorAsync(updateDto.Title, updateDto.Author)).ReturnsAsync((Book)null);
             _mockBookRepository.Setup(repo => repo.GetByIdAsync(bookId)).ReturnsAsync(existingBook);
 
             // Act & Assert
             var ex = Assert.ThrowsAsync<ConflictException>(() => _bookService.UpdateAsync(bookId, updateDto));
-            Assert.That(ex.Message, Contains.Substring("Minimum value of new total quantity is '2'")); // Check specific error message if needed
+            Assert.That(ex.Message, Contains.Substring("Minimum value of new total quantity is '2'")); 
             _mockBookRepository.Verify(repo => repo.UpdateAsync(It.IsAny<Book>()), Times.Never);
         }
 
@@ -290,30 +519,178 @@ namespace LibraryManagement.Application.Test
         }
 
         [Test]
-        public async Task GetBookCountAsync_ShouldReturnCorrectCounts()
+        public async Task FilterBooksAsync_NoFilters_ReturnsAllNonDeletedBooksPaginated()
         {
             // Arrange
-            var books = new List<Book>
-            {
-                new Book { Id = 1, Title = "Available Book 1", Author = "Author A", AvailableQuantity = 2, DeletedAt = null },
-                new Book { Id = 2, Title = "Available Book 2", Author = "Author B", AvailableQuantity = 1, DeletedAt = null }, 
-                new Book { Id = 3, Title = "Unavailable Book 1", Author = "Author C", AvailableQuantity = 0, DeletedAt = null }, 
-                new Book { Id = 4, Title = "Unavailable Book 2", Author = "Author D", AvailableQuantity = 0, DeletedAt = null }, 
-                new Book { Id = 5, Title = "Deleted Book", Author = "Author E", AvailableQuantity = 1, DeletedAt = DateTime.UtcNow }
-            };
-            _mockBookRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(books);
+            var mockBooks = GetMockBooks();
+            var nonDeletedBooks = mockBooks.Where(b => b.DeletedAt == null).ToList();
+            var expectedTotalCount = nonDeletedBooks.Count;
+            var pageNum = 1;
+            var pageSize = 3;
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
 
             // Act
-            var result = await _bookService.GetBookCountAsync();
+            var result = await _bookService.FilterBooksAsync(categoryId: null, isAvailable: null, pageNum: pageNum, pageSize: pageSize);
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result, Is.InstanceOf<BookCountOutputDto>()); 
-            Assert.That(result.TotalBooks, Is.EqualTo(4)); 
-            Assert.That(result.TotalAvailable, Is.EqualTo(2)); 
-            Assert.That(result.TotalNotAvailable, Is.EqualTo(2)); 
-            _mockBookRepository.Verify(r => r.GetAllAsync(), Times.Once); 
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedTotalCount, result.TotalCount); 
+            Assert.AreEqual(pageSize, result.Items.Count);
+            Assert.AreEqual(pageNum, result.PageNum);
+            Assert.AreEqual(pageSize, result.PageSize);
+            Assert.AreEqual((int)Math.Ceiling((double)expectedTotalCount / pageSize), result.TotalPage); 
+            Assert.IsFalse(result.Items.Any(b => b.Id == 5)); 
+            CollectionAssert.AreEquivalent(new[] { 1, 2, 3 }, result.Items.Select(i => i.Id));
         }
+
+        [Test]
+        public async Task FilterBooksAsync_ByCategory_ReturnsMatchingBooks()
+        {
+            // Arrange
+            var categoryIdToFilter = 1; 
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.FilterBooksAsync(categoryId: categoryIdToFilter);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(2, result.TotalCount);
+            Assert.AreEqual(2, result.Items.Count);
+            Assert.IsTrue(result.Items.All(b => b.CategoryId == categoryIdToFilter));
+            Assert.IsTrue(result.Items.Any(b => b.Id == 1));
+            Assert.IsTrue(result.Items.Any(b => b.Id == 2));
+            Assert.IsFalse(result.Items.Any(b => b.Id == 5));
+        }
+
+        [Test]
+        public async Task FilterBooksAsync_ByIsAvailableTrue_ReturnsAvailableBooks()
+        {
+            // Arrange
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.FilterBooksAsync(isAvailable: true);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(4, result.TotalCount);
+            Assert.AreEqual(4, result.Items.Count);
+            Assert.IsTrue(result.Items.All(b => b.AvailableQuantity > 0));
+            Assert.IsTrue(result.Items.Any(b => b.Id == 1));
+            Assert.IsTrue(result.Items.Any(b => b.Id == 2));
+            Assert.IsTrue(result.Items.Any(b => b.Id == 3));
+            Assert.IsTrue(result.Items.Any(b => b.Id == 6));
+            Assert.IsFalse(result.Items.Any(b => b.Id == 4)); 
+            Assert.IsFalse(result.Items.Any(b => b.Id == 5)); 
+        }
+
+        [Test]
+        public async Task FilterBooksAsync_ByIsAvailableFalse_ReturnsUnavailableBooks()
+        {
+            // Arrange
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.FilterBooksAsync(isAvailable: false);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.TotalCount);
+            Assert.AreEqual(1, result.Items.Count);
+            Assert.IsTrue(result.Items.All(b => b.AvailableQuantity <= 0));
+            Assert.IsTrue(result.Items.Any(b => b.Id == 4));
+            Assert.IsFalse(result.Items.Any(b => b.Id == 5));
+        }
+
+        [Test]
+        public async Task FilterBooksAsync_ByCategoryAndIsAvailableTrue_ReturnsMatchingBooks()
+        {
+            // Arrange
+            var categoryIdToFilter = 2; 
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.FilterBooksAsync(categoryId: categoryIdToFilter, isAvailable: true);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.TotalCount);
+            Assert.AreEqual(1, result.Items.Count);
+            Assert.IsTrue(result.Items.All(b => b.CategoryId == categoryIdToFilter && b.AvailableQuantity > 0));
+            Assert.IsTrue(result.Items.Any(b => b.Id == 3));
+        }
+
+        [Test]
+        public async Task FilterBooksAsync_ByCategoryAndIsAvailableFalse_ReturnsMatchingBooks()
+        {
+            // Arrange
+            var categoryIdToFilter = 2; 
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.FilterBooksAsync(categoryId: categoryIdToFilter, isAvailable: false);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.TotalCount);
+            Assert.AreEqual(1, result.Items.Count);
+            Assert.IsTrue(result.Items.All(b => b.CategoryId == categoryIdToFilter && b.AvailableQuantity <= 0));
+            Assert.IsTrue(result.Items.Any(b => b.Id == 4));
+        }
+
+        [Test]
+        public async Task FilterBooksAsync_FilterYieldsNoResults_ReturnsEmpty()
+        {
+            // Arrange
+            var categoryIdToFilter = 1; 
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.FilterBooksAsync(categoryId: categoryIdToFilter, isAvailable: false);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.TotalCount);
+            Assert.AreEqual(0, result.Items.Count);
+        }
+
+        [Test]
+        public async Task FilterBooksAsync_WithPagination_ReturnsCorrectPage()
+        {
+            // Arrange
+            var pageNum = 2;
+            var pageSize = 2;
+            var mockBooks = GetMockBooks();
+            _mockBookRepository.Setup(repo => repo.GetAllAsync())
+                .ReturnsAsync(mockBooks);
+
+            // Act
+            var result = await _bookService.FilterBooksAsync(categoryId: null, isAvailable: null, pageNum: pageNum, pageSize: pageSize);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(5, result.TotalCount);
+            Assert.AreEqual(pageSize, result.Items.Count);
+            Assert.AreEqual(pageNum, result.PageNum);
+            Assert.AreEqual(pageSize, result.PageSize);
+            Assert.AreEqual((int)Math.Ceiling(5.0 / pageSize), result.TotalPage);
+            CollectionAssert.AreEquivalent(new[] { 3, 4 }, result.Items.Select(i => i.Id));
+        }
+
     }
 }
 

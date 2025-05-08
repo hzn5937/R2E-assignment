@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, Table, Tag, Button, Spin, Alert, message, Space, Modal } from 'antd';
+import { Tabs, Table, Tag, Button, Spin, Alert, Space, Modal } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import axiosInstance from '../../utils/axiosConfig';
 import PaginationControls from '../../components/pagination';
@@ -12,12 +12,9 @@ const AdminRequests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [processingRequestId, setProcessingRequestId] = useState(null);
-  
-  // Add modal visibility states
   const [isApproveModalVisible, setIsApproveModalVisible] = useState(false);
   const [isRejectModalVisible, setIsRejectModalVisible] = useState(false);
   const [requestToAction, setRequestToAction] = useState(null);
-  
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 5,
@@ -27,13 +24,13 @@ const AdminRequests = () => {
     hasPrev: false
   });
   const [apiError, setApiError] = useState(null);
+  const [apiSuccess, setApiSuccess] = useState(null); 
   const { user } = useAuth();
 
   const fetchRequests = (status = '', pageNum = 1, pageSize = 5) => {
     setLoading(true);
     setApiError(null);
     
-    // Build URL with appropriate query parameters
     let url = `/api/requests/all?pageNum=${pageNum}&pageSize=${pageSize}`;
     if (status && status !== 'all') {
       url += `&status=${status}`;
@@ -41,9 +38,6 @@ const AdminRequests = () => {
     
     axiosInstance.get(url)
       .then(res => {
-        console.log('Requests data:', res.data);
-        
-        // Handle paginated response
         if (res.data.items) {
           setRequests(res.data.items);
           setPagination({
@@ -55,7 +49,7 @@ const AdminRequests = () => {
             hasPrev: res.data.hasPrev
           });
         } else {
-          setRequests([]); // Set empty array if data format is unexpected
+          setRequests([]); 
         }
       })
       .catch(err => {
@@ -95,6 +89,7 @@ const AdminRequests = () => {
     if (status === 'Approved') color = 'green';
     else if (status === 'Rejected') color = 'red';
     else if (status === 'Waiting' || status === 'Pending') color = 'gold';
+    else if (status === 'Returned') color = 'blue';
 
     return <Tag color={color}>{status.toUpperCase()}</Tag>;
   };
@@ -119,12 +114,21 @@ const AdminRequests = () => {
         status: "Approved"
       });
       
-      message.success('Request approved successfully!');
+      // Get the request details for success message
+      const approvedRequest = requests.find(req => req.id === requestToAction);
+      setApiSuccess({
+        message: 'Request Approved Successfully',
+        description: `Request #${requestToAction} from ${approvedRequest?.requestor || 'user'} has been approved.`
+      });
       fetchRequests(activeTab, pagination.current, pagination.pageSize);
       setIsApproveModalVisible(false);
     } catch (err) {
       console.error('Failed to approve request:', err);
-      message.error('Failed to approve request. Please try again.');
+      setApiError({
+        type: 'error',
+        message: 'Failed to Approve Request',
+        description: err.response?.data?.message || 'An error occurred while approving the request. Please try again.'
+      });
     } finally {
       setProcessingRequestId(null);
       setRequestToAction(null);
@@ -141,12 +145,21 @@ const AdminRequests = () => {
         status: "Rejected"
       });
       
-      message.success('Request rejected successfully!');
+      // Get the request details for success message
+      const rejectedRequest = requests.find(req => req.id === requestToAction);
+      setApiSuccess({
+        message: 'Request Rejected Successfully',
+        description: `Request #${requestToAction} from ${rejectedRequest?.requestor || 'user'} has been rejected.`
+      });
       fetchRequests(activeTab, pagination.current, pagination.pageSize);
       setIsRejectModalVisible(false);
     } catch (err) {
       console.error('Failed to reject request:', err);
-      message.error('Failed to reject request. Please try again.');
+      setApiError({
+        type: 'error',
+        message: 'Failed to Reject Request',
+        description: err.response?.data?.message || 'An error occurred while rejecting the request. Please try again.'
+      });
     } finally {
       setProcessingRequestId(null);
       setRequestToAction(null);
@@ -169,12 +182,20 @@ const AdminRequests = () => {
     return (
       <div className="px-4 py-2">
         <h4 className="font-semibold mb-2">Books in this request:</h4>
-        <Table 
-          columns={columns} 
-          dataSource={record.books} 
-          pagination={false} 
-          rowKey={record => `${record.title}-${record.author}`} // Create unique key from title and author
-        />
+        {!record.books?.length ? (
+          <Alert 
+            message="No books in this request."
+            type="info"
+            showIcon
+          />
+        ) : (
+          <Table 
+            columns={columns} 
+            dataSource={record.books} 
+            pagination={false} 
+            rowKey={record => `${record.title}-${record.author}`} // Create unique key from title and author
+          />
+        )}
       </div>
     );
   };
@@ -194,19 +215,28 @@ const AdminRequests = () => {
       },
       { 
         title: 'Requested Date', 
-        dataIndex: 'requestedDate', 
-        key: 'requestedDate',
-        render: date => new Date(date).toLocaleString()
+        dataIndex: 'dateRequested', 
+        key: 'dateRequested',
+        render: date => date ? new Date(date).toLocaleString() : 'N/A'
       }
     ];
 
-    // Only add actions column for All and Waiting tabs
-    if (activeTab === 'all' || activeTab === 'Waiting') {
+    // Add date returned for returned books
+    if (activeTab === 'all' || activeTab === 'Returned') {
+      baseColumns.push({ 
+        title: 'Date Returned', 
+        dataIndex: 'dateReturned', 
+        key: 'dateReturned',
+        render: date => date ? new Date(date).toLocaleString() : 'N/A'
+      });
+    }
+
+    // Add actions column only for "all" and "Waiting" tabs (excluding Approved, Rejected, and Returned)
+    if (activeTab === 'all' || activeTab === 'Waiting' || activeTab === 'Pending') {
       baseColumns.push({
         title: 'Actions',
         key: 'actions',
         render: (_, record) => {
-          // Only show action buttons for requests with Waiting/Pending status
           if (record.status === 'Waiting' || record.status === 'Pending') {
             return (
               <Space size="small">
@@ -214,7 +244,7 @@ const AdminRequests = () => {
                   type="primary"
                   icon={<CheckCircleOutlined />}
                   onClick={() => handleApproveRequest(record.id)}
-                  loading={processingRequestId === record.id} // Show loading only for this specific request
+                  loading={processingRequestId === record.id}
                 >
                   Approve
                 </Button>
@@ -222,14 +252,14 @@ const AdminRequests = () => {
                   danger
                   icon={<CloseCircleOutlined />}
                   onClick={() => handleRejectRequest(record.id)}
-                  loading={processingRequestId === record.id} // Show loading only for this specific request
+                  loading={processingRequestId === record.id}
                 >
                   Reject
                 </Button>
               </Space>
             );
           }
-          return null; // Don't show action buttons for other statuses
+          return null;
         }
       });
     }
@@ -252,6 +282,18 @@ const AdminRequests = () => {
           className="mb-4"
         />
       )}
+
+      {apiSuccess && (
+        <Alert
+          message={apiSuccess.message}
+          description={apiSuccess.description}
+          type="success"
+          showIcon
+          closable
+          onClose={() => setApiSuccess(null)}
+          className="mb-4"
+        />
+      )}
       
       <Tabs defaultActiveKey="all" onChange={handleTabChange}>
         <TabPane tab="All Requests" key="all">
@@ -264,6 +306,9 @@ const AdminRequests = () => {
           {renderRequestsTable()}
         </TabPane>
         <TabPane tab="Rejected" key="Rejected">
+          {renderRequestsTable()}
+        </TabPane>
+        <TabPane tab="Returned" key="Returned">
           {renderRequestsTable()}
         </TabPane>
       </Tabs>
@@ -307,11 +352,22 @@ const AdminRequests = () => {
       );
     }
     
+    if (!requests.length > 0) {
+      return (
+        <Alert 
+          message="No requests found."
+          type="info"
+          showIcon
+          className="mb-4"
+        />
+      );
+    }
+    
     return (
       <>
         <Table
           dataSource={requests}
-          columns={getColumns()} // Use dynamic columns based on active tab
+          columns={getColumns()} 
           rowKey="id"
           pagination={false}
           expandable={{

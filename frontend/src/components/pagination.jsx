@@ -5,7 +5,7 @@ const PaginationControls = ({
   pagination, 
   onPageChange, 
   onPageSizeChange,
-  itemName = 'items' // default to 'items', can be overridden with 'books', 'requests', etc.
+  itemName = 'items' 
 }) => {
   const { current, pageSize, total } = pagination;
   
@@ -14,10 +14,9 @@ const PaginationControls = ({
   
   return (
     <>
-      {/* Row 1: Item count display and page size selection */}
+      {/* Row 1: item count display and page size selection  */}
       <div className="flex justify-between items-center mb-2 flex-wrap">
         <div>
-          {/* Calculate the range manually */}
           {`${(current - 1) * pageSize + 1}-${Math.min(current * pageSize, total)} of ${total} ${itemName}`}
         </div>
         
@@ -37,7 +36,7 @@ const PaginationControls = ({
         </div>
       </div>
 
-      {/* Row 2: Just the pagination controls */}
+      {/* Row 2: pagination controls */}
       <div className="flex justify-center">
         <Pagination
           current={current}

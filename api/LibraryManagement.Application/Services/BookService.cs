@@ -20,20 +20,6 @@ namespace LibraryManagement.Application.Services
             _categoryRepository = categoryRepository;
         }
 
-        public async Task<BookCountOutputDto> GetBookCountAsync()
-        {
-            var books = await _bookRepository.GetAllAsync();
-
-            var output = new BookCountOutputDto
-            {
-                TotalBooks = books.Count(b => b.DeletedAt is null),
-                TotalAvailable = books.Count(b => b.DeletedAt is null && b.AvailableQuantity > 0),
-                TotalNotAvailable = books.Count(b => b.DeletedAt is null && b.AvailableQuantity == 0),
-            };
-
-            return output;
-        }
-
         public async Task<PaginatedOutputDto<UserBookOutputDto>> GetAllAsync(int pageNum=Constants.DefaultPageNum, int pageSize=Constants.DefaultPageSize)
         {
             var books = await _bookRepository.GetAllAsync();
@@ -44,14 +30,17 @@ namespace LibraryManagement.Application.Services
             {
                 if (book.DeletedAt is not null)
                 {
+                    // skip if deleted
                     continue;
                 }
+
                 var record = new UserBookOutputDto
                 {
                     Id = book.Id,
                     Title = book.Title,
                     Author = book.Author,
                     CategoryName = (book.CategoryId is null) ? Constants.NullCategoryName : book.Category.Name,
+                    CategoryId = book.CategoryId,
                     TotalQuantity = book.TotalQuantity,
                     AvailableQuantity = book.AvailableQuantity,
                 };
@@ -91,6 +80,7 @@ namespace LibraryManagement.Application.Services
         {
             Book? existing = await _bookRepository.GetByTitleAndAuthorAsync(createBookDto.Title, createBookDto.Author);
 
+            // Recreate (or update) soft-deleted book 
             if (existing is not null)
             {
                 if (existing.DeletedAt is null)
@@ -98,6 +88,7 @@ namespace LibraryManagement.Application.Services
                     throw new ConflictException($"Book with title: {createBookDto.Title} and author: {createBookDto.Author} already exists!");
                 }
 
+                // Only recreate book without changing anything (Use update method instead)
                 existing.DeletedAt = null;
 
                 var updated = await _bookRepository.UpdateAsync(existing);
@@ -203,6 +194,99 @@ namespace LibraryManagement.Application.Services
             await _bookRepository.DeleteAsync(existing);
 
             return true;
+        }
+
+        public async Task<PaginatedOutputDto<UserBookOutputDto>> SearchBooksAsync(string searchTerm, int pageNum = Constants.DefaultPageNum, int pageSize = Constants.DefaultPageSize)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return await GetAllAsync(pageNum, pageSize);
+            }
+
+            var books = await _bookRepository.GetAllAsync();
+            var searchTermLower = searchTerm.ToLower();
+
+            var bookList = new List<UserBookOutputDto>();
+
+            foreach (var book in books)
+            {
+                if (book.DeletedAt is not null)
+                {
+                    continue;
+                }
+
+                var categoryName = (book.CategoryId is null) ? Constants.NullCategoryName : book.Category.Name;
+
+                // Search by title, author, or category
+                if (book.Title.ToLower().Contains(searchTermLower) || 
+                    book.Author.ToLower().Contains(searchTermLower) || 
+                    categoryName.ToLower().Contains(searchTermLower))
+                {
+                    var record = new UserBookOutputDto
+                    {
+                        Id = book.Id,
+                        Title = book.Title,
+                        Author = book.Author,
+                        CategoryName = categoryName,
+                        CategoryId = book.CategoryId,
+                        TotalQuantity = book.TotalQuantity,
+                        AvailableQuantity = book.AvailableQuantity,
+                    };
+                    bookList.Add(record);
+                }
+            }
+
+            var paginated = Pagination.Paginate<UserBookOutputDto>(bookList, pageNum, pageSize);
+
+            return paginated;
+        }
+
+        public async Task<PaginatedOutputDto<UserBookOutputDto>> FilterBooksAsync(int? categoryId = null, bool? isAvailable = null, int pageNum = Constants.DefaultPageNum, int pageSize = Constants.DefaultPageSize)
+        {
+            var books = await _bookRepository.GetAllAsync();
+            var bookList = new List<UserBookOutputDto>();
+
+            foreach (var book in books)
+            {
+                // Skip deleted books
+                if (book.DeletedAt is not null)
+                {
+                    continue;
+                }
+
+                // Filter by category if specified
+                if (categoryId.HasValue && book.CategoryId != categoryId.Value)
+                {
+                    continue;
+                }
+
+                // Filter by availability if specified
+                if (isAvailable.HasValue)
+                {
+                    bool bookIsAvailable = book.AvailableQuantity > 0;
+                    if (bookIsAvailable != isAvailable.Value)
+                    {
+                        continue;
+                    }
+                }
+
+                var categoryName = (book.CategoryId is null) ? Constants.NullCategoryName : book.Category.Name;
+                
+                var record = new UserBookOutputDto
+                {
+                    Id = book.Id,
+                    Title = book.Title,
+                    Author = book.Author,
+                    CategoryName = categoryName,
+                    TotalQuantity = book.TotalQuantity,
+                    AvailableQuantity = book.AvailableQuantity,
+                    CategoryId = book.CategoryId
+                };
+                bookList.Add(record);
+            }
+
+            var paginated = Pagination.Paginate<UserBookOutputDto>(bookList, pageNum, pageSize);
+            return paginated;
         }
     }
 }

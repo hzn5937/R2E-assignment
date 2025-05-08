@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Space, Tag, Modal, Form, Input, Select, InputNumber, message, Spin, Alert } from 'antd';
+import { Table, Button, Space, Tag, Modal, Form, Input, Select, InputNumber, message, Spin, Alert, Divider } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import axiosInstance from '../../utils/axiosConfig';
 import PaginationControls from '../../components/pagination';
+import SearchBar from '../../components/SearchBar';
+import FilterBar from '../../components/FilterBar';
 
 const AdminBooks = () => {
   const [books, setBooks] = useState([]);
@@ -17,19 +19,27 @@ const AdminBooks = () => {
   });
   const [categories, setCategories] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false); // New state for delete modal
-  const [bookToDelete, setBookToDelete] = useState(null); // Book ID to delete
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false); // New state for delete modal (completely different from edit/add modal)
+  const [bookToDelete, setBookToDelete] = useState(null); 
   const [modalType, setModalType] = useState('add');
   const [currentBook, setCurrentBook] = useState(null);
   const [apiError, setApiError] = useState(null);
+  const [apiSuccess, setApiSuccess] = useState(null); 
   const [form] = Form.useForm();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
+  
+  // Filter-related states
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [availabilityFilter, setAvailabilityFilter] = useState(null);
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
+  const [filterLoading, setFilterLoading] = useState(false);
 
   // Fetch books with pagination
   const fetchBooks = (pageNum = 1, pageSize = 5) => {
     setLoading(true);
     axiosInstance.get(`/api/books?pageNum=${pageNum}&pageSize=${pageSize}`)
       .then(res => {
-        console.log('Books data:', res.data);
         setBooks(res.data.items);
         setPagination({
           current: res.data.pageNum,
@@ -49,12 +59,109 @@ const AdminBooks = () => {
       });
   };
 
+  // Handle search functionality
+  const searchBooks = (pageNum = 1, pageSize = 5) => {
+    if (!searchTerm.trim()) {
+      fetchBooks(pageNum, pageSize);
+      return;
+    }
+    
+    setSearchLoading(true);
+    setLoading(true);
+    axiosInstance.get(`/api/books/search?searchTerm=${encodeURIComponent(searchTerm)}&pageNum=${pageNum}&pageSize=${pageSize}`)
+      .then(res => {
+        setBooks(res.data.items);
+        setPagination({
+          current: res.data.pageNum,
+          pageSize: res.data.pageSize,
+          total: res.data.totalCount,
+          totalPages: res.data.totalPage,
+          hasNext: res.data.hasNext,
+          hasPrev: res.data.hasPrev,
+        });
+      })
+      .catch(err => {
+        console.error('Failed to search books:', err);
+        message.error('Search failed. Please try again.');
+      })
+      .finally(() => {
+        setLoading(false);
+        setSearchLoading(false);
+      });
+  };
+  
+  // Handle filtering books by category and availability
+  const filterBooks = (pageNum = 1, pageSize = 5) => {
+    setFilterLoading(true);
+    setLoading(true);
+    
+    let url = `/api/books/filter?pageNum=${pageNum}&pageSize=${pageSize}`;
+    
+    if (selectedCategory !== null) {
+      url += `&categoryId=${selectedCategory}`;
+    }
+    
+    if (availabilityFilter !== null) {
+      url += `&isAvailable=${availabilityFilter}`;
+    }
+    
+    axiosInstance.get(url)
+      .then(res => {
+        setBooks(res.data.items);
+        setPagination({
+          current: res.data.pageNum,
+          pageSize: res.data.pageSize,
+          total: res.data.totalCount,
+          totalPages: res.data.totalPage,
+          hasNext: res.data.hasNext,
+          hasPrev: res.data.hasPrev,
+        });
+        setIsFilterApplied(true);
+      })
+      .catch(err => {
+        console.error('Failed to filter books:', err);
+        message.error('Filter failed. Please try again.');
+      })
+      .finally(() => {
+        setLoading(false);
+        setFilterLoading(false);
+      });
+  };
+
+  // Handle search submission
+  const handleSearch = () => {
+    // Clear any filters when performing a search
+    setSelectedCategory(null);
+    setAvailabilityFilter(null);
+    setIsFilterApplied(false);
+    searchBooks(1, pagination.pageSize);
+  };
+
+  // Clear search and reset to all books
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    fetchBooks(1, pagination.pageSize);
+  };
+  
+  // Handle applying filters
+  const handleApplyFilters = () => {
+    // Clear search term when filtering
+    setSearchTerm('');
+    filterBooks(1, pagination.pageSize);
+  };
+
+  // Handle clearing filters
+  const handleClearFilters = () => {
+    setSelectedCategory(null);
+    setAvailabilityFilter(null);
+    setIsFilterApplied(false);
+    fetchBooks(1, pagination.pageSize);
+  };
+
   // Fetch categories for the form dropdown
   const fetchCategories = () => {
     axiosInstance.get('/api/categories?pageSize=1000')
       .then(res => {
-        console.log('Categories response:', res.data); // Log the response to see its structure
-        // Make sure categories is always an array
         const categoriesData = Array.isArray(res.data) ? res.data : 
                               res.data.items ? res.data.items : [];
         setCategories(categoriesData);
@@ -73,11 +180,23 @@ const AdminBooks = () => {
   }, []);
 
   const handlePageChange = (page, pageSize) => {
-    fetchBooks(page, pageSize);
+    if (searchTerm.trim()) {
+      searchBooks(page, pageSize);
+    } else if (isFilterApplied) {
+      filterBooks(page, pageSize);
+    } else {
+      fetchBooks(page, pageSize);
+    }
   };
 
   const handlePageSizeChange = (newPageSize) => {
-    fetchBooks(1, newPageSize);
+    if (searchTerm.trim()) {
+      searchBooks(1, newPageSize);
+    } else if (isFilterApplied) {
+      filterBooks(1, newPageSize);
+    } else {
+      fetchBooks(1, newPageSize);
+    }
   };
 
   // Show modal for adding a new book
@@ -108,7 +227,10 @@ const AdminBooks = () => {
         // Add new book
         axiosInstance.post('/api/books', values)
           .then(() => {
-            message.success('Book added successfully!');
+            setApiSuccess({
+              message: 'Book Added Successfully',
+              description: `Book "${values.title}" has been added to the database.`
+            });
             setIsModalVisible(false);
             fetchBooks(pagination.current, pagination.pageSize);
           })
@@ -119,7 +241,7 @@ const AdminBooks = () => {
             
             setApiError({
               type: 'error',
-              message: errorMsg, // Use API's error message as the main message
+              message: errorMsg, 
               description: 'Please check your input and try again.'
             });
             
@@ -127,10 +249,12 @@ const AdminBooks = () => {
             setIsModalVisible(false);
           });
       } else {
-        // Edit existing book
         axiosInstance.put(`/api/books/${currentBook.id}`, values)
           .then(() => {
-            message.success('Book updated successfully!');
+            setApiSuccess({
+              message: 'Book Updated Successfully',
+              description: `Book "${values.title}" has been updated.`
+            });
             setIsModalVisible(false);
             fetchBooks(pagination.current, pagination.pageSize);
           })
@@ -141,7 +265,7 @@ const AdminBooks = () => {
             
             setApiError({
               type: 'error',
-              message: errorMsg, // Use API's error message as the main message
+              message: errorMsg, 
               description: 'Please check your input and try again.'
             });
             
@@ -154,7 +278,6 @@ const AdminBooks = () => {
 
   // Handle book deletion - Modified to use custom modal
   const handleDelete = (bookId) => {
-    console.log('Delete button clicked for book ID:', bookId);
     setBookToDelete(bookId);
     setIsDeleteModalVisible(true);
   };
@@ -163,11 +286,30 @@ const AdminBooks = () => {
   const confirmDelete = () => {
     if (!bookToDelete) return;
     
-    console.log('OK button clicked, would delete book ID:', bookToDelete);
+    const isLastItemOnPage = books.length === 1;
+    const isLastPage = pagination.current === pagination.totalPages;
+    // Determine which page to go to after deletion (last item on last page)
+    const targetPage = (isLastItemOnPage && isLastPage && pagination.current > 1) 
+      ? pagination.current - 1  // Go to previous page if deleting last item on last page
+      : pagination.current;     // Otherwise stay on current page
+    
     axiosInstance.delete(`/api/books/${bookToDelete}`)
       .then(() => {
-        message.success('Book deleted successfully!');
-        fetchBooks(pagination.current, pagination.pageSize);
+        // Find the deleted book to include its title in the success message
+        const deletedBook = books.find(book => book.id === bookToDelete);
+        setApiSuccess({
+          message: 'Book Deleted Successfully',
+          description: `Book "${deletedBook?.title || 'Selected book'}" has been removed from the database.`
+        });
+        
+        if (searchTerm.trim()) {
+          searchBooks(targetPage, pagination.pageSize);
+        } else if (isFilterApplied) {
+          filterBooks(targetPage, pagination.pageSize);
+        } else {
+          fetchBooks(targetPage, pagination.pageSize);
+        }
+        
         setIsDeleteModalVisible(false);
       })
       .catch(err => {
@@ -257,29 +399,76 @@ const AdminBooks = () => {
         />
       )}
 
+      {apiSuccess && (
+        <Alert
+          message={apiSuccess.message}
+          description={apiSuccess.description}
+          type="success"
+          showIcon
+          closable
+          onClose={() => setApiSuccess(null)}
+          className="mb-4"
+        />
+      )}
+
+      {/* Search bar component */}
+      <SearchBar 
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        handleSearch={handleSearch}
+        handleClearSearch={handleClearSearch}
+        searchLoading={searchLoading}
+      />
+
+      <Divider />
+
+      {/* Filter bar component */}
+      <FilterBar
+        categories={categories}
+        selectedCategory={selectedCategory}
+        availabilityFilter={availabilityFilter}
+        onCategoryChange={setSelectedCategory}
+        onAvailabilityChange={setAvailabilityFilter}
+        onApplyFilters={handleApplyFilters}
+        onClearFilters={handleClearFilters}
+        isFilterApplied={isFilterApplied}
+        filterLoading={filterLoading}
+      />
+
       {loading && !books.length ? (
         <div className="flex justify-center items-center h-64">
           <Spin size="large" />
         </div>
       ) : (
         <>
-          <Table
-            dataSource={books}
-            columns={columns}
-            rowKey="id"
-            pagination={false}
-            bordered
-            loading={loading}
-          />
-          
-          <div className="mt-4">
-            <PaginationControls 
-              pagination={pagination}
-              onPageChange={handlePageChange}
-              onPageSizeChange={handlePageSizeChange}
-              itemName="books"
+          {!books.length > 0 ? (
+            <Alert 
+              message="No books available."
+              type="info"
+              showIcon
+              className="mb-4"
             />
-          </div>
+          ) : (
+            <>
+              <Table
+                dataSource={books}
+                columns={columns}
+                rowKey="id"
+                pagination={false}
+                bordered
+                loading={loading}
+              />
+              
+              <div className="mt-4">
+                <PaginationControls 
+                  pagination={pagination}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  itemName="books"
+                />
+              </div>
+            </>
+          )}
         </>
       )}
 
@@ -336,38 +525,38 @@ const AdminBooks = () => {
             </Select>
           </Form.Item>
           
-          <Form.Item
-            name="totalQuantity"
-            label={
-              modalType === 'edit' && currentBook ? 
+          {/* Only show totalQuantity field when editing */}
+          {modalType === 'edit' && currentBook && (
+            <Form.Item
+              name="totalQuantity"
+              label={
                 <span>
                   Total Quantity 
                   <span className="text-gray-500 ml-2">
                     (minimum: {currentBook.totalQuantity - currentBook.availableQuantity})
                   </span>
-                </span> 
-                : 
-                "Total Quantity"
-            }
-            rules={[
-              { required: true, message: 'Please enter the total quantity' },
-              modalType === 'edit' && currentBook ? {
-                validator: (_, value) => {
-                  const minAllowed = currentBook.totalQuantity - currentBook.availableQuantity;
-                  if (value < minAllowed) {
-                    return Promise.reject(`Minimum allowed quantity is ${minAllowed}`);
+                </span>
+              }
+              rules={[
+                { required: true, message: 'Please enter the total quantity' },
+                {
+                  validator: (_, value) => {
+                    const minAllowed = currentBook.totalQuantity - currentBook.availableQuantity;
+                    if (value < minAllowed) {
+                      return Promise.reject(`Minimum allowed quantity is ${minAllowed}`);
+                    }
+                    return Promise.resolve();
                   }
-                  return Promise.resolve();
                 }
-              } : {}
-            ].filter(rule => Object.keys(rule).length > 0)}
-          >
-            <InputNumber 
-              min={modalType === 'edit' && currentBook ? (currentBook.totalQuantity - currentBook.availableQuantity) : 0} 
-              placeholder="Enter total quantity" 
-              style={{ width: '100%' }} 
-            />
-          </Form.Item>
+              ]}
+            >
+              <InputNumber 
+                min={currentBook.totalQuantity - currentBook.availableQuantity} 
+                placeholder="Enter total quantity" 
+                style={{ width: '100%' }} 
+              />
+            </Form.Item>
+          )}
         </Form>
       </Modal>
     </div>

@@ -178,7 +178,7 @@ namespace LibraryManagement.Api.Test
         {
             // Arrange
             int categoryId = 99;
-            _mockCategoryService.Setup(service => service.DeleteAsync(categoryId)).ReturnsAsync(false); // Service indicates not found
+            _mockCategoryService.Setup(service => service.DeleteAsync(categoryId)).ReturnsAsync(false); 
 
             // Act
             var result = await _categoryController.DeleteCategory(categoryId);

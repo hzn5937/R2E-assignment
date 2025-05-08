@@ -67,6 +67,7 @@ namespace LibraryManagement.Application.Services
 
         public async Task<LoginOutputDto?> VerifyUserAsync(LoginDto loginDto, CancellationToken ct = default)
         {
+            Console.WriteLine(_jwtSettings.ExpirationMinutes);
             User? user = await _userRepository.GetByUsernameAsync(loginDto.Username);
 
             if (user == null)
@@ -114,34 +115,65 @@ namespace LibraryManagement.Application.Services
                 return null;
             }
 
-            var output = new LoginOutputDto();
-
             var user = await _userRepository.GetByUsernameAsync(principal.Identity.Name, ct);
 
-            // if user still exist in the db, and refresh token validation
-            if (user == null || user.RefreshToken != refreshRequestDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            // Check if user exists
+            if (user == null)
             {
                 return null;
             }
+            
+            // Check if refresh token is valid
+            bool isTokenMismatch = user.RefreshToken != refreshRequestDto.RefreshToken;
+            bool isTokenExpired = user.RefreshTokenExpiryTime <= DateTime.UtcNow;
+            
+            if (isTokenMismatch || isTokenExpired)
+            {
+                // Invalidate the refresh token if it's expired or doesn't match
+                user.RefreshToken = null;
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(-1); // Set to past time
+                await _userRepository.UpdateAsync(user, ct);
+                return null;
+            }
 
-            // mapping then update
+            // Generate new tokens
             var refreshToken = GenerateRefreshToken();
             var refreshTokenExpiry = DateTime.UtcNow.AddDays(Constants.RefreshTokenExpirationDays);
 
-            output.Id = user.Id;
-            output.Username = user.Username;
-            output.Role = user.Role;
-            output.AccessToken = GenerateAccessToken(user);
-            output.AccessTokenExpires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes);
-            output.RefreshToken = refreshToken;
-            output.RefreshTokenExpires = refreshTokenExpiry;
-
+            // Update the user with new refresh token
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = refreshTokenExpiry;
+            await _userRepository.UpdateAsync(user, ct);
 
-            await _userRepository.UpdateAsync(user,ct);
+            var output = new LoginOutputDto()
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Role = user.Role,
+                AccessToken = GenerateAccessToken(user),
+                AccessTokenExpires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
+                RefreshToken = refreshToken,
+                RefreshTokenExpires = refreshTokenExpiry
+            };
 
             return output;
+        }
+
+        public async Task<bool> LogoutAsync(string username, CancellationToken ct = default)
+        {
+            var user = await _userRepository.GetByUsernameAsync(username, ct);
+            
+            if (user == null)
+            {
+                return false;
+            }
+            
+            // Invalidate the refresh token
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(-1); // Set to past time
+            
+            await _userRepository.UpdateAsync(user, ct);
+            return true;
         }
 
         // helper functions

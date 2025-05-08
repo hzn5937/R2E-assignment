@@ -23,7 +23,6 @@ namespace LibraryManagement.Api.Controllers
                 return BadRequest("Invalid registration request");
             }
 
-            // Here you would typically save the user to the database
             var created = await _authService.RegisterAsync(registerRequest, CancellationToken.None);
 
             if (created == null)
@@ -60,5 +59,25 @@ namespace LibraryManagement.Api.Controllers
             return Ok(refreshedToken);
         }
 
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout(CancellationToken ct)
+        {
+            // Get username from the token claims
+            var username = User.Identity?.Name;
+            
+            if (string.IsNullOrEmpty(username))
+            {
+                return BadRequest("Not authenticated");
+            }
+            
+            var result = await _authService.LogoutAsync(username, ct);
+            
+            if (!result)
+            {
+                return NotFound("User not found");
+            }
+            
+            return Ok(new { message = "Logged out successfully" });
+        }
     }
 }

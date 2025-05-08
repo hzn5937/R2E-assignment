@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../utils/axiosConfig';
-import { Table, Alert, Checkbox, Button, Tag, message, Spin } from 'antd';
+import { Table, Alert, Checkbox, Button, Tag, message, Spin, Divider } from 'antd';
 import { useAuth } from '../../context/AuthContext';
 import PaginationControls from '../../components/pagination';
+import SearchBar from '../../components/SearchBar';
+import FilterBar from '../../components/FilterBar';
 
 const Home = () => {
   const [books, setBooks] = useState([]);
@@ -22,12 +24,20 @@ const Home = () => {
   const [requestsLoading, setRequestsLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
   const { user } = useAuth();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
+  
+  // Filter-related states
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [availabilityFilter, setAvailabilityFilter] = useState(null);
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
+  const [filterLoading, setFilterLoading] = useState(false);
 
   const fetchBooks = (pageNum = 1, pageSize = 5) => {
     setLoading(true);
     axiosInstance.get(`/api/books?pageNum=${pageNum}&pageSize=${pageSize}`)
       .then(res => {
-        console.log('Books data:', res.data);
         setBooks(res.data.items);
         setPagination({
           current: res.data.pageNum,
@@ -47,13 +57,127 @@ const Home = () => {
       });
   };
 
+  // New function to handle book search
+  const searchBooks = (pageNum = 1, pageSize = 5) => {
+    if (!searchTerm.trim()) {
+      fetchBooks(pageNum, pageSize);
+      return;
+    }
+    
+    setSearchLoading(true);
+    setLoading(true);
+    axiosInstance.get(`/api/books/search?searchTerm=${encodeURIComponent(searchTerm)}&pageNum=${pageNum}&pageSize=${pageSize}`)
+      .then(res => {
+        setBooks(res.data.items);
+        setPagination({
+          current: res.data.pageNum,
+          pageSize: res.data.pageSize,
+          total: res.data.totalCount,
+          totalPages: res.data.totalPage,
+          hasNext: res.data.hasNext,
+          hasPrev: res.data.hasPrev,
+        });
+      })
+      .catch(err => {
+        console.error('Failed to search books:', err);
+        message.error('Search failed. Please try again.');
+      })
+      .finally(() => {
+        setLoading(false);
+        setSearchLoading(false);
+      });
+  };
+
+  // New function to handle filtering books by category and availability
+  const filterBooks = (pageNum = 1, pageSize = 5) => {
+    setFilterLoading(true);
+    setLoading(true);
+    
+    let url = `/api/books/filter?pageNum=${pageNum}&pageSize=${pageSize}`;
+    
+    if (selectedCategory !== null) {
+      url += `&categoryId=${selectedCategory}`;
+    }
+    
+    if (availabilityFilter !== null) {
+      url += `&isAvailable=${availabilityFilter}`;
+    }
+    
+    axiosInstance.get(url)
+      .then(res => {
+        setBooks(res.data.items);
+        setPagination({
+          current: res.data.pageNum,
+          pageSize: res.data.pageSize,
+          total: res.data.totalCount,
+          totalPages: res.data.totalPage,
+          hasNext: res.data.hasNext,
+          hasPrev: res.data.hasPrev,
+        });
+        setIsFilterApplied(true);
+      })
+      .catch(err => {
+        console.error('Failed to filter books:', err);
+        message.error('Filter failed. Please try again.');
+      })
+      .finally(() => {
+        setLoading(false);
+        setFilterLoading(false);
+      });
+  };
+
+  // Handle search submission
+  const handleSearch = () => {
+    // Clear any filters when performing a search
+    setSelectedCategory(null);
+    setAvailabilityFilter(null);
+    setIsFilterApplied(false);
+    searchBooks(1, pagination.pageSize);
+  };
+
+  // Clear search and reset to all books
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    fetchBooks(1, pagination.pageSize);
+  };
+
+  // Handle applying filters
+  const handleApplyFilters = () => {
+    // Clear search term when filtering
+    setSearchTerm('');
+    filterBooks(1, pagination.pageSize);
+  };
+
+  // Handle clearing filters
+  const handleClearFilters = () => {
+    setSelectedCategory(null);
+    setAvailabilityFilter(null);
+    setIsFilterApplied(false);
+    fetchBooks(1, pagination.pageSize);
+  };
+
+  // Fetch categories for filters
+  const fetchCategories = () => {
+    axiosInstance.get('/api/categories?pageSize=1000')
+      .then(res => {
+        const categoriesData = Array.isArray(res.data) ? res.data : 
+                              res.data.items ? res.data.items : [];
+        setCategories(categoriesData);
+      })
+      .catch(err => {
+        console.error('Failed to fetch categories:', err);
+        message.error('Could not load categories.');
+        // Ensure categories is reset to an empty array on error
+        setCategories([]);
+      });
+  };
+
   const fetchAvailableRequests = () => {
     if (!user || !user.id) return;
     
     setRequestsLoading(true);
     axiosInstance.get(`/api/requests/available/${user.id}`)
       .then(res => {
-        console.log('Available requests:', res.data);
         setAvailableRequests(res.data.availableRequests);
       })
       .catch(err => {
@@ -69,16 +193,28 @@ const Home = () => {
     if (user?.id) {
       fetchBooks();
       fetchAvailableRequests();
+      fetchCategories(); // Fetch categories when component mounts
     }
   }, [user?.id]); // Re-fetch when user ID changes
 
   const handlePageChange = (page, pageSize) => {
-    fetchBooks(page, pageSize);
+    if (searchTerm.trim()) {
+      searchBooks(page, pageSize);
+    } else if (isFilterApplied) {
+      filterBooks(page, pageSize);
+    } else {
+      fetchBooks(page, pageSize);
+    }
   };
 
   const handlePageSizeChange = (newPageSize) => {
-    // Reset to first page when changing page size
-    fetchBooks(1, newPageSize);
+    if (searchTerm.trim()) {
+      searchBooks(1, newPageSize);
+    } else if (isFilterApplied) {
+      filterBooks(1, newPageSize);
+    } else {
+      fetchBooks(1, newPageSize);
+    }
   };
 
   const handleCheckboxChange = (record, checked) => {
@@ -112,7 +248,6 @@ const Home = () => {
       // Send POST request to create a borrow request
       const response = await axiosInstance.post('/api/requests/create', payload);
       
-      console.log('Borrow response:', response.data);
       message.success(`Successfully requested ${selectedRowKeys.length} book(s)!`);
       
       // Clear selections after successful request
@@ -205,82 +340,113 @@ const Home = () => {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">📚 Book Inventory</h1>
 
-      {!books.length > 0 && !loading && (
-        <Alert 
-          message="No books available."
-          type="info"
-          showIcon
-          className="mb-4"
-        />
-      )}
+      {/* Search bar component */}
+      <SearchBar 
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        handleSearch={handleSearch}
+        handleClearSearch={handleClearSearch}
+        searchLoading={searchLoading}
+      />
 
-      {showLimitWarning && (
-        <Alert
-          message="You can only select up to 5 books."
-          type="warning"
-          showIcon
-          className="mb-4"
-        />
-      )}
+      {/* Divider between search and filter bars */}
+      <Divider />
 
-      {apiError && (
-        <Alert
-          message={apiError.message}
-          description={apiError.description}
-          type={apiError.type}
-          showIcon
-          closable
-          onClose={() => setApiError(null)}
-          className="mb-4"
-        />
-      )}
+      {/* Filter bar component */}
+      <FilterBar
+        categories={categories}
+        selectedCategory={selectedCategory}
+        availabilityFilter={availabilityFilter}
+        onCategoryChange={setSelectedCategory}
+        onAvailabilityChange={setAvailabilityFilter}
+        onApplyFilters={handleApplyFilters}
+        onClearFilters={handleClearFilters}
+        isFilterApplied={isFilterApplied}
+        filterLoading={filterLoading}
+      />
 
-      {books.length > 0 && (
+      {loading && !books.length ? (
+        <div className="flex justify-center items-center h-64">
+          <Spin size="large" />
+        </div>
+      ) : (
         <>
-          <Table
-            className="mb-4"
-            dataSource={books}
-            columns={columns}
-            rowKey="id"
-            pagination={false}
-            bordered
-            loading={loading}
-          />
-          
-          {/* Borrow button row with available requests tag */}
-          <div className="mt-4 mb-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <Button
-                type="primary"
-                disabled={selectedRowKeys.length === 0 || availableRequests === 0}
-                onClick={handleBorrow}
-                loading={borrowing}
-              >
-                Borrow selected books ({selectedRowKeys.length} / 5)
-              </Button>
-            </div>
-            <div className="flex items-center">
-              {requestsLoading ? (
-                <Spin size="small" className="mr-2" />
-              ) : (
-                availableRequests !== null && (
-                  <Tag 
-                    color={availableRequests > 2 ? "green" : availableRequests > 0 ? "gold" : "red"} 
-                    className="text-base"
-                  >
-                    {availableRequests} monthly requests available
-                  </Tag>
-                )
+          {!books.length > 0 ? (
+            <Alert 
+              message="No books available."
+              type="info"
+              showIcon
+              className="mb-4"
+            />
+          ) : (
+            <>
+              {showLimitWarning && (
+                <Alert
+                  message="You can only select up to 5 books."
+                  type="warning"
+                  showIcon
+                  className="mb-4"
+                />
               )}
-            </div>
-          </div>
 
-          <PaginationControls 
-            pagination={pagination}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-            itemName="books"
-          />
+              {apiError && (
+                <Alert
+                  message={apiError.message}
+                  description={apiError.description}
+                  type={apiError.type}
+                  showIcon
+                  closable
+                  onClose={() => setApiError(null)}
+                  className="mb-4"
+                />
+              )}
+
+              <Table
+                className="mb-4"
+                dataSource={books}
+                columns={columns}
+                rowKey="id"
+                pagination={false}
+                bordered
+                loading={loading}
+              />
+              
+              {/* Borrow button row with available requests tag */}
+              <div className="mt-4 mb-4 flex justify-between items-center">
+                <div className="flex items-center">
+                  <Button
+                    type="primary"
+                    disabled={selectedRowKeys.length === 0 || availableRequests === 0}
+                    onClick={handleBorrow}
+                    loading={borrowing}
+                  >
+                    Borrow selected books ({selectedRowKeys.length} / 5)
+                  </Button>
+                </div>
+                <div className="flex items-center">
+                  {requestsLoading ? (
+                    <Spin size="small" className="mr-2" />
+                  ) : (
+                    availableRequests !== null && (
+                      <Tag 
+                        color={availableRequests > 2 ? "green" : availableRequests > 0 ? "gold" : "red"} 
+                        className="text-base"
+                      >
+                        {availableRequests} monthly requests available
+                      </Tag>
+                    )
+                  )}
+                </div>
+              </div>
+
+              <PaginationControls 
+                pagination={pagination}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
+                itemName="books"
+              />
+            </>
+          )}
         </>
       )}
     </div>

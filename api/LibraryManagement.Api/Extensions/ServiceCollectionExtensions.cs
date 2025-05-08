@@ -10,8 +10,11 @@ namespace LibraryManagement.Api.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
             services.AddScoped<IAuthenticationService, AuthenticationService>();
-            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
+            
+            services.AddScoped<IUserManagementService, UserManagementService>();
+
+            services.AddScoped<IStatisticService, StatisticService>();
 
             services.AddScoped<IBookService, BookService>();
             services.AddScoped<IBookRepository, BookRepository>();

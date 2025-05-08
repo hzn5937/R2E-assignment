@@ -2,8 +2,6 @@
 using LibraryManagement.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System; // Add this for DateTime
-using System.Collections.Generic; // Add this for List<>
 
 namespace LibraryManagement.Persistence.Data
 {
@@ -134,7 +132,40 @@ namespace LibraryManagement.Persistence.Data
 
                 // User 11 has 0 active, add 2 (1 Waiting, 1 Rejected)
                 new BookBorrowingRequest { Id = 17, RequestorId = 11, ApproverId = null, DateRequested = DateTime.UtcNow.AddDays(-2.2), Status = RequestStatus.Waiting }, // User 11 - Active #1 (Total: 1)
-                new BookBorrowingRequest { Id = 18, RequestorId = 11, ApproverId = 3, DateRequested = DateTime.UtcNow.AddDays(-1.8), Status = RequestStatus.Rejected } // User 11 - Not Active
+                new BookBorrowingRequest { Id = 18, RequestorId = 11, ApproverId = 3, DateRequested = DateTime.UtcNow.AddDays(-1.8), Status = RequestStatus.Rejected }, // User 11 - Not Active
+
+                // --- Additional Requests to Demonstrate Monthly Quota System ---
+                
+                // User 4 - Previous month requests (April 2025 - quota should reset in May)
+                new BookBorrowingRequest { Id = 19, RequestorId = 4, ApproverId = 1, DateRequested = new DateTime(2025, 4, 5, 10, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 4, 15, 14, 30, 0, DateTimeKind.Utc) }, // April - Returned #1
+                new BookBorrowingRequest { Id = 20, RequestorId = 4, ApproverId = 2, DateRequested = new DateTime(2025, 4, 12, 14, 45, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 4, 25, 16, 00, 0, DateTimeKind.Utc) }, // April - Returned #2
+                new BookBorrowingRequest { Id = 21, RequestorId = 4, ApproverId = 3, DateRequested = new DateTime(2025, 4, 20, 9, 15, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // April - Active #3 (Max quota reached for April)
+                new BookBorrowingRequest { Id = 22, RequestorId = 4, ApproverId = 1, DateRequested = new DateTime(2025, 4, 25, 16, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Rejected }, // April - Rejected (over quota)
+                
+                // User 5 - Multiple months showing quota reset
+                new BookBorrowingRequest { Id = 23, RequestorId = 5, ApproverId = 2, DateRequested = new DateTime(2025, 3, 15, 11, 20, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 3, 30, 9, 45, 0, DateTimeKind.Utc) }, // March - Returned #1
+                new BookBorrowingRequest { Id = 24, RequestorId = 5, ApproverId = 3, DateRequested = new DateTime(2025, 3, 22, 13, 40, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 4, 5, 10, 20, 0, DateTimeKind.Utc) }, // March - Returned #2
+                new BookBorrowingRequest { Id = 25, RequestorId = 5, ApproverId = 1, DateRequested = new DateTime(2025, 3, 28, 9, 50, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // March - Active #3 (Max quota reached for March)
+                new BookBorrowingRequest { Id = 26, RequestorId = 5, ApproverId = 3, DateRequested = new DateTime(2025, 4, 4, 14, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 4, 20, 11, 30, 0, DateTimeKind.Utc) }, // April - Returned #1 (Quota reset)
+                new BookBorrowingRequest { Id = 27, RequestorId = 5, ApproverId = 2, DateRequested = new DateTime(2025, 4, 18, 10, 15, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // April - Active #2
+                
+                // User 7 - Mixture of approved, waiting, and rejected across multiple months
+                new BookBorrowingRequest { Id = 28, RequestorId = 7, ApproverId = null, DateRequested = new DateTime(2025, 4, 6, 9, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Waiting }, // April - Active #1
+                new BookBorrowingRequest { Id = 29, RequestorId = 7, ApproverId = 1, DateRequested = new DateTime(2025, 4, 14, 16, 45, 0, DateTimeKind.Utc), Status = RequestStatus.Rejected }, // April - Not active (rejected)
+                new BookBorrowingRequest { Id = 30, RequestorId = 7, ApproverId = 2, DateRequested = new DateTime(2025, 4, 22, 11, 20, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // April - Active #2
+                
+                // User 9 - Showing 0, 1, 2, and 3 active requests in different months
+                new BookBorrowingRequest { Id = 31, RequestorId = 9, ApproverId = 1, DateRequested = new DateTime(2025, 2, 10, 10, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 2, 28, 15, 15, 0, DateTimeKind.Utc) }, // Feb - Returned #1 (Only 1 in Feb)
+                new BookBorrowingRequest { Id = 32, RequestorId = 9, ApproverId = 2, DateRequested = new DateTime(2025, 3, 5, 14, 20, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 3, 25, 10, 45, 0, DateTimeKind.Utc) }, // March - Returned #1
+                new BookBorrowingRequest { Id = 33, RequestorId = 9, ApproverId = 3, DateRequested = new DateTime(2025, 3, 15, 9, 45, 0, DateTimeKind.Utc), Status = RequestStatus.Returned, DateReturned = new DateTime(2025, 4, 1, 14, 00, 0, DateTimeKind.Utc) }, // March - Returned #2 (2 in March)
+                new BookBorrowingRequest { Id = 34, RequestorId = 9, ApproverId = 1, DateRequested = new DateTime(2025, 4, 3, 11, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // April - Active #1
+                new BookBorrowingRequest { Id = 35, RequestorId = 9, ApproverId = 2, DateRequested = new DateTime(2025, 4, 10, 15, 45, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // April - Active #2
+                new BookBorrowingRequest { Id = 36, RequestorId = 9, ApproverId = null, DateRequested = new DateTime(2025, 4, 20, 9, 15, 0, DateTimeKind.Utc), Status = RequestStatus.Waiting }, // April - Active #3 (3 in April - max quota)
+                
+                // User 11 - Using all quota in May (current month)
+                new BookBorrowingRequest { Id = 37, RequestorId = 11, ApproverId = 1, DateRequested = new DateTime(2025, 5, 1, 10, 30, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // May - Active #1
+                new BookBorrowingRequest { Id = 38, RequestorId = 11, ApproverId = 2, DateRequested = new DateTime(2025, 5, 2, 14, 15, 0, DateTimeKind.Utc), Status = RequestStatus.Approved }, // May - Active #2
+                new BookBorrowingRequest { Id = 39, RequestorId = 11, ApproverId = null, DateRequested = new DateTime(2025, 5, 3, 9, 45, 0, DateTimeKind.Utc), Status = RequestStatus.Waiting }  // May - Active #3 (max quota reached)
             };
             modelBuilder.Entity<BookBorrowingRequest>().HasData(requests);
 
@@ -223,7 +254,101 @@ namespace LibraryManagement.Persistence.Data
                 new BookBorrowingRequestDetail { Id = 43, RequestId = 17, BookId = 25 },// Design Patterns (Avail: 6 -> 5)
 
                 // Request 18 (Rejected, User 11) - 1 book (No change in Availability)
-                new BookBorrowingRequestDetail { Id = 44, RequestId = 18, BookId = 41 } // Rubicon (Avail: 6)
+                new BookBorrowingRequestDetail { Id = 44, RequestId = 18, BookId = 41 }, // Rubicon (Avail: 6)
+
+                // --- Details for Additional Monthly Quota Demonstration Requests (Id 19-39) ---
+                
+                // Request 19 (Approved, User 4, April) - 2 books 
+                new BookBorrowingRequestDetail { Id = 45, RequestId = 19, BookId = 11 }, // A People's History (Avail: 4 -> 3)
+                new BookBorrowingRequestDetail { Id = 46, RequestId = 19, BookId = 15 }, // The Name of the Wind (Avail: 10 -> 9)
+                
+                // Request 20 (Approved, User 4, April) - 3 books
+                new BookBorrowingRequestDetail { Id = 47, RequestId = 20, BookId = 21 }, // The Diary of a Young Girl (Avail: 8 -> 7)
+                new BookBorrowingRequestDetail { Id = 48, RequestId = 20, BookId = 39 }, // The Rise and Fall of the Third Reich (Avail: 5 -> 4)
+                new BookBorrowingRequestDetail { Id = 49, RequestId = 20, BookId = 48 }, // Team of Rivals (Avail: 7 -> 6)
+                
+                // Request 21 (Approved, User 4, April) - 1 book (reaching max quota for April)
+                new BookBorrowingRequestDetail { Id = 50, RequestId = 21, BookId = 37 }, // The Structure of Scientific Revolutions (Avail: 4 -> 3)
+                
+                // Request 22 (Rejected, User 4, April) - 1 book (over quota, so rejected)
+                new BookBorrowingRequestDetail { Id = 51, RequestId = 22, BookId = 21 }, // The Diary of a Young Girl (still Avail: 7)
+                
+                // Request 23 (Approved, User 5, March) - 2 books
+                new BookBorrowingRequestDetail { Id = 52, RequestId = 23, BookId = 5 },  // The Catcher in the Rye (Avail: 3 -> 2)
+                new BookBorrowingRequestDetail { Id = 53, RequestId = 23, BookId = 32 }, // War and Peace (Avail: 3 -> 2)
+                
+                // Request 24 (Approved, User 5, March) - 3 books
+                new BookBorrowingRequestDetail { Id = 54, RequestId = 24, BookId = 3 },  // The Great Gatsby (Avail: 5 -> 4)
+                new BookBorrowingRequestDetail { Id = 55, RequestId = 24, BookId = 27 }, // Brave New World (Avail: 10 -> 9)
+                new BookBorrowingRequestDetail { Id = 56, RequestId = 24, BookId = 29 }, // Fahrenheit 451 (Avail: 11 -> 10)
+                
+                // Request 25 (Approved, User 5, March) - 4 books (max quota for March)
+                new BookBorrowingRequestDetail { Id = 57, RequestId = 25, BookId = 15 }, // The Name of the Wind (Avail: 9 -> 8)
+                new BookBorrowingRequestDetail { Id = 58, RequestId = 25, BookId = 18 }, // Becoming (Avail: 13 -> 12)
+                new BookBorrowingRequestDetail { Id = 59, RequestId = 25, BookId = 31 }, // Moby Dick (Avail: 6 -> 5)
+                new BookBorrowingRequestDetail { Id = 60, RequestId = 25, BookId = 35 }, // Silent Spring (Avail: 7 -> 6)
+                
+                // Request 26 (Approved, User 5, April) - 5 books (quota reset for April)
+                new BookBorrowingRequestDetail { Id = 61, RequestId = 26, BookId = 6 },  // Sapiens (Avail: 11 -> 10)
+                new BookBorrowingRequestDetail { Id = 62, RequestId = 26, BookId = 9 },  // The Selfish Gene (Avail: 5 -> 4)
+                new BookBorrowingRequestDetail { Id = 63, RequestId = 26, BookId = 12 }, // The Hobbit (Avail: 18 -> 17)
+                new BookBorrowingRequestDetail { Id = 64, RequestId = 26, BookId = 25 }, // Design Patterns (Avail: 6 -> 5)
+                new BookBorrowingRequestDetail { Id = 65, RequestId = 26, BookId = 43 }, // The Fellowship of the Ring (Avail: 17 -> 16)
+                
+                // Request 27 (Approved, User 5, April) - 2 books
+                new BookBorrowingRequestDetail { Id = 66, RequestId = 27, BookId = 14 }, // A Game of Thrones (Avail: 15 -> 14)
+                new BookBorrowingRequestDetail { Id = 67, RequestId = 27, BookId = 20 }, // Educated (Avail: 8 -> 7)
+                
+                // Request 28 (Waiting, User 7, April) - 2 books
+                new BookBorrowingRequestDetail { Id = 68, RequestId = 28, BookId = 1 },  // To Kill a Mockingbird (Avail: 7 -> 6)
+                new BookBorrowingRequestDetail { Id = 69, RequestId = 28, BookId = 13 }, // Harry Potter (Avail: 22 -> 21)
+                
+                // Request 29 (Rejected, User 7, April) - 1 book (no change to availability)
+                new BookBorrowingRequestDetail { Id = 70, RequestId = 29, BookId = 16 }, // Mistborn (still Avail: 16)
+                
+                // Request 30 (Approved, User 7, April) - 3 books
+                new BookBorrowingRequestDetail { Id = 71, RequestId = 30, BookId = 4 },  // Pride and Prejudice (Avail: 7 -> 6)
+                new BookBorrowingRequestDetail { Id = 72, RequestId = 30, BookId = 22 }, // Clean Code (Avail: 12 -> 11)
+                new BookBorrowingRequestDetail { Id = 73, RequestId = 30, BookId = 45 }, // American Gods (Avail: 10 -> 9)
+                
+                // Request 31 (Approved, User 9, February) - 1 book
+                new BookBorrowingRequestDetail { Id = 74, RequestId = 31, BookId = 2 },  // 1984 (Avail: 10 -> 9)
+                
+                // Request 32 (Approved, User 9, March) - 4 books
+                new BookBorrowingRequestDetail { Id = 75, RequestId = 32, BookId = 8 },  // Cosmos (Avail: 6 -> 5)
+                new BookBorrowingRequestDetail { Id = 76, RequestId = 32, BookId = 10 }, // Guns, Germs, and Steel (Avail: 9 -> 8)
+                new BookBorrowingRequestDetail { Id = 77, RequestId = 32, BookId = 17 }, // Steve Jobs (Avail: 9 -> 8)
+                new BookBorrowingRequestDetail { Id = 78, RequestId = 32, BookId = 24 }, // Code Complete (Avail: 9 -> 8)
+                
+                // Request 33 (Approved, User 9, March) - 1 book
+                new BookBorrowingRequestDetail { Id = 79, RequestId = 33, BookId = 33 }, // The Origin of Species (Avail: 7 -> 6)
+                
+                // Request 34 (Approved, User 9, April) - 5 books
+                new BookBorrowingRequestDetail { Id = 80, RequestId = 34, BookId = 36 }, // The Immortal Life of Henrietta Lacks (Avail: 8 -> 7)
+                new BookBorrowingRequestDetail { Id = 81, RequestId = 34, BookId = 38 }, // 1776 (Avail: 9 -> 8)
+                new BookBorrowingRequestDetail { Id = 82, RequestId = 34, BookId = 40 }, // SPQR (Avail: 7 -> 6)
+                new BookBorrowingRequestDetail { Id = 83, RequestId = 34, BookId = 46 }, // The Color of Magic (Avail: 14 -> 13)
+                new BookBorrowingRequestDetail { Id = 84, RequestId = 34, BookId = 49 }, // The Innovators (Avail: 10 -> 9)
+                
+                // Request 35 (Approved, User 9, April) - 1 book
+                new BookBorrowingRequestDetail { Id = 85, RequestId = 35, BookId = 44 }, // The Chronicles of Narnia (Avail: 13 -> 12)
+                
+                // Request 36 (Waiting, User 9, April) - 1 book (max quota for April)
+                new BookBorrowingRequestDetail { Id = 86, RequestId = 36, BookId = 7 },  // A Brief History of Time (Avail: 8 -> 7)
+                
+                // Request 37 (Approved, User 11, May) - 4 books
+                new BookBorrowingRequestDetail { Id = 87, RequestId = 37, BookId = 2 },  // 1984 (Avail: 9 -> 8)
+                new BookBorrowingRequestDetail { Id = 88, RequestId = 37, BookId = 16 }, // Mistborn (Avail: 16 -> 15)
+                new BookBorrowingRequestDetail { Id = 89, RequestId = 37, BookId = 28 }, // Lord of the Flies (Avail: 7 -> 6)
+                new BookBorrowingRequestDetail { Id = 90, RequestId = 37, BookId = 47 }, // Alexander Hamilton (Avail: 8 -> 7)
+                
+                // Request 38 (Approved, User 11, May) - 1 book
+                new BookBorrowingRequestDetail { Id = 91, RequestId = 38, BookId = 23 }, // The Pragmatic Programmer (Avail: 11 -> 10)
+                
+                // Request 39 (Waiting, User 11, May) - 3 books (max quota for May)
+                new BookBorrowingRequestDetail { Id = 92, RequestId = 39, BookId = 6 },  // Sapiens (Avail: 10 -> 9)
+                new BookBorrowingRequestDetail { Id = 93, RequestId = 39, BookId = 19 }, // Unbroken (Avail: 7 -> 6)
+                new BookBorrowingRequestDetail { Id = 94, RequestId = 39, BookId = 26 }  // Introduction to Algorithms (Avail: 5 -> 4)
             };
             modelBuilder.Entity<BookBorrowingRequestDetail>().HasData(requestDetails);
 

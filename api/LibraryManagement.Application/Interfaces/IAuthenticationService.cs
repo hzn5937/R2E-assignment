@@ -7,6 +7,6 @@ namespace LibraryManagement.Application.Interfaces
         Task<LoginOutputDto?> VerifyUserAsync(LoginDto loginDto, CancellationToken ct = default);
         Task<LoginOutputDto?> RefreshAsync(RefreshRequestDto refreshRequestDto, CancellationToken ct = default);
         Task<LoginOutputDto?> RegisterAsync(RegisterRequestDto registerRequestDto, CancellationToken ct = default);
+        Task<bool> LogoutAsync(string username, CancellationToken ct = default);
     }
 }
-    
