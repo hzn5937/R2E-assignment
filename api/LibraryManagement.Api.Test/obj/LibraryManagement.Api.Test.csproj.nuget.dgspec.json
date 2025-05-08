@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api.Test\\LibraryManagement.Api.Test.csproj": {}
+    "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api.Test\\LibraryManagement.Api.Test.csproj": {}
   },
   "projects": {
-    "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api.Test\\LibraryManagement.Api.Test.csproj": {
+    "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api.Test\\LibraryManagement.Api.Test.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api.Test\\LibraryManagement.Api.Test.csproj",
+        "projectUniqueName": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api.Test\\LibraryManagement.Api.Test.csproj",
         "projectName": "LibraryManagement.Api.Test",
-        "projectPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api.Test\\LibraryManagement.Api.Test.csproj",
-        "packagesPath": "C:\\Users\\hzn\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api.Test\\obj\\",
+        "projectPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api.Test\\LibraryManagement.Api.Test.csproj",
+        "packagesPath": "C:\\Users\\harun\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api.Test\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\hzn\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\harun\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -33,8 +33,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api\\LibraryManagement.Api.csproj": {
-                "projectPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api\\LibraryManagement.Api.csproj"
+              "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api\\LibraryManagement.Api.csproj": {
+                "projectPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api\\LibraryManagement.Api.csproj"
               }
             }
           }
@@ -96,24 +96,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api\\LibraryManagement.Api.csproj": {
+    "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api\\LibraryManagement.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api\\LibraryManagement.Api.csproj",
+        "projectUniqueName": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api\\LibraryManagement.Api.csproj",
         "projectName": "LibraryManagement.Api",
-        "projectPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api\\LibraryManagement.Api.csproj",
-        "packagesPath": "C:\\Users\\hzn\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api\\obj\\",
+        "projectPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api\\LibraryManagement.Api.csproj",
+        "packagesPath": "C:\\Users\\harun\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\hzn\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\harun\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -129,11 +129,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj": {
-                "projectPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj"
+              "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj": {
+                "projectPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj"
               },
-              "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Persistence\\LibraryManagement.Persistence.csproj": {
-                "projectPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Persistence\\LibraryManagement.Persistence.csproj"
+              "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Persistence\\LibraryManagement.Persistence.csproj": {
+                "projectPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Persistence\\LibraryManagement.Persistence.csproj"
               }
             }
           }
@@ -198,24 +198,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj": {
+    "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj",
+        "projectUniqueName": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj",
         "projectName": "LibraryManagement.Application",
-        "projectPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj",
-        "packagesPath": "C:\\Users\\hzn\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\obj\\",
+        "projectPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj",
+        "packagesPath": "C:\\Users\\harun\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\hzn\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\harun\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -231,8 +231,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Domain\\LibraryManagement.Domain.csproj": {
-                "projectPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Domain\\LibraryManagement.Domain.csproj"
+              "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Domain\\LibraryManagement.Domain.csproj": {
+                "projectPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Domain\\LibraryManagement.Domain.csproj"
               }
             }
           }
@@ -278,24 +278,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Domain\\LibraryManagement.Domain.csproj": {
+    "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Domain\\LibraryManagement.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Domain\\LibraryManagement.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Domain\\LibraryManagement.Domain.csproj",
         "projectName": "LibraryManagement.Domain",
-        "projectPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Domain\\LibraryManagement.Domain.csproj",
-        "packagesPath": "C:\\Users\\hzn\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Domain\\obj\\",
+        "projectPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Domain\\LibraryManagement.Domain.csproj",
+        "packagesPath": "C:\\Users\\harun\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\hzn\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\harun\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -350,24 +350,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Persistence\\LibraryManagement.Persistence.csproj": {
+    "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Persistence\\LibraryManagement.Persistence.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Persistence\\LibraryManagement.Persistence.csproj",
+        "projectUniqueName": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Persistence\\LibraryManagement.Persistence.csproj",
         "projectName": "LibraryManagement.Persistence",
-        "projectPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Persistence\\LibraryManagement.Persistence.csproj",
-        "packagesPath": "C:\\Users\\hzn\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Persistence\\obj\\",
+        "projectPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Persistence\\LibraryManagement.Persistence.csproj",
+        "packagesPath": "C:\\Users\\harun\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Persistence\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\hzn\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\harun\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -383,8 +383,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj": {
-                "projectPath": "C:\\Users\\hzn\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj"
+              "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj": {
+                "projectPath": "C:\\Users\\harun\\Desktop\\r2e-assignment\\api\\LibraryManagement.Application\\LibraryManagement.Application.csproj"
               }
             }
           }
@@ -442,7 +442,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
